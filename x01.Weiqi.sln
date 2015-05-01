@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "x01.Weiqi", "x01.Weiqi.Client\x01.Weiqi.csproj", "{40846E74-FE77-4662-871E-4E346F82B5CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "x01.Weiqi.Server\Server.csproj", "{D30E7087-6D68-4749-A1E7-6563DF8FCCED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40846E74-FE77-4662-871E-4E346F82B5CE}.Debug|x86.ActiveCfg = Debug|x86
+		{40846E74-FE77-4662-871E-4E346F82B5CE}.Debug|x86.Build.0 = Debug|x86
+		{40846E74-FE77-4662-871E-4E346F82B5CE}.Release|x86.ActiveCfg = Release|x86
+		{40846E74-FE77-4662-871E-4E346F82B5CE}.Release|x86.Build.0 = Release|x86
+		{D30E7087-6D68-4749-A1E7-6563DF8FCCED}.Debug|x86.ActiveCfg = Debug|x86
+		{D30E7087-6D68-4749-A1E7-6563DF8FCCED}.Debug|x86.Build.0 = Debug|x86
+		{D30E7087-6D68-4749-A1E7-6563DF8FCCED}.Release|x86.ActiveCfg = Release|x86
+		{D30E7087-6D68-4749-A1E7-6563DF8FCCED}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

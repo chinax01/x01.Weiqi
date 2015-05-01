@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="x01.Weiqi.App" Collapsed="true">
+    <Position X="11" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.MainWindow" Collapsed="true">
+    <Position X="11" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAABAAAAgAAAAAEAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Board.BoardBase">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ABABCMAAEIAgAAAAIQAAkEAAAAgAEAAAAQADgACEAAA=</HashCode>
+      <FileName>Board\BoardBase.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="x01.Weiqi.Board.Chess" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Board\Chess.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Board.GameBoard">
+    <Position X="5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAEAQAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Board\GameBoard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Board.StepBoard">
+    <Position X="0.75" Y="0.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="x01.Weiqi.Board.StepBoard.StepContent" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Board\LoadBoard.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAABAAAAAEAQAAAAAAAAAAACQBAAA=</HashCode>
+      <FileName>Board\LoadBoard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Board.SettingsWindow" Collapsed="true">
+    <Position X="10.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAgAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Board\SettingsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Model.DbStepEntities" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAQAAAAAAAgAAAAAAAAAACAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Model.Step" Collapsed="true">
+    <Position X="7" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAABgIAAAAAEAEAAAAAAAAAAABAAAAAkAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Model.StepService" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAgAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Model\StepService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="x01.Weiqi.Properties.Resources" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="x01.Weiqi.Properties.Settings" Collapsed="true">
+    <Position X="8.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAEABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="x01.Weiqi.Board.DeadStep" Collapsed="true">
+    <Position X="10.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Board\ForBoard.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="x01.Weiqi.Board.Pos" Collapsed="true">
+    <Position X="7" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAA=</HashCode>
+      <FileName>Board\ForBoard.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="x01.Weiqi.Board.Step" Collapsed="true">
+    <Position X="8.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAABAEAQAAAAAAgAAAAAAgAAAAAA=</HashCode>
+      <FileName>Board\ForBoard.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="x01.Weiqi.Board.IBoard">
+    <Position X="5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAEAAAAAAAAQAAAAAAAAAAAAAAAAABAAAEAAA=</HashCode>
+      <FileName>Board\IBoard.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="x01.Weiqi.Model.IStepService" Collapsed="true">
+    <Position X="8" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAgAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Model\IStepService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="x01.Weiqi.Board.ChessColor" Collapsed="true">
+    <Position X="10" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAAIAAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Board\ForBoard.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei" Size="9" />
+</ClassDiagram>

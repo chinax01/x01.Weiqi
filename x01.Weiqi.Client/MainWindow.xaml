@@ -1,0 +1,19 @@
+﻿<Window xmlns:my="clr-namespace:x01.Weiqi"  x:Class="x01.Weiqi.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Width="800" Height="800">
+    <DockPanel Name="m_DockPanel"> 
+        <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" >
+            <MenuItem Header="_File" FontSize="20">
+                <MenuItem Header="_Start" Name="m_MenuStart" FontSize="16" Click="MenuStart_Click"></MenuItem>
+                <MenuItem Header="_Inet" Name="m_MenuInet" FontSize="16" Click="MenuInet_Click"></MenuItem>
+                <MenuItem Header="_Where" Name="m_MenuWhere" FontSize="16" Click="MenuWhere_Click"></MenuItem>
+                <MenuItem Header="_Load" Name="m_MenuLoad" FontSize="16" Click="MenuLoad_Click"></MenuItem>
+                <MenuItem Header="Sa_ve" Name="m_MenuSave" FontSize="16" Click="MenuSave_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Settings" FontSize="20">
+                <MenuItem Header="Show _Number" Name="m_MenuShowNumber" FontSize="16" Click="m_MenuShowNumber_Click"></MenuItem>
+            </MenuItem>
+        </Menu>
+    </DockPanel>
+</Window>

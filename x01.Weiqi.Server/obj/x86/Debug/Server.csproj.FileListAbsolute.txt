@@ -1,0 +1,9 @@
+F:\Test\Server\bin\Debug\Server.exe
+F:\Test\Server\bin\Debug\Server.pdb
+F:\Test\Server\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\Test\Server\obj\x86\Debug\Server.MainForm.resources
+F:\Test\Server\obj\x86\Debug\Server.Properties.Resources.resources
+F:\Test\Server\obj\x86\Debug\GenerateResource.read.1.tlog
+F:\Test\Server\obj\x86\Debug\GenerateResource.write.1.tlog
+F:\Test\Server\obj\x86\Debug\Server.exe
+F:\Test\Server\obj\x86\Debug\Server.pdb
