@@ -52,7 +52,13 @@ namespace x01.Weiqi.Board
 			set { m_DeadSteps = value; }
 		}
 
-		public StringBuilder m_sbSteps = new StringBuilder();
+		private StringBuilder m_ContentString = new StringBuilder();
+
+		public StringBuilder ContentString
+		{
+			get { return m_ContentString; }
+			set { m_ContentString = value; }
+		}
 
 
 		IStepService m_StepService = new StepService();
@@ -64,8 +70,11 @@ namespace x01.Weiqi.Board
 		public BoardBase(int size = 38)
 		{
 			InitializeComponent();
+
 			ChessSize = size;
-			IsShowNumber = false;
+			IsShowNumber = true;
+			Steps = new StepInfo[19, 19];
+
 			Init();
 		}
 		public void Init()
@@ -78,26 +87,11 @@ namespace x01.Weiqi.Board
 
 			NotInPos = new Pos(-1, -1);
 
-			Steps = new Step[19, 19];
-			for (int i = 0; i < 19; i++)
-			{
-				for (int j = 0; j < 19; j++)
-				{
-					Steps[i, j].Chess = null;
-					Steps[i, j].Color = ChessColor.Empty;
-					Steps[i, j].IsDead = false;
-					Steps[i, j].Count = -1;
-					Steps[i, j].Row = j;
-					Steps[i, j].Column = i;
 
-					//for whereBoard
-					m_PosSearch.EmptyPos.Add(new Pos(i, j));
-				}
-			}
+			ClearSteps();
 
 			// 画线
-			for (int i = 0; i < 19; i++)
-			{
+			for (int i = 0; i < 19; i++) {
 				Line l = new Line();
 				l.Stroke = Brushes.Black;
 				int y = i * ChessSize + ChessSize / 2;
@@ -119,8 +113,7 @@ namespace x01.Weiqi.Board
 
 			// 画星
 			for (int j = 0; j < 3; j++)
-				for (int i = 0; i < 3; i++)
-				{
+				for (int i = 0; i < 3; i++) {
 					Ellipse e = new Ellipse();
 					e.Fill = Brushes.Black;
 					e.Width = 8;
@@ -133,8 +126,25 @@ namespace x01.Weiqi.Board
 				}
 		}
 
+		private void ClearSteps()
+		{
+			for (int i = 0; i < 19; i++) {
+				for (int j = 0; j < 19; j++) {
+					Steps[i, j].Chess = null;
+					Steps[i, j].Color = ChessColor.Empty;
+					Steps[i, j].IsDead = false;
+					Steps[i, j].Count = -1;
+					Steps[i, j].Row = j;
+					Steps[i, j].Column = i;
+
+					//for whereBoard
+					m_PosSearch.EmptyPos.Add(new Pos(i, j));
+				}
+			}
+		}
+
 		protected Pos NotInPos { get; set; } // 打劫及禁入点
-		public Step[,] Steps { get; set; } // 保存棋谱
+		public StepInfo[,] Steps { get; set; } // 保存棋谱
 
 		#endregion
 
@@ -149,47 +159,22 @@ namespace x01.Weiqi.Board
 			int top = row * ChessSize;
 
 			Brush brush;
-			if (m_IsBlack = !m_IsBlack)
-			{
+			if (m_IsBlack = !m_IsBlack) {
 				brush = BlackBrush; //(Brush)FindResource("brushBlack"); //Brushes.Black;
 				Steps[col, row].Color = ChessColor.Black;
-			}
-			else
-			{
+			} else {
 				brush = WhiteBrush; // (Brush)FindResource("brushWhite"); //Brushes.White;
 				Steps[col, row].Color = ChessColor.White;
 			}
 
-			if (Steps[col, row].Chess == null)
-			{
+			if (Steps[col, row].Chess == null || Steps[col, row].Chess.Content == null) {
 				Chess chess = new Chess(brush, ChessSize);
-				if (IsShowNumber)
-				{
-					double size = (double)ChessSize;
-					chess.NumberFontSize = (m_StepCount + 1) > 99
-						? size / 2 : (m_StepCount + 1) > 9
-						? size / 1.6 : size / 1.2;
-					chess.NumberPadding = (m_StepCount + 1) > 99
-						? new Thickness(size/28, size / 5.5, 0, 0) : (m_StepCount + 1) > 9
-						? new Thickness(size / 8, size / 8, 0, 0) : new Thickness(size / 4, 0, 0, 0);
-					chess.NumberText = (m_StepCount + 1).ToString();
-					chess.NumberBrush = (m_StepCount % 2 == 1) ? Brushes.Black : Brushes.White;
-				}
-				chess.SetShow(IsShowNumber);
+				SetShowNumber(chess);
 				Canvas.SetLeft(chess, left);
 				Canvas.SetTop(chess, top);
 				m_Canvas.Children.Add(chess);
 				Steps[col, row].Chess = chess;
-			}
-			else if (Steps[col, row].Chess.Content == null)
-			{
-				Ellipse e = new Ellipse();
-				e.Fill = brush;
-				e.Width = e.Height = ChessSize;
-				Steps[col, row].Chess.Content = e;
-			}
-			else
-			{
+			} else {
 				throw new Exception(string.Format("Cannot Draw Chess at: col = {0}, row = {1}.", col, row));
 			}
 
@@ -198,26 +183,36 @@ namespace x01.Weiqi.Board
 			// For WhereBoard
 			AddPos(col, row);
 
-			if (m_Canvas.Children.Contains(m_rectCurrent))
-			{
+			if (m_Canvas.Children.Contains(m_rectCurrent)) {
 				m_Canvas.Children.Remove(m_rectCurrent);
 			}
 			Canvas.SetLeft(m_rectCurrent, left + m_rectCurrent.Width);
 			Canvas.SetTop(m_rectCurrent, top + m_rectCurrent.Height);
 			m_Canvas.Children.Add(m_rectCurrent);
 
-			m_sbSteps.Append(col.ToString() + "," + row.ToString() + "," + m_StepCount.ToString() + ",");
+			m_ContentString.Append(col.ToString() + "," + row.ToString() + "," + m_StepCount.ToString() + ",");
+		}
+
+		private void SetShowNumber(Chess chess)
+		{
+			double size = (double)ChessSize;
+			chess.NumberFontSize = (m_StepCount + 1) > 99
+				? size / 2 : (m_StepCount + 1) > 9
+				? size / 1.6 : size / 1.2;
+			chess.NumberPadding = (m_StepCount + 1) > 99
+				? new Thickness(size / 28, size / 5.5, 0, 0) : (m_StepCount + 1) > 9
+				? new Thickness(size / 8, size / 8, 0, 0) : new Thickness(size / 4, 0, 0, 0);
+			chess.NumberText = (m_StepCount + 1).ToString();
+			chess.NumberBrush = (m_StepCount % 2 == 1) ? Brushes.Black : Brushes.White;
+			chess.SetShow(IsShowNumber);
 		}
 
 		public void Eat(int col, int row)
 		{
-			if (!EatOther(col, row))
-			{
-				if (EatSelf(col, row))
-				{
+			if (!EatOther(col, row)) {
+				if (EatSelf(col, row)) {
 					// 自杀一子为禁入
-					if (m_DeadPos.Count == 1)
-					{
+					if (m_DeadPos.Count == 1) {
 						BackOne();
 					}
 				}
@@ -227,23 +222,19 @@ namespace x01.Weiqi.Board
 		{
 			// 上、下、左、右各吃一通。
 			bool ok1 = false;
-			if (col != 0 && Steps[col, row].Color != Steps[col - 1, row].Color)
-			{
+			if (col != 0 && Steps[col, row].Color != Steps[col - 1, row].Color) {
 				ok1 = EatSelf(col - 1, row);
 			}
 			bool ok2 = false;
-			if (col != 18 && Steps[col, row].Color != Steps[col + 1, row].Color)
-			{
+			if (col != 18 && Steps[col, row].Color != Steps[col + 1, row].Color) {
 				ok2 = EatSelf(col + 1, row);
 			}
 			bool ok3 = false;
-			if (row != 0 && Steps[col, row].Color != Steps[col, row - 1].Color)
-			{
+			if (row != 0 && Steps[col, row].Color != Steps[col, row - 1].Color) {
 				ok3 = EatSelf(col, row - 1);
 			}
 			bool ok4 = false;
-			if (row != 18 && Steps[col, row].Color != Steps[col, row + 1].Color)
-			{
+			if (row != 18 && Steps[col, row].Color != Steps[col, row + 1].Color) {
 				ok4 = EatSelf(col, row + 1);
 			}
 
@@ -252,31 +243,25 @@ namespace x01.Weiqi.Board
 		private bool EatSelf(int col, int row)
 		{
 			ClearForEat();
-			if (CanEat(col, row, Steps[col, row].Color))
-			{
+			if (CanEat(col, row, Steps[col, row].Color)) {
 				DeadStep deadStep;
 				deadStep.Count = m_StepCount;
 				deadStep.Color = Steps[col, row].Color;
 				deadStep.DeadInfo = new Dictionary<int, Pos>();
-				if (m_DeadPos.Count == 1)
-				{
+				if (m_DeadPos.Count == 1) {
 					Pos pos;
 					pos.X = m_DeadPos[0].X;
 					pos.Y = m_DeadPos[0].Y;
 
 					NotInPos = new Pos(pos.X, pos.Y);
 
-					foreach (var item in Steps)
-					{
+					foreach (var item in Steps) {
 						// 变色而已，m_Count 为上一步
-						if (item.Count == m_StepCount)
-						{
+						if (item.Count == m_StepCount) {
 							ClearForEat(); // 预想下一步的进行
-							if (CanEat(pos.X, pos.Y, item.Color))
-							{
+							if (CanEat(pos.X, pos.Y, item.Color)) {
 								// 因有一子变色，故减一。实际 Count 至少为 3
-								if (m_DeadPos.Count - 1 > 0)
-								{
+								if (m_DeadPos.Count - 1 > 0) {
 									NotInPos = new Pos(-1, -1);
 								}
 							}
@@ -285,33 +270,24 @@ namespace x01.Weiqi.Board
 
 					deadStep.DeadInfo.Add(Steps[pos.X, pos.Y].Count, new Pos(pos.X, pos.Y));
 
-					if (Steps[pos.X, pos.Y].Color == ChessColor.Black)
-					{
+					if (Steps[pos.X, pos.Y].Color == ChessColor.Black) {
 						m_PosSearch.BlackPos.Remove(new Pos(pos.X, pos.Y));
 						m_PosSearch.EmptyPos.Add(new Pos(pos.X, pos.Y));
-					}
-					else if (Steps[pos.X, pos.Y].Color == ChessColor.White)
-					{
+					} else if (Steps[pos.X, pos.Y].Color == ChessColor.White) {
 						m_PosSearch.WhitePos.Remove(new Pos(pos.X, pos.Y));
 						m_PosSearch.EmptyPos.Add(new Pos(pos.X, pos.Y));
 					}
 
 					Steps[pos.X, pos.Y].Color = ChessColor.Empty;
 					Steps[pos.X, pos.Y].Chess.Content = null;
-				}
-				else
-				{
-					foreach (var item in m_DeadPos)
-					{
+				} else {
+					foreach (var item in m_DeadPos) {
 						deadStep.DeadInfo.Add(Steps[item.X, item.Y].Count, new Pos(item.X, item.Y));
 
-						if (Steps[item.X, item.Y].Color == ChessColor.Black)
-						{
+						if (Steps[item.X, item.Y].Color == ChessColor.Black) {
 							m_PosSearch.BlackPos.Remove(new Pos(item.X, item.Y));
 							m_PosSearch.EmptyPos.Add(new Pos(item.X, item.Y));
-						}
-						else if (Steps[item.X, item.Y].Color == ChessColor.White)
-						{
+						} else if (Steps[item.X, item.Y].Color == ChessColor.White) {
 							m_PosSearch.WhitePos.Remove(new Pos(item.X, item.Y));
 							m_PosSearch.EmptyPos.Add(new Pos(item.X, item.Y));
 						}
@@ -329,16 +305,14 @@ namespace x01.Weiqi.Board
 		}
 		protected void ClearForEat()
 		{
-			foreach (var item in m_DeadPos)
-			{
+			foreach (var item in m_DeadPos) {
 				Steps[item.X, item.Y].IsDead = false;
 			}
 			m_DeadPos.Clear();
 		}
 		protected bool CanEat(int col, int row, ChessColor currentColor)
 		{
-			if (Steps[col, row].Color == ChessColor.Empty)
-			{
+			if (Steps[col, row].Color == ChessColor.Empty) {
 				return false;
 			}
 
@@ -351,26 +325,19 @@ namespace x01.Weiqi.Board
 		}
 		bool CanEatLeft(int col, int row, ChessColor currentColor)
 		{
-			if (col != 0)
-			{
-				if (Steps[col - 1, row].Color == ChessColor.Empty)
-				{
+			if (col != 0) {
+				if (Steps[col - 1, row].Color == ChessColor.Empty) {
 					return false;
-				}
-				else if (Steps[col - 1, row].Color == currentColor && Steps[col - 1, row].IsDead == false)
-				{
+				} else if (Steps[col - 1, row].Color == currentColor && Steps[col - 1, row].IsDead == false) {
 					m_DeadPos.Add(new Pos(col - 1, row));
 					Steps[col - 1, row].IsDead = true;
-					if (!CanEatUp(col - 1, row, currentColor))
-					{
+					if (!CanEatUp(col - 1, row, currentColor)) {
 						return false;
 					}
-					if (!CanEatDown(col - 1, row, currentColor))
-					{
+					if (!CanEatDown(col - 1, row, currentColor)) {
 						return false;
 					}
-					if (!CanEatLeft(col - 1, row, currentColor))
-					{
+					if (!CanEatLeft(col - 1, row, currentColor)) {
 						return false;
 					}
 				}
@@ -380,26 +347,19 @@ namespace x01.Weiqi.Board
 		}
 		bool CanEatRight(int col, int row, ChessColor currentColor)
 		{
-			if (col != 18)
-			{
-				if (Steps[col + 1, row].Color == ChessColor.Empty)
-				{
+			if (col != 18) {
+				if (Steps[col + 1, row].Color == ChessColor.Empty) {
 					return false;
-				}
-				else if (Steps[col + 1, row].Color == currentColor && Steps[col + 1, row].IsDead == false)
-				{
+				} else if (Steps[col + 1, row].Color == currentColor && Steps[col + 1, row].IsDead == false) {
 					m_DeadPos.Add(new Pos(col + 1, row));
 					Steps[col + 1, row].IsDead = true;
-					if (!CanEatUp(col + 1, row, currentColor))
-					{
+					if (!CanEatUp(col + 1, row, currentColor)) {
 						return false;
 					}
-					if (!CanEatDown(col + 1, row, currentColor))
-					{
+					if (!CanEatDown(col + 1, row, currentColor)) {
 						return false;
 					}
-					if (!CanEatRight(col + 1, row, currentColor))
-					{
+					if (!CanEatRight(col + 1, row, currentColor)) {
 						return false;
 					}
 				}
@@ -409,26 +369,19 @@ namespace x01.Weiqi.Board
 		}
 		bool CanEatUp(int col, int row, ChessColor currentColor)
 		{
-			if (row != 0)
-			{
-				if (Steps[col, row - 1].Color == ChessColor.Empty)
-				{
+			if (row != 0) {
+				if (Steps[col, row - 1].Color == ChessColor.Empty) {
 					return false;
-				}
-				else if (Steps[col, row - 1].Color == currentColor && Steps[col, row - 1].IsDead == false)
-				{
+				} else if (Steps[col, row - 1].Color == currentColor && Steps[col, row - 1].IsDead == false) {
 					m_DeadPos.Add(new Pos(col, row - 1));
 					Steps[col, row - 1].IsDead = true;
-					if (!CanEatLeft(col, row - 1, currentColor))
-					{
+					if (!CanEatLeft(col, row - 1, currentColor)) {
 						return false;
 					}
-					if (!CanEatRight(col, row - 1, currentColor))
-					{
+					if (!CanEatRight(col, row - 1, currentColor)) {
 						return false;
 					}
-					if (!CanEatUp(col, row - 1, currentColor))
-					{
+					if (!CanEatUp(col, row - 1, currentColor)) {
 						return false;
 					}
 				}
@@ -438,26 +391,19 @@ namespace x01.Weiqi.Board
 		}
 		bool CanEatDown(int col, int row, ChessColor currentColor)
 		{
-			if (row != 18)
-			{
-				if (Steps[col, row + 1].Color == ChessColor.Empty)
-				{
+			if (row != 18) {
+				if (Steps[col, row + 1].Color == ChessColor.Empty) {
 					return false;
-				}
-				else if (Steps[col, row + 1].Color == currentColor && Steps[col, row + 1].IsDead == false)
-				{
+				} else if (Steps[col, row + 1].Color == currentColor && Steps[col, row + 1].IsDead == false) {
 					m_DeadPos.Add(new Pos(col, row + 1));
 					Steps[col, row + 1].IsDead = true;
-					if (!CanEatLeft(col, row + 1, currentColor))
-					{
+					if (!CanEatLeft(col, row + 1, currentColor)) {
 						return false;
 					}
-					if (!CanEatRight(col, row + 1, currentColor))
-					{
+					if (!CanEatRight(col, row + 1, currentColor)) {
 						return false;
 					}
-					if (!CanEatDown(col, row + 1, currentColor))
-					{
+					if (!CanEatDown(col, row + 1, currentColor)) {
 						return false;
 					}
 				}
@@ -468,47 +414,38 @@ namespace x01.Weiqi.Board
 
 		public void BackOne()
 		{
-			if (m_Canvas.Children.Contains(m_rectCurrent))
-			{
+			m_ContentCount--;
+
+			if (m_Canvas.Children.Contains(m_rectCurrent)) {
 				m_Canvas.Children.Remove(m_rectCurrent);
 			}
 
-			if (m_StepCount == 0)
-			{
+			if (m_StepCount == 0) {
 				return;
 			}
 
 			int count = m_StepCount--;
 			int index = -1;
 
-			foreach (var dead in m_DeadSteps)
-			{
-				if (dead.Count == count)
-				{
+			foreach (var dead in m_DeadSteps) {
+				if (dead.Count == count) {
 					index = m_DeadSteps.Count - 1;
 					Brush brush;
-					if (dead.Color == ChessColor.Black)
-					{
+					if (dead.Color == ChessColor.Black) {
 						brush = BlackBrush; //Brushes.Black;
-					}
-					else
-					{
+					} else {
 						brush = WhiteBrush; //Brushes.White;
 					}
 
-					foreach (var info in dead.DeadInfo)
-					{
+					foreach (var info in dead.DeadInfo) {
 						int col = info.Value.X;
 						int row = info.Value.Y;
 
 						//AddPos(col, row);
-						if (dead.Color == ChessColor.Black)
-						{
+						if (dead.Color == ChessColor.Black) {
 							m_PosSearch.BlackPos.Add(new Pos(col, row));
 							m_PosSearch.EmptyPos.Remove(new Pos(col, row));
-						}
-						else if (dead.Color == ChessColor.White)
-						{
+						} else if (dead.Color == ChessColor.White) {
 							m_PosSearch.WhitePos.Add(new Pos(col, row));
 							m_PosSearch.EmptyPos.Remove(new Pos(col, row));
 						}
@@ -523,25 +460,20 @@ namespace x01.Weiqi.Board
 				}
 			}
 
-			if (index != -1)
-			{
+			if (index != -1) {
 				m_DeadSteps.RemoveAt(index);
 			}
 
 			Pos backPos = new Pos(-1, -1);
-			foreach (var item in Steps)
-			{
-				if (item.Count == count - 1)
-				{
+			foreach (var item in Steps) {
+				if (item.Count == count - 1) {
 					backPos = new Pos(item.Column, item.Row);
 					break;
 				}
 			}
 
-			foreach (var item in Steps)
-			{
-				if (item.Color != ChessColor.Empty && item.Count == count)
-				{
+			foreach (var item in Steps) {
+				if (item.Color != ChessColor.Empty && item.Count == count) {
 					int col = item.Column;
 					int row = item.Row;
 
@@ -552,32 +484,25 @@ namespace x01.Weiqi.Board
 					Steps[col, row].Color = ChessColor.Empty;
 					m_IsBlack = !m_IsBlack;
 
-					string s = m_sbSteps.ToString();
+					string s = m_ContentString.ToString();
 					bool skip = false;
-					for (int i = 0; i < 4; i++)
-					{
-						if (s.LastIndexOf(",") < 3)
-						{
-							m_sbSteps = new StringBuilder();
+					for (int i = 0; i < 4; i++) {
+						if (s.LastIndexOf(",") < 3) {
+							m_ContentString = new StringBuilder();
 							skip = true;
 							break;
 						}
 						s = s.Substring(0, s.LastIndexOf(","));
 					}
-					if (!skip)
-					{
-						m_sbSteps = new StringBuilder(s + ",");
+					if (!skip) {
+						m_ContentString = new StringBuilder(s + ",");
 					}
 
-					if (backPos == new Pos(-1, -1))
-					{
-						if (m_Canvas.Children.Contains(m_rectCurrent))
-						{
+					if (backPos == new Pos(-1, -1)) {
+						if (m_Canvas.Children.Contains(m_rectCurrent)) {
 							m_Canvas.Children.Remove(m_rectCurrent);
 						}
-					}
-					else
-					{
+					} else {
 						Canvas.SetLeft(m_rectCurrent, backPos.X * ChessSize + m_rectCurrent.Width);
 						Canvas.SetTop(m_rectCurrent, backPos.Y * ChessSize + m_rectCurrent.Height);
 						m_Canvas.Children.Add(m_rectCurrent);
@@ -589,26 +514,20 @@ namespace x01.Weiqi.Board
 		// For PosSearch
 		private void AddPos(int col, int row)
 		{
-			if (Steps[col, row].Color == ChessColor.Black)
-			{
+			if (Steps[col, row].Color == ChessColor.Black) {
 				m_PosSearch.BlackPos.Add(new Pos(col, row));
 				m_PosSearch.EmptyPos.Remove(new Pos(col, row));
-			}
-			else if (Steps[col, row].Color == ChessColor.White)
-			{
+			} else if (Steps[col, row].Color == ChessColor.White) {
 				m_PosSearch.WhitePos.Add(new Pos(col, row));
 				m_PosSearch.EmptyPos.Remove(new Pos(col, row));
 			}
 		}
 		private void RemovePos(int col, int row)
 		{
-			if (Steps[col, row].Color == ChessColor.Black)
-			{
+			if (Steps[col, row].Color == ChessColor.Black) {
 				m_PosSearch.BlackPos.Remove(new Pos(col, row));
 				m_PosSearch.EmptyPos.Add(new Pos(col, row));
-			}
-			else if (Steps[col, row].Color == ChessColor.White)
-			{
+			} else if (Steps[col, row].Color == ChessColor.White) {
 				m_PosSearch.WhitePos.Remove(new Pos(col, row));
 				m_PosSearch.EmptyPos.Add(new Pos(col, row));
 			}
@@ -616,31 +535,35 @@ namespace x01.Weiqi.Board
 
 		public void Save()
 		{
-			string s = m_sbSteps.ToString();
-			s = s.Substring(0, s.Length - 1);
-			StepService.SaveSteps(s);
+			var dlg = new SaveStepWindow();
+			dlg.ShowDialog();
+
+			string s = ContentString.ToString();
+			Step step = new Step {
+				Content = s,
+				CreateDate = DateTime.Now,
+				BlackName = dlg.BlackName,
+				WhiteName = dlg.WhiteName,
+				Winer = dlg.Winer,
+			};
+			StepService.SaveStep(step);
 		}
 
 		#endregion
 
 		protected bool NotIn(int col, int row)
 		{
-			if (col < 0 || col > 18 || row < 0 || row > 18)
-			{
+			if (col < 0 || col > 18 || row < 0 || row > 18) {
 				return true;
 			}
 
-			if (Steps[col, row].Color != ChessColor.Empty)
-			{
+			if (Steps[col, row].Color != ChessColor.Empty) {
 				return true;
 			}
 
-			if (NotInPos.X == col && NotInPos.Y == row)
-			{
+			if (NotInPos.X == col && NotInPos.Y == row) {
 				return true;
-			}
-			else
-			{
+			} else {
 				// If Pos(struct) is property, must use new.
 				NotInPos = new Pos(-1, -1);
 			}
@@ -654,23 +577,17 @@ namespace x01.Weiqi.Board
 		public void FillSteps()
 		{
 			m_steps.Clear();
-			string s = m_sbSteps.ToString();
+			string s = m_ContentString.ToString();
 			if (s.Length < 1) return;
 			string[] steps = s.Substring(0, s.Length - 1).Split(',');
 			StepContent step = new StepContent();
-			for (int i = 0; i < steps.Length; i++)
-			{
-				if (i % 3 == 0)
-				{
+			for (int i = 0; i < steps.Length; i++) {
+				if (i % 3 == 0) {
 					step = new StepContent();
 					step.Col = Convert.ToInt32(steps[i]);
-				}
-				else if (i % 3 == 1)
-				{
+				} else if (i % 3 == 1) {
 					step.Row = Convert.ToInt32(steps[i]);
-				}
-				else if (i % 3 == 2)
-				{
+				} else if (i % 3 == 2) {
 					step.Count = Convert.ToInt32(steps[i]);
 					m_steps.Add(step);
 				}
@@ -678,39 +595,31 @@ namespace x01.Weiqi.Board
 		}
 		public void RenderChess()
 		{
-			m_sbSteps.Clear();
-			foreach (var item in m_steps)
-			{
+			m_ContentString.Clear();
+			foreach (var item in m_steps) {
 				NextOne();
 			}
 		}
 
-		int m_count = 1;
+		int m_ContentCount = 1;
 		public void NextOne()
 		{
-			if (m_count > m_steps.Count)
-			{
+			if (m_ContentCount > m_steps.Count) {
 				return;
 			}
 
-			foreach (var item in m_steps)
-			{
-				if (item.Count == m_count)
-				{
+			foreach (var item in m_steps) {
+				if (item.Count == m_ContentCount) {
 					int col = item.Col;
 					int row = item.Row;
 
-					if (Steps[col, row].Color != ChessColor.Empty)
-					{
+					if (Steps[col, row].Color != ChessColor.Empty) {
 						return;
 					}
 
-					if (NotInPos.X == col && NotInPos.Y == row)
-					{
+					if (NotInPos.X == col && NotInPos.Y == row) {
 						return;
-					}
-					else
-					{
+					} else {
 						// If Pos(struct) is property, must use new.
 						NotInPos = new Pos(-1, -1);
 					}
@@ -720,7 +629,7 @@ namespace x01.Weiqi.Board
 					Eat(col, row);
 				}
 			}
-			m_count++;
+			m_ContentCount++;
 		}
 
 		public bool IsShowNumber { get; set; }

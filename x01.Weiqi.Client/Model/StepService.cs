@@ -10,42 +10,38 @@ using System.Windows;
 
 namespace x01.Weiqi.Model
 {
-    class StepService : IStepService
-    {
-        #region IStepService Members
+	class StepService : IStepService
+	{
+		#region IStepService Members
 
-        public int[] GetIDs()
-        {
-            using (DbStepEntities entities = new DbStepEntities())
-            {
-                var result = from s in entities.Steps
-                             select s.ID;
-                return result.ToArray();
-            }
-        }
+		public int[] GetIds()
+		{
+			using (var db = new WeiqiContext()) {
+				var result = from s in db.Steps
+							 select s.Id;
+				return result.ToArray();
+			}
+		}
 
-        public string GetSteps(int id)
-        {
-            using (DbStepEntities entities = new DbStepEntities())
-            {
-                var result = from s in entities.Steps
-                             where s.ID == id
-                             select s.StepContent;
-                return result.FirstOrDefault();
-            }
-        }
+		public string GetContent(int id)
+		{
+			using (var db = new WeiqiContext()) {
+				var result = from s in db.Steps
+							 where s.Id == id
+							 select s.Content;
+				return result.FirstOrDefault();
+			}
+		}
 
-        public void SaveSteps(string step)
-        {
-            using (DbStepEntities entities = new DbStepEntities())
-            {
-                Step s = Step.CreateStep(0, step);
-                entities.AddToSteps(s);
-                entities.SaveChanges();
-                MessageBox.Show("Save success!");
-            }
-        }
+		public void SaveStep(Step step)
+		{
+			using (var db = new WeiqiContext()) {
+				db.Steps.Add(step);
+				db.SaveChanges();
+				MessageBox.Show("Save step success!");
+			}
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

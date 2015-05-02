@@ -11,8 +11,8 @@ namespace x01.Weiqi.Model
 {
     public interface IStepService
     {
-        int[] GetIDs();
-        string GetSteps(int id);
-        void SaveSteps(string step);
+		int[] GetIds();
+		string GetContent(int id);
+		void SaveStep(Step step);
     }
 }

@@ -72,7 +72,7 @@ namespace x01.Weiqi.Board
     }
 
     // 每一步的棋子信息
-    public struct Step
+    public struct StepInfo
     {
         public Chess Chess;
         public ChessColor Color;

@@ -1,0 +1,16 @@
+﻿<Window x:Class="x01.Weiqi.Board.LoadStepWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Load Step Window" Height="227" Width="257" DataContext="{Binding}" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 20 10 10">
+            <Label Content="选择棋谱："  />
+            <ComboBox  Name="m_ComboBox"  Width="138" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0" />
+        </StackPanel>
+        <TextBlock Name="m_Description" Margin="20 10 10 10"></TextBlock>
+        <StackPanel Orientation="Horizontal" >
+            <Button Name="OK" Click="OK_Click" Width="60" Content="_OK" Margin="100 5 5 5" HorizontalAlignment="Right"></Button>
+            <Button Name="Cancel" Click="Cancel_Click"  Width="60" Content="_Cancel" Margin="5 5 5 5" HorizontalAlignment="Right"></Button>
+        </StackPanel>
+    </StackPanel>
+</Window>
