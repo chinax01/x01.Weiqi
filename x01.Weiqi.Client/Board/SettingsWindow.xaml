@@ -1,0 +1,10 @@
+﻿<Window x:Class="x01.Weiqi.Board.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings Window" Height="150" Width="280" DataContext="{Binding}" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    <Grid DataContext="{Binding ElementName=comboBox1, Path=SelectedValue}" Height="109" Width="276">
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="70,46,0,0" Name="m_ComboBox" 
+                  VerticalAlignment="Top" Width="138" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="1" />
+        <Label Content="选择棋谱：" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="label1" VerticalAlignment="Top" />
+    </Grid>
+</Window>

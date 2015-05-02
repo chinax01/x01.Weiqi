@@ -14,34 +14,35 @@ namespace x01.Weiqi.Model
     {
         #region IStepService Members
 
-        public int[] GetIds()
+        public int[] GetIDs()
         {
-            using (var db = new WeiqiContext())
+            using (DbStepEntities entities = new DbStepEntities())
             {
-                var result = from s in db.Steps
-                             select s.Id;
+                var result = from s in entities.Steps
+                             select s.ID;
                 return result.ToArray();
             }
         }
 
-        public string GetContent(int id)
+        public string GetSteps(int id)
         {
-            using (var db = new WeiqiContext())
+            using (DbStepEntities entities = new DbStepEntities())
             {
-				var result = from s in db.Steps
-							 where s.Id == id
-							 select s.Content;
+                var result = from s in entities.Steps
+                             where s.ID == id
+                             select s.StepContent;
                 return result.FirstOrDefault();
             }
         }
 
-        public void SaveStep(Step step)
+        public void SaveSteps(string step)
         {
-            using (var db = new WeiqiContext())
+            using (DbStepEntities entities = new DbStepEntities())
             {
-				db.Steps.Add(step);
-                db.SaveChanges();
-                MessageBox.Show("Save step success!");
+                Step s = Step.CreateStep(0, step);
+                entities.AddToSteps(s);
+                entities.SaveChanges();
+                MessageBox.Show("Save success!");
             }
         }
 

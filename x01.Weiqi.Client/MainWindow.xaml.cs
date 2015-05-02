@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -17,7 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using x01.Weiqi.Board;
-using x01.Weiqi.Model;
 
 namespace x01.Weiqi
 {
@@ -32,9 +30,6 @@ namespace x01.Weiqi
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			Database.SetInitializer(new DropCreateDatabaseIfModelChanges<WeiqiContext>());
-			//Database.Delete("WeiqiContext");
 
 			this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
 			this.WindowState = System.Windows.WindowState.Maximized;
@@ -80,7 +75,7 @@ namespace x01.Weiqi
 
 			if (m_Board != null)
 			{
-				//m_sbSteps = (m_Board as BoardBase).ContentString;
+				m_sbSteps = (m_Board as BoardBase).m_sbSteps;
 				m_DockPanel.Children.Remove(m_Board as UIElement);
 				m_Board = null;
 			}
@@ -126,31 +121,30 @@ namespace x01.Weiqi
 			InitBoard(InitFlag.Where);
 		}
 
-		bool m_isShowNumber = true;
-		private void MenuShowNumber_Click(object sender, RoutedEventArgs e)
+		bool m_isShowNumber = false;
+		private void m_MenuShowNumber_Click(object sender, RoutedEventArgs e)
 		{
 			m_isShowNumber = !m_isShowNumber;
-			(m_Board as BoardBase).IsShowNumber = m_isShowNumber;
 			Redraw();
-			
-			if (!m_isShowNumber)
-				m_MenuShowNumber.Header = "Show _Number";
-			else
-				m_MenuShowNumber.Header = "Hide _Number";
 		}
 
 		private void Redraw()
 		{
-			if (m_initFlag == InitFlag.Step) {
+			if (m_initFlag == InitFlag.Step)
+			{
+				var b = m_Board as BoardBase;
+				b.IsShowNumber = m_isShowNumber;
+				b.FillSteps();
+				b.RenderChess();
 				return;
 			}
 
-			m_sbSteps = (m_Board as BoardBase).ContentString;
+			m_sbSteps = (m_Board as BoardBase).m_sbSteps;
 			InitBoard(m_initFlag);
 
 			var board = m_Board as BoardBase;
 			board.IsShowNumber = m_isShowNumber;
-			board.ContentString = m_sbSteps;
+			board.m_sbSteps = m_sbSteps;
 			board.FillSteps();
 			board.RenderChess();
 		}

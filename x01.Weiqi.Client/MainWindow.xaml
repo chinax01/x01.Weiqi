@@ -12,7 +12,7 @@
                 <MenuItem Header="Sa_ve" Name="m_MenuSave" FontSize="16" Click="MenuSave_Click"></MenuItem>
             </MenuItem>
             <MenuItem Header="_Settings" FontSize="20">
-                <MenuItem  Header="Hide _Number" Name="m_MenuShowNumber" FontSize="16" Click="MenuShowNumber_Click"></MenuItem>
+                <MenuItem Header="Show _Number" Name="m_MenuShowNumber" FontSize="16" Click="m_MenuShowNumber_Click"></MenuItem>
             </MenuItem>
         </Menu>
     </DockPanel>
