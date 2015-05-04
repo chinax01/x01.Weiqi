@@ -17,6 +17,7 @@ namespace x01.Weiqi.Model
 		public int[] GetIds()
 		{
 			using (var db = new WeiqiContext()) {
+				if (db.Steps.Count() == 0) return null;
 				var result = from s in db.Steps
 							 select s.Id;
 				return result.ToArray();

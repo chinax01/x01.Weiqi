@@ -8,10 +8,11 @@ namespace x01.Weiqi.Model
 	public class Step
 	{
 		public int Id { get; set; }
+		public string Title { get; set; }
 		public string Content { get; set; }
-		public string WhiteName { get; set; }
-		public string BlackName { get; set; }
-		public string Winer { get; set; }
-		public DateTime CreateDate { get; set; }
+		public string White { get; set; }
+		public string Black { get; set; }
+		public string Result { get; set; }
+		public DateTime SaveDate { get; set; }
 	}
 }

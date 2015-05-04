@@ -62,7 +62,7 @@ namespace x01.Weiqi.Board
 
 
 		IStepService m_StepService = new StepService();
-		protected IStepService StepService
+		public IStepService StepService
 		{
 			get { return m_StepService; }
 		}
@@ -541,10 +541,10 @@ namespace x01.Weiqi.Board
 			string s = ContentString.ToString();
 			Step step = new Step {
 				Content = s,
-				CreateDate = DateTime.Now,
-				BlackName = dlg.BlackName,
-				WhiteName = dlg.WhiteName,
-				Winer = dlg.Winer,
+				SaveDate = DateTime.Now,
+				Black = dlg.BlackName,
+				White = dlg.WhiteName,
+				Result = dlg.Winer,
 			};
 			StepService.SaveStep(step);
 		}

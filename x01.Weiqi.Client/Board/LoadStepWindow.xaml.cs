@@ -39,10 +39,10 @@ namespace x01.Weiqi.Board
 				var r = (from w in db.Steps
 						 where w.Id == StepId
 						 select w).First();
-				m_Description.Text = "黑方： " + r.BlackName + "\n"
-					+ "白方： " + r.WhiteName + "\n"
-					+ "对局时间： " + r.CreateDate.ToShortDateString() + "\n"
-					+ "对局结果： " + r.Winer;
+				m_Description.Text = "黑方： " + r.Black + "\n"
+					+ "白方： " + r.White + "\n"
+					+ "对局时间： " + r.SaveDate.ToShortDateString() + "\n"
+					+ "对局结果： " + r.Result;
 			}
 		}
 

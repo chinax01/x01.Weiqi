@@ -20,6 +20,8 @@ namespace x01.Weiqi
 
 		public MainWindow()
 		{
+			//Database.SetInitializer(new DropCreateDatabaseIfModelChanges<Weiqi.Model.WeiqiContext>());
+
 			InitializeComponent();
 
 			this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
@@ -28,11 +30,15 @@ namespace x01.Weiqi
 			this.SizeChanged += MainWindow_SizeChanged;
 		}
 
+		bool m_isSizeChanged = false;	// For StepBoard
 		void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			Width = ActualWidth;
 			Height = ActualHeight;
+
+			m_isSizeChanged = true;
 			Redraw();
+			m_isSizeChanged = false;
 		}
 
 		private void MenuSave_Click(object sender, RoutedEventArgs e)
@@ -97,7 +103,7 @@ namespace x01.Weiqi
 					Title = "x01.Weiqi - WhereBoard";
 					break;
 				case InitFlag.Step:
-					m_Board = new StepBoard(size);
+					m_Board = new StepBoard(size, m_isSizeChanged);
 					Title = "x01.Weiqi - StepBoard";
 					break;
 				default:
@@ -126,19 +132,29 @@ namespace x01.Weiqi
 
 		private void Redraw()
 		{
-			if (m_initFlag == InitFlag.Step)
-			{
-				return;
+			if (m_initFlag == InitFlag.Step) {
+				var b = m_Board as StepBoard;
+				int id = b.StepId;
+				int count = b.StepCount;
+			
+				InitBoard(m_initFlag);
+				b = m_Board as StepBoard;
+				b.StepId = id;
+				b.ContentString = new StringBuilder(b.StepService.GetContent(id));
+				b.FillSteps();
+				for (int i = 0; i < count; i++) {
+					b.NextOne();
+				}
+			} else {
+				m_sbSteps = (m_Board as BoardBase).ContentString;
+				
+				InitBoard(m_initFlag);
+				var b = m_Board as BoardBase;
+				b.IsShowNumber = m_isShowNumber;
+				b.ContentString = m_sbSteps;
+				b.FillSteps();
+				b.RenderChess();
 			}
-
-			m_sbSteps = (m_Board as BoardBase).ContentString;
-			InitBoard(m_initFlag);
-
-			var board = m_Board as BoardBase;
-			board.IsShowNumber = m_isShowNumber;
-			board.ContentString = m_sbSteps;
-			board.FillSteps();
-			board.RenderChess();
 		}
 	}
 }
