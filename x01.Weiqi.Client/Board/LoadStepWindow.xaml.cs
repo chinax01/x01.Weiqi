@@ -17,11 +17,13 @@ namespace x01.Weiqi.Board
 		IStepService m_StepService = new StepService();
 
 		public int StepId { get; set; }
+		public bool IsLoadStep { get; set; }
 
 		public LoadStepWindow()
 		{
 			InitializeComponent();
-			StepId = 1;
+			StepId = -1;
+			IsLoadStep = false;
 
 			int[] stepIds = m_StepService.GetIds();
 			m_ComboBox.ItemsSource = stepIds;
@@ -48,12 +50,12 @@ namespace x01.Weiqi.Board
 
 		private void OK_Click(object sender, RoutedEventArgs e)
 		{
+			IsLoadStep = true;
 			Close();
 		}
 
 		private void Cancel_Click(object sender, RoutedEventArgs e)
 		{
-			StepId = -1;
 			Close();
 		}
 

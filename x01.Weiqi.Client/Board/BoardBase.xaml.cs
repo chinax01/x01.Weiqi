@@ -541,12 +541,15 @@ namespace x01.Weiqi.Board
 			string s = ContentString.ToString();
 			Step step = new Step {
 				Content = s,
+				Description = dlg.Description,
 				SaveDate = DateTime.Now,
 				Black = dlg.BlackName,
 				White = dlg.WhiteName,
 				Result = dlg.Winer,
 			};
-			StepService.SaveStep(step);
+
+			if (dlg.IsSaved)
+				StepService.SaveStep(step);
 		}
 
 		#endregion

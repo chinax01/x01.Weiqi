@@ -15,6 +15,7 @@ namespace x01.Weiqi.Board
 		public StepBoard(int chessSize = 38, bool isSizeChanged = false)
 			: base(chessSize)
 		{
+			StepId = -1;
 			if (!isSizeChanged)
 				InitData();
 		}
@@ -28,10 +29,12 @@ namespace x01.Weiqi.Board
 		public int StepId { get; set; }
 		private void GetSteps()
 		{
-			LoadStepWindow settingsWin = new LoadStepWindow();
-			settingsWin.ShowDialog();
-			StepId = settingsWin.StepId;
-			ContentString = new StringBuilder(StepService.GetContent(StepId));
+			LoadStepWindow dlg = new LoadStepWindow();
+			dlg.ShowDialog();
+			if (dlg.IsLoadStep) {
+				StepId = dlg.StepId;
+				ContentString = new StringBuilder(StepService.GetContent(StepId));
+			}
 		}
 
 		protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)

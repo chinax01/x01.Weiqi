@@ -11,8 +11,12 @@
                 <MenuItem Header="_Load" Name="m_MenuLoad" FontSize="16" Click="MenuLoad_Click"></MenuItem>
                 <MenuItem Header="Sa_ve" Name="m_MenuSave" FontSize="16" Click="MenuSave_Click"></MenuItem>
             </MenuItem>
-            <MenuItem Header="_Settings" FontSize="20">
-                <MenuItem Header="Hide _Number" Name="m_MenuShowNumber" FontSize="16" Click="MenuShowNumber_Click"></MenuItem>
+            <MenuItem Header="_Operate" FontSize="20">
+                <MenuItem Header="_Show Number" Name="m_MenuShowNumber" FontSize="16" Click="MenuShowNumber_Click" IsChecked="True" IsCheckable="True"/>
+                <MenuItem Header="_Clear All" Name="m_MenuClearAll" FontSize="16" Click="MenuClearAll_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Help" FontSize="20">
+                <MenuItem Header="_About" Name="m_About" FontSize="16" Click="About_Click"></MenuItem>
             </MenuItem>
         </Menu>
     </DockPanel>

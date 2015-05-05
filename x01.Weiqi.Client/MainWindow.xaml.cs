@@ -20,7 +20,7 @@ namespace x01.Weiqi
 
 		public MainWindow()
 		{
-			//Database.SetInitializer(new DropCreateDatabaseIfModelChanges<Weiqi.Model.WeiqiContext>());
+			Database.SetInitializer(new DropCreateDatabaseIfModelChanges<Weiqi.Model.WeiqiContext>());
 
 			InitializeComponent();
 
@@ -57,6 +57,11 @@ namespace x01.Weiqi
 		private void MenuLoad_Click(object sender, RoutedEventArgs e)
 		{
 			InitBoard(InitFlag.Step);
+			var b = m_Board as StepBoard;
+			if (b.StepId == -1) {
+				MessageBox.Show("Load failed! Will goto start.");
+				InitBoard(InitFlag.Game);
+			}
 		}
 
 		private void MenuInet_Click(object sender, RoutedEventArgs e)
@@ -72,7 +77,6 @@ namespace x01.Weiqi
 
 			if (m_Board != null)
 			{
-				//m_sbSteps = (m_Board as BoardBase).ContentString;
 				m_DockPanel.Children.Remove(m_Board as UIElement);
 				m_Board = null;
 			}
@@ -124,10 +128,6 @@ namespace x01.Weiqi
 			m_isShowNumber = !m_isShowNumber;
 			(m_Board as BoardBase).IsShowNumber = m_isShowNumber;
 			Redraw();
-			if (!m_isShowNumber)
-				m_MenuShowNumber.Header = "Show _Number";
-			else
-				m_MenuShowNumber.Header = "Hide _Number";
 		}
 
 		private void Redraw()
@@ -154,6 +154,20 @@ namespace x01.Weiqi
 				b.ContentString = m_sbSteps;
 				b.FillSteps();
 				b.RenderChess();
+			}
+		}
+
+		private void About_Click(object sender, RoutedEventArgs e)
+		{
+			new AboutWindow().ShowDialog();
+		}
+
+		private void MenuClearAll_Click(object sender, RoutedEventArgs e)
+		{
+			var b = m_Board as BoardBase;
+			int count = b.StepCount;
+			for (int i = 0; i < count; i++) {
+				b.BackOne();
 			}
 		}
 	}
