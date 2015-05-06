@@ -87,17 +87,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Board\AboutWindow.xaml.cs">
+    <Compile Include="Dialog\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Board\LoadStepWindow.xaml.cs">
+    <Compile Include="Dialog\LoadStepWindow.xaml.cs">
       <DependentUpon>LoadStepWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\Step.cs" />
     <Compile Include="Model\WeiqiContext.cs" />
     <Compile Include="WhereHelper\ForPosSearch.cs" />
     <Compile Include="WhereHelper\PosSearch.cs" />
-    <Page Include="Board\AboutWindow.xaml">
+    <Page Include="Dialog\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -109,11 +109,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Board\LoadStepWindow.xaml">
+    <Page Include="Dialog\LoadStepWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Board\SaveStepWindow.xaml">
+    <Page Include="Dialog\SaveStepWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -135,20 +135,18 @@
     </Compile>
     <Compile Include="Board\ForBoard.cs" />
     <Compile Include="Board\IBoard.cs" />
-    <Compile Include="Board\InetBoard.cs" />
+    <Compile Include="Board\WebBoard.cs" />
     <Compile Include="Board\StepBoard.cs" />
-    <Compile Include="Board\SaveStepWindow.xaml.cs">
+    <Compile Include="Dialog\SaveStepWindow.xaml.cs">
       <DependentUpon>SaveStepWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Board\WhereBoard.cs" />
+    <Compile Include="Board\AIBoard.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\IStepService.cs" />
-    <Compile Include="Model\StepService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

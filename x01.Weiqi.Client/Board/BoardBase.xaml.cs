@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using x01.Weiqi.Dialog;
 using x01.Weiqi.Model;
 using x01.Weiqi.WhereHelper;
 
@@ -58,13 +59,6 @@ namespace x01.Weiqi.Board
 		{
 			get { return m_ContentString; }
 			set { m_ContentString = value; }
-		}
-
-
-		IStepService m_StepService = new StepService();
-		public IStepService StepService
-		{
-			get { return m_StepService; }
 		}
 
 		public BoardBase(int size = 38)
@@ -545,11 +539,16 @@ namespace x01.Weiqi.Board
 				SaveDate = DateTime.Now,
 				Black = dlg.BlackName,
 				White = dlg.WhiteName,
-				Result = dlg.Winer,
+				Result = dlg.Result,
 			};
 
-			if (dlg.IsSaved)
-				StepService.SaveStep(step);
+			if (dlg.IsSaved) {
+				using (var db = new WeiqiContext()) {
+					db.Steps.Add(step);
+					db.SaveChanges();
+					MessageBox.Show("Save step success!");
+				}
+			}
 		}
 
 		#endregion

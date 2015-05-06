@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using x01.Weiqi.Dialog;
+using x01.Weiqi.Model;
 
 namespace x01.Weiqi.Board
 {
@@ -33,7 +35,10 @@ namespace x01.Weiqi.Board
 			dlg.ShowDialog();
 			if (dlg.IsLoadStep) {
 				StepId = dlg.StepId;
-				ContentString = new StringBuilder(StepService.GetContent(StepId));
+				using (var db = new WeiqiContext()) {
+					string s = db.Steps.First(t=>t.Id == StepId).Content;
+					ContentString = new StringBuilder(s);
+				}
 			}
 		}
 

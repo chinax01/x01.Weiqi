@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace x01.Weiqi.Board
 {
-    public class InetBoard : BoardBase
+    public class WebBoard : BoardBase
     {
         int m_Col = -1, m_Row = -1, m_StepCount = -1;
         string m_Color = string.Empty;
@@ -23,7 +23,7 @@ namespace x01.Weiqi.Board
         int m_Count = 0;
         System.Windows.Forms.Timer m_Timer = new System.Windows.Forms.Timer();
 
-        public InetBoard(int size = 38)
+        public WebBoard(int size = 38)
             : base(size)
         {
             m_Timer.Tick += new EventHandler(Timer_Tick);

@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\App.xaml
-6-1180107693
+6-1235935391
 
-22882443557
+20-621774849
 18-2008014736
-Board\AboutWindow.xaml;Board\BoardBase.xaml;Board\Chess.xaml;Board\LoadStepWindow.xaml;Board\SaveStepWindow.xaml;MainWindow.xaml;
+Dialog\AboutWindow.xaml;Board\BoardBase.xaml;Board\Chess.xaml;Dialog\LoadStepWindow.xaml;Dialog\SaveStepWindow.xaml;MainWindow.xaml;
 
 False
 

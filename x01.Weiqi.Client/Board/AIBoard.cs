@@ -11,12 +11,12 @@ using x01.Weiqi.WhereHelper;
 
 namespace x01.Weiqi.Board
 {
-    class WhereBoard : BoardBase
+    class AIBoard : BoardBase
     {
         Timer m_Timer = new Timer();
         bool m_CanDown = true;
 
-        public WhereBoard(int size = 38)
+        public AIBoard(int size = 38)
             : base(size)
         {
             m_Timer.Interval = 100;
@@ -81,7 +81,9 @@ namespace x01.Weiqi.Board
         {
             base.OnMouseRightButtonDown(e);
 
+			// Two call!
             BackOne();
+			BackOne();
         }
     }
 }

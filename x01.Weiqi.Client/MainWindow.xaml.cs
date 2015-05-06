@@ -7,6 +7,9 @@ using System.Text;
 using System.Windows;
 using System.Data.Entity;
 using x01.Weiqi.Board;
+using x01.Weiqi.Model;
+using System.Linq;
+using x01.Weiqi.Dialog;
 
 namespace x01.Weiqi
 {
@@ -16,7 +19,7 @@ namespace x01.Weiqi
 	public partial class MainWindow : Window
 	{
 		IBoard m_Board;
-		enum InitFlag { Game, Inet, Where, Step }
+		enum InitFlag { Game, Web, AI, Step }
 
 		public MainWindow()
 		{
@@ -66,7 +69,7 @@ namespace x01.Weiqi
 
 		private void MenuInet_Click(object sender, RoutedEventArgs e)
 		{
-			InitBoard(InitFlag.Inet);
+			InitBoard(InitFlag.Web);
 		}
 
 		InitFlag m_initFlag = InitFlag.Game;
@@ -88,10 +91,10 @@ namespace x01.Weiqi
 					m_Board = new GameBoard(size);
 					Title = "x01.Weiqi - GameBoard";
 					break;
-				case InitFlag.Inet:
+				case InitFlag.Web:
 					try
 					{
-						m_Board = new InetBoard(size);
+						m_Board = new WebBoard(size);
 					}
 					catch
 					{
@@ -100,11 +103,11 @@ namespace x01.Weiqi
 						MessageBox.Show("Please start server before running InetBoard!");
 						break;
 					}
-					Title = "x01.Weiqi - InetBoard";
+					Title = "x01.Weiqi - WebBoard";
 					break;
-				case InitFlag.Where:
-					m_Board = new WhereBoard(size);
-					Title = "x01.Weiqi - WhereBoard";
+				case InitFlag.AI:
+					m_Board = new AIBoard(size);
+					Title = "x01.Weiqi - AIBoard";
 					break;
 				case InitFlag.Step:
 					m_Board = new StepBoard(size, m_isSizeChanged);
@@ -119,7 +122,7 @@ namespace x01.Weiqi
 
 		private void MenuWhere_Click(object sender, RoutedEventArgs e)
 		{
-			InitBoard(InitFlag.Where);
+			InitBoard(InitFlag.AI);
 		}
 
 		bool m_isShowNumber = true;
@@ -140,7 +143,11 @@ namespace x01.Weiqi
 				InitBoard(m_initFlag);
 				b = m_Board as StepBoard;
 				b.StepId = id;
-				b.ContentString = new StringBuilder(b.StepService.GetContent(id));
+				string s;
+				using (var db = new WeiqiContext()) {
+					s = db.Steps.First(t => t.Id == id).Content;
+				}
+				b.ContentString = new StringBuilder(s);
 				b.FillSteps();
 				for (int i = 0; i < count; i++) {
 					b.NextOne();
@@ -169,6 +176,45 @@ namespace x01.Weiqi
 			for (int i = 0; i < count; i++) {
 				b.BackOne();
 			}
+		}
+
+		private void Exit_Click(object sender, RoutedEventArgs e)
+		{
+			Close();
+		}
+
+		bool m_IsCtrlDown = false;
+		protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			
+			if ((!m_IsCtrlDown) && (e.Key == System.Windows.Input.Key.LeftCtrl || e.Key == System.Windows.Input.Key.RightCtrl)) {
+				m_IsCtrlDown = true;
+			}
+
+			if (m_IsCtrlDown && e.Key == System.Windows.Input.Key.S) {
+				if (e.Key == System.Windows.Input.Key.S) {
+					MenuSave_Click(this, null);
+				} else if (e.Key == System.Windows.Input.Key.N) {
+					MenuShowNumber_Click(this, null);
+				} else if (e.Key == System.Windows.Input.Key.C) {
+					MenuClearAll_Click(this, null);
+				}
+				
+			} 
+
+			if (e.Key == System.Windows.Input.Key.Escape) {
+				MenuClearAll_Click(this, null);
+			} else if (e.Key == System.Windows.Input.Key.F1) {
+				MenuShowNumber_Click(this, null);
+			}
+		}
+
+		protected override void OnKeyUp(System.Windows.Input.KeyEventArgs e)
+		{
+			base.OnKeyUp(e);
+
+			m_IsCtrlDown = false;
 		}
 	}
 }

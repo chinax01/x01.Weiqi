@@ -9,3 +9,6 @@
 <h3>2015年5月5日：</h3>
 1.为在 Windows XP 上运行，只能采取 .Net 4.0，安装 Sql Express 2008，故作了些调整。<br />
 2.开发过程，可参见：http://www.cnblogs.com/china_x01/category/685502.html
+<h3>2015年5月6日：</h3>
+1.为操作的方便，作了些调整，如中文显示菜单，快捷键等。<br />
+2.删除 StepService 类，因为数据操作很少，没有必要加个中间层。

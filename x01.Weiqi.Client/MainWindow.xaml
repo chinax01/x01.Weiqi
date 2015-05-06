@@ -4,19 +4,22 @@
         Title="MainWindow" Width="800" Height="800">
     <DockPanel Name="m_DockPanel"> 
         <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" >
-            <MenuItem Header="_File" FontSize="20">
-                <MenuItem Header="_Start" Name="m_MenuStart" FontSize="16" Click="MenuStart_Click"></MenuItem>
-                <MenuItem Header="_Inet" Name="m_MenuInet" FontSize="16" Click="MenuInet_Click"></MenuItem>
-                <MenuItem Header="_Where" Name="m_MenuWhere" FontSize="16" Click="MenuWhere_Click"></MenuItem>
-                <MenuItem Header="_Load" Name="m_MenuLoad" FontSize="16" Click="MenuLoad_Click"></MenuItem>
-                <MenuItem Header="Sa_ve" Name="m_MenuSave" FontSize="16" Click="MenuSave_Click"></MenuItem>
+            <MenuItem Header="围棋(_F)" ToolTip="File"  FontSize="20">
+                <MenuItem Header="开始对弈(_G)" ToolTip="Start Game" Name="m_MenuStart" FontSize="16" Click="MenuStart_Click"></MenuItem>
+                <MenuItem Header="网络对弈(_W)" ToolTip="Web Game" Name="m_MenuInet" FontSize="16" Click="MenuInet_Click"></MenuItem>
+                <MenuItem Header="人机对弈(_I)" ToolTip="AI Game" Name="m_MenuWhere" FontSize="16" Click="MenuWhere_Click"></MenuItem>
+                <Separator />
+                <MenuItem Header="加载棋谱(_L)" ToolTip="Load" Name="m_MenuLoad" FontSize="16" Click="MenuLoad_Click"></MenuItem>
+                <MenuItem Header="保存棋谱(_S)" ToolTip="Save" Name="m_MenuSave" FontSize="16" Click="MenuSave_Click"></MenuItem>
+                <Separator />
+                <MenuItem Header="退出(_E)" ToolTip="Exit" Name="m_Exit" FontSize="16" Click="Exit_Click"></MenuItem>
             </MenuItem>
-            <MenuItem Header="_Operate" FontSize="20">
-                <MenuItem Header="_Show Number" Name="m_MenuShowNumber" FontSize="16" Click="MenuShowNumber_Click" IsChecked="True" IsCheckable="True"/>
-                <MenuItem Header="_Clear All" Name="m_MenuClearAll" FontSize="16" Click="MenuClearAll_Click"></MenuItem>
+            <MenuItem Header="操作(_O)" ToolTip="Operate" FontSize="20">
+                <MenuItem Header="显示步数(_N)      F1" ToolTip="Show Number" Name="m_MenuShowNumber" FontSize="16" Click="MenuShowNumber_Click" IsChecked="True" IsCheckable="True"/>
+                <MenuItem Header="清除所有(_C)      ESC" ToolTip="Clear All" Name="m_MenuClearAll" FontSize="16" Click="MenuClearAll_Click"></MenuItem>
             </MenuItem>
-            <MenuItem Header="_Help" FontSize="20">
-                <MenuItem Header="_About" Name="m_About" FontSize="16" Click="About_Click"></MenuItem>
+            <MenuItem Header="帮助(_H)" ToolTip="Help" FontSize="20">
+                <MenuItem Header="关于(_A)" ToolTip="About" Name="m_About" FontSize="16" Click="About_Click"></MenuItem>
             </MenuItem>
         </Menu>
     </DockPanel>
