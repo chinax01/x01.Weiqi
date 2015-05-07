@@ -4,6 +4,7 @@
         xmlns:Model="clr-namespace:x01.Weiqi.Model" 
         Title="Load Step Window" Height="227" Width="257" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight">
     <StackPanel>
-        <DataGrid x:Name="grid" ItemsSource="{Binding}" MouseDoubleClick="grid_MouseDoubleClick"/>
+        <DataGrid x:Name="grid" ItemsSource="{Binding}" ToolTip="Double click select" MouseDoubleClick="grid_MouseDoubleClick"/>
+        <Button Name="btnCancel" Content="_Cancel" Click="btnCancel_Click" HorizontalAlignment="Right" Margin="10" FontSize="16" Width="70" />
     </StackPanel>
 </Window>

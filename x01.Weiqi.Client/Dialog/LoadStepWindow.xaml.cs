@@ -17,7 +17,7 @@ namespace x01.Weiqi.Dialog
 	public partial class LoadStepWindow : Window
 	{
 		public int StepId { get; set; }
-		public bool IsLoadStep { get; set; }
+		public bool IsStepLoaded { get; set; }
 	
 		public class StepShow
 		{
@@ -34,7 +34,7 @@ namespace x01.Weiqi.Dialog
 			InitializeComponent();
 				
 			StepId = -1;
-			IsLoadStep = false;
+			IsStepLoaded = false;
 			
 			this.grid.DataContext = Steps;
 		}
@@ -44,7 +44,7 @@ namespace x01.Weiqi.Dialog
 			get
 			{
 				using (var db = new WeiqiContext()) {
-					var r = from s in db.Steps
+					var r = from s in db.Chesses
 							orderby s.SaveDate descending
 							select new StepShow {
 								Id = s.Id,
@@ -63,7 +63,13 @@ namespace x01.Weiqi.Dialog
 		private void grid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			StepId = (grid.SelectedItem as StepShow).Id;
-			IsLoadStep = true;
+			IsStepLoaded = true;
+			Close();
+		}
+
+		private void btnCancel_Click(object sender, RoutedEventArgs e)
+		{
+			IsStepLoaded = false;
 			Close();
 		}
 	}

@@ -9,8 +9,7 @@ using System.Text;
 
 namespace x01.Weiqi.Board
 {
-    //only for InetBoard and StepBoard
-    public struct StepContent
+    public struct Step
     {
         public int Col;
         public int Row;
@@ -74,7 +73,7 @@ namespace x01.Weiqi.Board
     // 每一步的棋子信息
     public struct StepInfo
     {
-        public Chess Chess;
+        public Stone Stone;
         public ChessColor Color;
         public bool IsDead;
         public int Count;

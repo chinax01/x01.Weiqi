@@ -93,7 +93,7 @@
     <Compile Include="Dialog\LoadStepWindow.xaml.cs">
       <DependentUpon>LoadStepWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\Step.cs" />
+    <Compile Include="Model\Chess.cs" />
     <Compile Include="Model\WeiqiContext.cs" />
     <Compile Include="WhereHelper\ForPosSearch.cs" />
     <Compile Include="WhereHelper\PosSearch.cs" />
@@ -105,7 +105,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Board\Chess.xaml">
+    <Page Include="Board\Stone.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,8 +129,8 @@
     <Compile Include="Board\BoardBase.xaml.cs">
       <DependentUpon>BoardBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Board\Chess.xaml.cs">
-      <DependentUpon>Chess.xaml</DependentUpon>
+    <Compile Include="Board\Stone.xaml.cs">
+      <DependentUpon>Stone.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Board\ForBoard.cs" />

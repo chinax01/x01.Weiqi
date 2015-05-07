@@ -122,9 +122,7 @@ C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\bin\Debug\x01
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\bin\Debug\x01.Weiqi.pdb
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\x01.Weiqi.csprojResolveAssemblyReference.cache
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\BoardBase.baml
-C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\Chess.baml
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\BoardBase.g.cs
-C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\Chess.g.cs
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\MainWindow.g.cs
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\App.g.cs
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\x01.Weiqi_MarkupCompile.cache
@@ -145,3 +143,5 @@ C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Dialog\LoadStepWindow.g.cs
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Dialog\SaveStepWindow.g.cs
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Dialog\LoadStepWindow.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\Stone.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\obj\x86\Debug\Board\Stone.g.cs

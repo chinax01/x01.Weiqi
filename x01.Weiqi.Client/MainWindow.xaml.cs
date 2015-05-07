@@ -139,13 +139,15 @@ namespace x01.Weiqi
 				var b = m_Board as StepBoard;
 				int id = b.StepId;
 				int count = b.StepCount;
-			
+				bool showNumber = b.IsShowNumber;
+
 				InitBoard(m_initFlag);
 				b = m_Board as StepBoard;
+				b.IsShowNumber = showNumber;
 				b.StepId = id;
 				string s;
 				using (var db = new WeiqiContext()) {
-					s = db.Steps.First(t => t.Id == id).Content;
+					s = db.Chesses.First(t => t.Id == id).Step;
 				}
 				b.ContentString = new StringBuilder(s);
 				b.FillSteps();
@@ -153,11 +155,12 @@ namespace x01.Weiqi
 					b.NextOne();
 				}
 			} else {
+				bool showNumber = (m_Board as BoardBase).IsShowNumber;
 				m_sbSteps = (m_Board as BoardBase).ContentString;
 				
 				InitBoard(m_initFlag);
 				var b = m_Board as BoardBase;
-				b.IsShowNumber = m_isShowNumber;
+				b.IsShowNumber = showNumber;
 				b.ContentString = m_sbSteps;
 				b.FillSteps();
 				b.RenderChess();
@@ -183,38 +186,17 @@ namespace x01.Weiqi
 			Close();
 		}
 
-		bool m_IsCtrlDown = false;
 		protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
 			
-			if ((!m_IsCtrlDown) && (e.Key == System.Windows.Input.Key.LeftCtrl || e.Key == System.Windows.Input.Key.RightCtrl)) {
-				m_IsCtrlDown = true;
-			}
-
-			if (m_IsCtrlDown && e.Key == System.Windows.Input.Key.S) {
-				if (e.Key == System.Windows.Input.Key.S) {
-					MenuSave_Click(this, null);
-				} else if (e.Key == System.Windows.Input.Key.N) {
-					MenuShowNumber_Click(this, null);
-				} else if (e.Key == System.Windows.Input.Key.C) {
-					MenuClearAll_Click(this, null);
-				}
-				
-			} 
-
 			if (e.Key == System.Windows.Input.Key.Escape) {
 				MenuClearAll_Click(this, null);
 			} else if (e.Key == System.Windows.Input.Key.F1) {
 				MenuShowNumber_Click(this, null);
+				this.m_MenuShowNumber.IsChecked = m_isShowNumber;
 			}
 		}
 
-		protected override void OnKeyUp(System.Windows.Input.KeyEventArgs e)
-		{
-			base.OnKeyUp(e);
-
-			m_IsCtrlDown = false;
-		}
 	}
 }

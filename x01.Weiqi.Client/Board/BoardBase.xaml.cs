@@ -22,7 +22,7 @@ namespace x01.Weiqi.Board
 	{
 		#region Ready
 
-		PosSearch m_PosSearch = new PosSearch(); // for WhereBoard
+		PosSearch m_PosSearch = new PosSearch(); // for AIBoard
 		internal PosSearch PosSearch
 		{
 			get { return m_PosSearch; }
@@ -124,7 +124,7 @@ namespace x01.Weiqi.Board
 		{
 			for (int i = 0; i < 19; i++) {
 				for (int j = 0; j < 19; j++) {
-					Steps[i, j].Chess = null;
+					Steps[i, j].Stone = null;
 					Steps[i, j].Color = ChessColor.Empty;
 					Steps[i, j].IsDead = false;
 					Steps[i, j].Count = -1;
@@ -161,13 +161,13 @@ namespace x01.Weiqi.Board
 				Steps[col, row].Color = ChessColor.White;
 			}
 
-			if (Steps[col, row].Chess == null || Steps[col, row].Chess.Content == null) {
-				Chess chess = new Chess(brush, ChessSize);
+			if (Steps[col, row].Stone == null || Steps[col, row].Stone.Content == null) {
+				Stone chess = new Stone(brush, ChessSize);
 				SetShowNumber(chess);
 				Canvas.SetLeft(chess, left);
 				Canvas.SetTop(chess, top);
 				m_Canvas.Children.Add(chess);
-				Steps[col, row].Chess = chess;
+				Steps[col, row].Stone = chess;
 			} else {
 				throw new Exception(string.Format("Cannot Draw Chess at: col = {0}, row = {1}.", col, row));
 			}
@@ -187,7 +187,7 @@ namespace x01.Weiqi.Board
 			m_ContentString.Append(col.ToString() + "," + row.ToString() + "," + m_StepCount.ToString() + ",");
 		}
 
-		private void SetShowNumber(Chess chess)
+		private void SetShowNumber(Stone chess)
 		{
 			double size = (double)ChessSize;
 			chess.NumberFontSize = (m_StepCount + 1) > 99
@@ -273,7 +273,7 @@ namespace x01.Weiqi.Board
 					}
 
 					Steps[pos.X, pos.Y].Color = ChessColor.Empty;
-					Steps[pos.X, pos.Y].Chess.Content = null;
+					Steps[pos.X, pos.Y].Stone.Content = null;
 				} else {
 					foreach (var item in m_DeadPos) {
 						deadStep.DeadInfo.Add(Steps[item.X, item.Y].Count, new Pos(item.X, item.Y));
@@ -287,7 +287,7 @@ namespace x01.Weiqi.Board
 						}
 
 						Steps[item.X, item.Y].Color = ChessColor.Empty;
-						Steps[item.X, item.Y].Chess.Content = null;
+						Steps[item.X, item.Y].Stone.Content = null;
 					}
 				}
 				m_DeadSteps.Add(deadStep);
@@ -447,7 +447,7 @@ namespace x01.Weiqi.Board
 						Ellipse e = new Ellipse();
 						e.Fill = brush;
 						e.Width = e.Height = ChessSize;
-						Steps[col, row].Chess.Content = e;
+						Steps[col, row].Stone.Content = e;
 						Steps[col, row].Color = dead.Color;
 						Steps[col, row].Count = info.Key;
 					}
@@ -473,7 +473,7 @@ namespace x01.Weiqi.Board
 
 					RemovePos(col, row); // for PosSearch
 
-					Steps[col, row].Chess.Content = null;
+					Steps[col, row].Stone.Content = null;
 					Steps[col, row].Count = -1;
 					Steps[col, row].Color = ChessColor.Empty;
 					m_IsBlack = !m_IsBlack;
@@ -533,8 +533,8 @@ namespace x01.Weiqi.Board
 			dlg.ShowDialog();
 
 			string s = ContentString.ToString();
-			Step step = new Step {
-				Content = s,
+			Chess step = new Chess {
+				Step = s,
 				Description = dlg.Description,
 				SaveDate = DateTime.Now,
 				Black = dlg.BlackName,
@@ -544,7 +544,7 @@ namespace x01.Weiqi.Board
 
 			if (dlg.IsSaved) {
 				using (var db = new WeiqiContext()) {
-					db.Steps.Add(step);
+					db.Chesses.Add(step);
 					db.SaveChanges();
 					MessageBox.Show("Save step success!");
 				}
@@ -575,17 +575,17 @@ namespace x01.Weiqi.Board
 
 		// For Size Change and Show Number
 
-		List<StepContent> m_steps = new List<StepContent>();
+		List<Step> m_steps = new List<Step>();
 		public void FillSteps()
 		{
 			m_steps.Clear();
 			string s = m_ContentString.ToString();
 			if (s.Length < 1) return;
 			string[] steps = s.Substring(0, s.Length - 1).Split(',');
-			StepContent step = new StepContent();
+			Step step = new Step();
 			for (int i = 0; i < steps.Length; i++) {
 				if (i % 3 == 0) {
-					step = new StepContent();
+					step = new Step();
 					step.Col = Convert.ToInt32(steps[i]);
 				} else if (i % 3 == 1) {
 					step.Row = Convert.ToInt32(steps[i]);

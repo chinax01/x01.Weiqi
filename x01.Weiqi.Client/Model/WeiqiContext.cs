@@ -13,6 +13,6 @@ namespace x01.Weiqi.Model
 		{
 		}
 
-		public DbSet<Step> Steps { get; set; }
+		public DbSet<Chess> Chesses { get; set; }
 	}
 }

@@ -10,7 +10,7 @@ namespace x01.Weiqi.Board
 	/// <summary>
 	/// Interaction logic for Chess.xaml
 	/// </summary>
-	public partial class Chess : UserControl
+	public partial class Stone : UserControl
 	{
 		public string NumberText
 		{
@@ -36,7 +36,7 @@ namespace x01.Weiqi.Board
 			set { m_TxtNumber.Foreground = value; }
 		}
 
-		public Chess(Brush fillBrush, int size = 38)
+		public Stone(Brush fillBrush, int size = 38)
 		{
 			InitializeComponent();
 			m_Grid.Width = m_Grid.Height = size;

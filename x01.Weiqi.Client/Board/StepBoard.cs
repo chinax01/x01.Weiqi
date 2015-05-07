@@ -33,10 +33,10 @@ namespace x01.Weiqi.Board
 		{
 			LoadStepWindow dlg = new LoadStepWindow();
 			dlg.ShowDialog();
-			if (dlg.IsLoadStep) {
+			if (dlg.IsStepLoaded) {
 				StepId = dlg.StepId;
 				using (var db = new WeiqiContext()) {
-					string s = db.Steps.First(t=>t.Id == StepId).Content;
+					string s = db.Chesses.First(t=>t.Id == StepId).Step;
 					ContentString = new StringBuilder(s);
 				}
 			}
