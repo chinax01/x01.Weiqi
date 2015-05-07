@@ -16,7 +16,7 @@ namespace x01.Weiqi.Board
         public int Count;
     }
 
-    public enum ChessColor
+    public enum StoneColor
     {
         Black, White, Empty
     }
@@ -24,7 +24,7 @@ namespace x01.Weiqi.Board
     public struct DeadStep
     {
         public int Count;
-        public ChessColor Color;
+        public StoneColor Color;
 
         // key 为死子 Count，value 为死子 Column，Row
         public Dictionary<int, Pos> DeadInfo;
@@ -74,7 +74,7 @@ namespace x01.Weiqi.Board
     public struct StepInfo
     {
         public Stone Stone;
-        public ChessColor Color;
+        public StoneColor Color;
         public bool IsDead;
         public int Count;
         public int Column;

@@ -36,6 +36,12 @@ namespace x01.Weiqi.Board
 			set { m_TxtNumber.Foreground = value; }
 		}
 
+		public System.Windows.Shapes.Ellipse Ellipse
+		{
+			get { return m_Ellipse; }
+			set { m_Ellipse = value; }
+		}
+
 		public Stone(Brush fillBrush, int size = 38)
 		{
 			InitializeComponent();

@@ -7,6 +7,6 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Name="m_Grid" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Ellipse Name="m_Ellipse" />
-        <TextBlock x:Name="m_TxtNumber" Visibility="Hidden"  />
+        <TextBlock x:Name="m_TxtNumber" Visibility="Hidden" Panel.ZIndex="1" />
     </Grid>
 </UserControl>
