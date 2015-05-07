@@ -255,7 +255,7 @@ namespace x01.Weiqi.WhereHelper
             return area;
         }
 
-        List<Pos> LeftTopBalcks()
+        List<Pos> LeftTopBlacks()
         {
             return AreaLeftTop().GetSamePos(m_BlackPos);
         }
