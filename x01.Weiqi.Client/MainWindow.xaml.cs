@@ -100,7 +100,7 @@ namespace x01.Weiqi
 					{
 						m_Board = new GameBoard(size);
 						Title = "x01.Weiqi - GameBoard";
-						MessageBox.Show("Please start server before running InetBoard!");
+						MessageBox.Show("Please start server before running WebBoard!");
 						break;
 					}
 					Title = "x01.Weiqi - WebBoard";
@@ -147,21 +147,21 @@ namespace x01.Weiqi
 				b.StepId = id;
 				string s;
 				using (var db = new WeiqiContext()) {
-					s = db.Chesses.First(t => t.Id == id).Step;
+					s = db.Records.First(t => t.Id == id).Step;
 				}
-				b.ContentString = new StringBuilder(s);
+				b.StepString = new StringBuilder(s);
 				b.FillSteps();
 				for (int i = 0; i < count; i++) {
 					b.NextOne();
 				}
 			} else {
 				bool showNumber = (m_Board as BoardBase).IsShowNumber;
-				m_sbSteps = (m_Board as BoardBase).ContentString;
+				m_sbSteps = (m_Board as BoardBase).StepString;
 				
 				InitBoard(m_initFlag);
 				var b = m_Board as BoardBase;
 				b.IsShowNumber = showNumber;
-				b.ContentString = m_sbSteps;
+				b.StepString = m_sbSteps;
 				b.FillSteps();
 				b.RenderChess();
 			}
@@ -174,6 +174,9 @@ namespace x01.Weiqi
 
 		private void MenuClearAll_Click(object sender, RoutedEventArgs e)
 		{
+			if (m_initFlag == InitFlag.Web)
+				return;
+
 			var b = m_Board as BoardBase;
 			int count = b.StepCount;
 			for (int i = 0; i < count; i++) {

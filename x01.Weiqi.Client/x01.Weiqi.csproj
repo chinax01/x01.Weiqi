@@ -93,7 +93,7 @@
     <Compile Include="Dialog\LoadStepWindow.xaml.cs">
       <DependentUpon>LoadStepWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\Chess.cs" />
+    <Compile Include="Model\Record.cs" />
     <Compile Include="Model\WeiqiContext.cs" />
     <Compile Include="WhereHelper\ForPosSearch.cs" />
     <Compile Include="WhereHelper\PosSearch.cs" />
@@ -203,6 +203,9 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

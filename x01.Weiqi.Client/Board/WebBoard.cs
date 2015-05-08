@@ -67,6 +67,7 @@ namespace x01.Weiqi.Board
             while (true)
             {
                 string data = m_Reader.ReadLine();
+				if (data == null) continue;
                 string[] step = data.Split(',');
                 m_Color = step[0];
                 m_Col = int.Parse(step[1]);

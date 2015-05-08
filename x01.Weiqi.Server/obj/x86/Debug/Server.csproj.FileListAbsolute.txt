@@ -7,3 +7,12 @@ F:\Test\Server\obj\x86\Debug\GenerateResource.read.1.tlog
 F:\Test\Server\obj\x86\Debug\GenerateResource.write.1.tlog
 F:\Test\Server\obj\x86\Debug\Server.exe
 F:\Test\Server\obj\x86\Debug\Server.pdb
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\bin\Debug\Server.exe.config
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\bin\Debug\Server.exe
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\bin\Debug\Server.pdb
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.MainForm.resources
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.Properties.Resources.resources
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.csproj.GenerateResource.Cache
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.exe
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Server\obj\x86\Debug\Server.pdb

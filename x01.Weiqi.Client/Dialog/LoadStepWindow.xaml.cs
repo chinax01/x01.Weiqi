@@ -44,7 +44,7 @@ namespace x01.Weiqi.Dialog
 			get
 			{
 				using (var db = new WeiqiContext()) {
-					var r = from s in db.Chesses
+					var r = from s in db.Records
 							orderby s.SaveDate descending
 							select new StepShow {
 								Id = s.Id,

@@ -36,8 +36,8 @@ namespace x01.Weiqi.Board
 			if (dlg.IsStepLoaded) {
 				StepId = dlg.StepId;
 				using (var db = new WeiqiContext()) {
-					string s = db.Chesses.First(t=>t.Id == StepId).Step;
-					ContentString = new StringBuilder(s);
+					string s = db.Records.First(t=>t.Id == StepId).Step;
+					StepString = new StringBuilder(s);
 				}
 			}
 		}

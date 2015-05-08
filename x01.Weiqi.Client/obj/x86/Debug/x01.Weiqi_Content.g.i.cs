@@ -8,7 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("model/dbstep.mdf")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("model/dbstep_log.ldf")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("readme.txt")]
 
 
