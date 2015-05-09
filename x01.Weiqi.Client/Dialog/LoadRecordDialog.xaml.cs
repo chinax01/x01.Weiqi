@@ -37,6 +37,10 @@ namespace x01.Weiqi.Dialog
 			IsStepLoaded = false;
 			
 			this.grid.DataContext = Steps;
+			Loaded += (s, e) => {
+				grid.SelectedIndex = 0; 
+				grid.Focus();
+			};
 		}
 
 		public List<StepForShow> Steps
@@ -62,7 +66,9 @@ namespace x01.Weiqi.Dialog
 	
 		private void grid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			StepId = (grid.SelectedItem as StepForShow).Id;
+			var step = grid.SelectedItem as StepForShow;
+			if (step == null) return;
+			StepId = step.Id;
 			IsStepLoaded = true;
 			Close();
 		}
@@ -71,6 +77,13 @@ namespace x01.Weiqi.Dialog
 		{
 			IsStepLoaded = false;
 			Close();
+		}
+
+		private void grid_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == System.Windows.Input.Key.Enter) {
+				grid_MouseDoubleClick(sender, null);
+			}
 		}
 	}
 }

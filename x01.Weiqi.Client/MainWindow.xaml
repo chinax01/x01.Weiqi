@@ -10,20 +10,20 @@
     </Window.Resources>
     <DockPanel Name="m_DockPanel"> 
         <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" >
-            <MenuItem Header="围棋(_F)" ToolTip="File">
-                <MenuItem Header="开始对弈(_G)" ToolTip="Start Game" Name="m_MenuStart" Click="MenuStart_Click"></MenuItem>
-                <MenuItem Header="网络对弈(_W)" ToolTip="Web Game" Name="m_MenuInet" Click="MenuInet_Click"></MenuItem>
-                <MenuItem Header="人机对弈(_I)" ToolTip="AI Game" Name="m_MenuWhere"  Click="MenuWhere_Click"></MenuItem>
+            <MenuItem Header="围棋(_F)" ToolTip="Weiqi">
+                <MenuItem Header="开始对弈(_G)      Ctl+G" ToolTip="Start Game" Name="m_MenuStart" Click="MenuStart_Click"></MenuItem>
+                <MenuItem Header="网络对弈(_W)     Ctl+W" ToolTip="Web Game" Name="m_MenuWeb" Click="MenuWeb_Click"></MenuItem>
+                <MenuItem Header="人机对弈(_I)       Ctl+I" ToolTip="AI Game" Name="m_MenuAI"  Click="MenuAI_Click"></MenuItem>
                 <Separator />
-                <MenuItem Header="加载棋谱(_L)" ToolTip="Load" Name="m_MenuLoad"  Click="MenuLoad_Click"></MenuItem>
-                <MenuItem Header="保存棋谱(_S)" ToolTip="Save" Name="m_MenuSave"  Click="MenuSave_Click"></MenuItem>
-                <MenuItem Header="删除棋谱(_D)" ToolTip="Save" Name="m_MenuDelete"  Click="MenuDelete_Click"></MenuItem>
+                <MenuItem Header="加载棋谱(_L)      Ctl+L" ToolTip="Load" Name="m_MenuLoad"  Click="MenuLoad_Click"></MenuItem>
+                <MenuItem Header="保存棋谱(_S)      Ctl+S" ToolTip="Save" Name="m_MenuSave"  Click="MenuSave_Click"></MenuItem>
+                <MenuItem Header="删除棋谱(_D)     Ctl+D" ToolTip="Delete" Name="m_MenuDelete"  Click="MenuDelete_Click"></MenuItem>
                 <Separator />
-                <MenuItem Header="退出(_E)" ToolTip="Exit" Name="m_MenuExit"  Click="MenuExit_Click"></MenuItem>
+                <MenuItem Header="退出(_E)            Ctl+E" ToolTip="Exit" Name="m_MenuExit"  Click="MenuExit_Click"></MenuItem>
             </MenuItem>
             <MenuItem Header="操作(_O)" ToolTip="Operate" >
-                <MenuItem Header="显示步数(_N)      F1" ToolTip="Show Number" Name="m_MenuShowNumber"  Click="MenuShowNumber_Click" IsChecked="True" IsCheckable="True"/>
-                <MenuItem Header="清除所有(_C)      ESC" ToolTip="Clear All" Name="m_MenuClearAll" Click="MenuClearAll_Click"></MenuItem>
+                <MenuItem Header="显示步数(_N)     F1" ToolTip="Show Number" Name="m_MenuShowNumber"  Click="MenuShowNumber_Click" IsChecked="True" IsCheckable="True"/>
+                <MenuItem Header="清除所有(_C)     ESC" ToolTip="Clear All" Name="m_MenuClearAll" Click="MenuClearAll_Click"></MenuItem>
             </MenuItem>
             <MenuItem Header="帮助(_H)" ToolTip="Help">
                 <MenuItem Header="关于(_A)" ToolTip="About" Name="m_MenuAbout"  Click="MenuAbout_Click"></MenuItem>

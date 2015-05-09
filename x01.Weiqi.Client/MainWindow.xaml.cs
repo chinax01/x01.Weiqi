@@ -10,6 +10,7 @@ using x01.Weiqi.Board;
 using x01.Weiqi.Model;
 using System.Linq;
 using x01.Weiqi.Dialog;
+using System.Windows.Input;
 
 namespace x01.Weiqi
 {
@@ -46,8 +47,7 @@ namespace x01.Weiqi
 
 		private void MenuSave_Click(object sender, RoutedEventArgs e)
 		{
-			if (m_Board != null)
-			{
+			if (m_Board != null) {
 				m_Board.Save();
 			}
 		}
@@ -62,12 +62,12 @@ namespace x01.Weiqi
 			InitBoard(InitFlag.Step);
 			var b = m_Board as StepBoard;
 			if (b.StepId == -1) {
-				MessageBox.Show("Load failed! Will goto start.");
+				//MessageBox.Show("Load failed! Will goto start.");
 				InitBoard(InitFlag.Game);
 			}
 		}
 
-		private void MenuInet_Click(object sender, RoutedEventArgs e)
+		private void MenuWeb_Click(object sender, RoutedEventArgs e)
 		{
 			InitBoard(InitFlag.Web);
 		}
@@ -78,26 +78,21 @@ namespace x01.Weiqi
 		{
 			m_initFlag = flag;
 
-			if (m_Board != null)
-			{
+			if (m_Board != null) {
 				m_DockPanel.Children.Remove(m_Board as UIElement);
 				m_Board = null;
 			}
 
 			int size = (int)((Math.Min(Width, Height) - 60) / 19);
-			switch (flag)
-			{
+			switch (flag) {
 				case InitFlag.Game:
 					m_Board = new GameBoard(size);
 					Title = "x01.Weiqi - GameBoard";
 					break;
 				case InitFlag.Web:
-					try
-					{
+					try {
 						m_Board = new WebBoard(size);
-					}
-					catch
-					{
+					} catch {
 						m_Board = new GameBoard(size);
 						Title = "x01.Weiqi - GameBoard";
 						MessageBox.Show("Please start server before running WebBoard!");
@@ -120,7 +115,7 @@ namespace x01.Weiqi
 			m_DockPanel.Children.Add(m_Board as UIElement);
 		}
 
-		private void MenuWhere_Click(object sender, RoutedEventArgs e)
+		private void MenuAI_Click(object sender, RoutedEventArgs e)
 		{
 			InitBoard(InitFlag.AI);
 		}
@@ -160,7 +155,7 @@ namespace x01.Weiqi
 			} else {
 				bool showNumber = (m_Board as BoardBase).IsShowNumber;
 				m_StepString = (m_Board as BoardBase).StepString;
-				
+
 				InitBoard(m_initFlag);
 				var b = m_Board as BoardBase;
 				b.IsShowNumber = showNumber;
@@ -195,12 +190,26 @@ namespace x01.Weiqi
 		protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
-			
+
 			if (e.Key == System.Windows.Input.Key.Escape) {
 				MenuClearAll_Click(this, null);
 			} else if (e.Key == System.Windows.Input.Key.F1) {
 				MenuShowNumber_Click(this, null);
 				this.m_MenuShowNumber.IsChecked = m_IsShowNumber;
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.G) {
+				MenuStart_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.W) {
+				MenuWeb_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.I) {
+				MenuAI_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.L) {
+				MenuLoad_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.S) {
+				MenuSave_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.D) {
+				MenuDelete_Click(this, null);
+			} else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control && e.Key == Key.E) {
+				MenuExit_Click(this, null);
 			}
 		}
 

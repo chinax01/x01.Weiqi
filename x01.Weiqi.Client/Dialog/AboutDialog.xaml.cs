@@ -29,7 +29,7 @@ namespace x01.Weiqi.Dialog
 		{
 			base.OnKeyDown(e);
 
-			if (e.Key == Key.Enter)
+			if (e.Key == Key.Enter || e.Key == Key.Escape)
 				Close();
 		}
 	}
