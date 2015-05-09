@@ -3,9 +3,9 @@
 namespace x01.Weiqi.Dialog
 {
 	/// <summary>
-	/// SaveStepWindow.xaml 的交互逻辑
+	/// SaveRecordDialog.xaml 的交互逻辑
 	/// </summary>
-	public partial class SaveStepWindow : Window
+	public partial class SaveRecordDialog : Window
 	{
 		public string Description { get; set; }
 		public string BlackName { get; set; }
@@ -13,7 +13,7 @@ namespace x01.Weiqi.Dialog
 		public string Result { get; set; }
 		public bool IsSaved { get; set; }
 
-		public SaveStepWindow()
+		public SaveRecordDialog()
 		{
 			InitializeComponent();
 			IsSaved = false;
@@ -21,10 +21,10 @@ namespace x01.Weiqi.Dialog
 
 		private void OK_Click(object sender, RoutedEventArgs e)
 		{
-			Description = m_Title.Text;
+			Description = m_Description.Text;
 			BlackName = m_BlackName.Text;
 			WhiteName = m_WhiteName.Text;
-			Result = m_Winer.Text;
+			Result = m_Result.Text;
 			IsSaved = true;
 			Close();
 		}

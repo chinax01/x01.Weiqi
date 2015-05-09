@@ -9,7 +9,7 @@ namespace x01.Weiqi.Model
 	{
 		public int Id { get; set; }
 		public string Description { get; set; }
-		public string Step { get; set; }	// multi "col,row,count,"
+		public string Steps { get; set; }	// multi "col,row,count,"
 		public string White { get; set; }
 		public string Black { get; set; }
 		public string Result { get; set; }

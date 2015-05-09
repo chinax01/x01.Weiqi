@@ -1,35 +1,40 @@
-﻿<Window x:Class="x01.Weiqi.Dialog.SaveStepWindow"
+﻿<Window x:Class="x01.Weiqi.Dialog.DeleteRecordDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Save Step Window" Height="249" Width="343">
+        Title="Delete Record Dialog" Height="300" Width="333">
     <StackPanel HorizontalAlignment="Center" Margin="10 20 10 10">
         <StackPanel.Resources>
             <Style TargetType="TextBox">
                 <Setter Property="Width" Value="120" />
+                <Setter Property="IsReadOnly" Value="True" />
             </Style>
             <Style TargetType="StackPanel">
                 <Setter Property="Margin" Value="5" />
             </Style>
         </StackPanel.Resources>
         <StackPanel Orientation="Horizontal">
+            <Label>Id: </Label>
+            <ComboBox Name="m_Id" SelectionChanged="Id_SelectionChanged" Margin="20 0 0 0" Width="120" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
             <Label>说明：</Label>
-            <TextBox Name="m_Title" Width="240" >小黑大战小白</TextBox>
+            <TextBox Name="m_Description" Width="240" ></TextBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <Label>黑方：</Label>
-            <TextBox Name="m_BlackName" >小黑</TextBox>
+            <TextBox Name="m_BlackName" ></TextBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <Label>白方：</Label>
-            <TextBox Name="m_WhiteName">小白</TextBox>
+            <TextBox Name="m_WhiteName"></TextBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <Label>结果：</Label>
-            <TextBox Name="m_Winer">黑胜</TextBox>
+            <TextBox Name="m_Result"></TextBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Name="OK" Click="OK_Click" Width="60" Margin="10" Content="保存(_S)"></Button>
-            <Button Name="Cancel" Click="Cancel_Click" Width="60" Margin="10" Content="取消(_C)"></Button>
+            <Button Name="Delete" Click="Delete_Click" Width="60" Margin="10" Content="删除(_D)"></Button>
+            <Button Name="Cancel" Click="Cancel_Click"  Width="60" Margin="10" Content="取消(_C)"></Button>
         </StackPanel>
     </StackPanel>
 </Window>

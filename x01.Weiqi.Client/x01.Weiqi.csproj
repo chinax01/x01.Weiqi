@@ -87,17 +87,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Dialog\AboutWindow.xaml.cs">
-      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    <Compile Include="Dialog\AboutDialog.xaml.cs">
+      <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\LoadStepWindow.xaml.cs">
-      <DependentUpon>LoadStepWindow.xaml</DependentUpon>
+    <Compile Include="Dialog\AboutPage.xaml.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\DeleteRecordDialog.xaml.cs">
+      <DependentUpon>DeleteRecordDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\LoadRecordDialog.xaml.cs">
+      <DependentUpon>LoadRecordDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\Record.cs" />
     <Compile Include="Model\WeiqiContext.cs" />
     <Compile Include="WhereHelper\ForPosSearch.cs" />
     <Compile Include="WhereHelper\PosSearch.cs" />
-    <Page Include="Dialog\AboutWindow.xaml">
+    <Page Include="Dialog\AboutDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -109,11 +115,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\LoadStepWindow.xaml">
+    <Page Include="Dialog\AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\SaveStepWindow.xaml">
+    <Page Include="Dialog\DeleteRecordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\LoadRecordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\SaveRecordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,8 +151,8 @@
     <Compile Include="Board\IBoard.cs" />
     <Compile Include="Board\WebBoard.cs" />
     <Compile Include="Board\StepBoard.cs" />
-    <Compile Include="Dialog\SaveStepWindow.xaml.cs">
-      <DependentUpon>SaveStepWindow.xaml</DependentUpon>
+    <Compile Include="Dialog\SaveRecordDialog.xaml.cs">
+      <DependentUpon>SaveRecordDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Board\AIBoard.cs" />
     <Compile Include="MainWindow.xaml.cs">

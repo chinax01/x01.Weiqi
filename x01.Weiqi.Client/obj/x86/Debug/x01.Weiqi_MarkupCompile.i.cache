@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi.Client\App.xaml
-6282113604
+8-1914222377
 
-211069163525
+231668248387
 18-2008014736
-Dialog\AboutWindow.xaml;Board\BoardBase.xaml;Board\Stone.xaml;Dialog\LoadStepWindow.xaml;Dialog\SaveStepWindow.xaml;MainWindow.xaml;
+Dialog\AboutDialog.xaml;Board\BoardBase.xaml;Board\Stone.xaml;Dialog\AboutPage.xaml;Dialog\DeleteRecordDialog.xaml;Dialog\LoadRecordDialog.xaml;Dialog\SaveRecordDialog.xaml;MainWindow.xaml;
 
-False
+True
 

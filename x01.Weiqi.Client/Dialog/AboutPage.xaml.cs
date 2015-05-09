@@ -9,33 +9,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace x01.Weiqi.Dialog
 {
 	/// <summary>
-	/// AboutWindow.xaml 的交互逻辑
+	/// AboutPage.xaml 的交互逻辑
 	/// </summary>
-	public partial class AboutWindow : Window
+	public partial class AboutPage : Page
 	{
-		public AboutWindow()
+		public AboutPage()
 		{
 			InitializeComponent();
-
-			this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-		}
-
-		private void Button_Click(object sender, RoutedEventArgs e)
-		{
-			Close();
-		}
-
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-
-			if (e.Key == Key.Enter)
-				Close();
 		}
 	}
 }

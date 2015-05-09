@@ -44,9 +44,9 @@ namespace x01.Weiqi.Board
 			set { m_StepCount = value; }
 		}
 
-		List<Pos> m_DeadPos = new List<Pos>(); // for CanEat
-		List<DeadStep> m_DeadSteps = new List<DeadStep>(); // 保存死子
+		List<Pos> m_DeadPoses = new List<Pos>(); // for CanEat
 
+		List<DeadStep> m_DeadSteps = new List<DeadStep>(); // 保存死子
 		public List<DeadStep> DeadSteps
 		{
 			get { return m_DeadSteps; }
@@ -54,7 +54,6 @@ namespace x01.Weiqi.Board
 		}
 
 		private StringBuilder m_StepString = new StringBuilder();
-
 		public StringBuilder StepString
 		{
 			get { return m_StepString; }
@@ -67,7 +66,7 @@ namespace x01.Weiqi.Board
 
 			ChessSize = size;
 			IsShowNumber = true;
-			Steps = new StepInfo[19, 19];
+			StepInfos = new StepInfo[19, 19];
 
 			Init();
 		}
@@ -82,7 +81,7 @@ namespace x01.Weiqi.Board
 			NotInPos = new Pos(-1, -1);
 
 
-			ClearSteps();
+			ClearStepInfos();
 
 			// 画线
 			for (int i = 0; i < 19; i++) {
@@ -120,16 +119,16 @@ namespace x01.Weiqi.Board
 				}
 		}
 
-		private void ClearSteps()
+		private void ClearStepInfos()
 		{
 			for (int i = 0; i < 19; i++) {
 				for (int j = 0; j < 19; j++) {
-					Steps[i, j].Stone = null;
-					Steps[i, j].Color = StoneColor.Empty;
-					Steps[i, j].IsDead = false;
-					Steps[i, j].Count = -1;
-					Steps[i, j].Row = j;
-					Steps[i, j].Column = i;
+					StepInfos[i, j].Stone = null;
+					StepInfos[i, j].Color = StoneColor.Empty;
+					StepInfos[i, j].IsDead = false;
+					StepInfos[i, j].Count = -1;
+					StepInfos[i, j].Row = j;
+					StepInfos[i, j].Column = i;
 
 					//for AIBoard
 					m_PosSearch.EmptyPos.Add(new Pos(i, j));
@@ -138,15 +137,17 @@ namespace x01.Weiqi.Board
 		}
 
 		protected Pos NotInPos { get; set; } // 打劫及禁入点
-		public StepInfo[,] Steps { get; set; } // 保存棋谱
+		public StepInfo[,] StepInfos { get; set; } // 保存棋谱
 
 		#endregion
 
 		#region IBoard Members
 
 		public int ChessSize { get; set; }
+
 		public Brush BlackBrush { get { return (Brush)FindResource("brushBlack"); } }
 		public Brush WhiteBrush { get { return (Brush)FindResource("brushWhite"); } }
+
 		public void DrawChess(int col, int row)
 		{
 			int left = col * ChessSize;
@@ -155,30 +156,30 @@ namespace x01.Weiqi.Board
 			Brush brush;
 			if (m_IsBlack = !m_IsBlack) {
 				brush = BlackBrush; 
-				Steps[col, row].Color = StoneColor.Black;
+				StepInfos[col, row].Color = StoneColor.Black;
 			} else {
 				brush = WhiteBrush;
-				Steps[col, row].Color = StoneColor.White;
+				StepInfos[col, row].Color = StoneColor.White;
 			}
 
-			if (Steps[col, row].Stone == null) {
+			if (StepInfos[col, row].Stone == null) {
 				Stone chess = new Stone(brush, ChessSize);
 				SetShowNumber(chess);
 				Canvas.SetLeft(chess, left);
 				Canvas.SetTop(chess, top);
 				m_Canvas.Children.Add(chess);
-				Steps[col, row].Stone = chess;
-			} else if (Steps[col, row].Stone != null 
-					&& Steps[col, row].Stone.Visibility == System.Windows.Visibility.Hidden) {
+				StepInfos[col, row].Stone = chess;
+			} else if (StepInfos[col, row].Stone != null 
+					&& StepInfos[col, row].Stone.Visibility == System.Windows.Visibility.Hidden) {
 				// 此所谓牵一发而动全身者！
-				SetShowNumber(Steps[col, row].Stone);
-				Steps[col, row].Stone.FillBrush = brush;
-				Steps[col, row].Stone.Visibility = System.Windows.Visibility.Visible;
+				SetShowNumber(StepInfos[col, row].Stone);
+				StepInfos[col, row].Stone.FillBrush = brush;
+				StepInfos[col, row].Stone.Visibility = System.Windows.Visibility.Visible;
 			} else {
 				throw new Exception(string.Format("Cannot Draw Chess at: col = {0}, row = {1}.", col, row));
 			}
 
-			Steps[col, row].Count = ++m_StepCount;
+			StepInfos[col, row].Count = ++m_StepCount;
 
 			// For AIBoard
 			AddPos(col, row);
@@ -212,7 +213,7 @@ namespace x01.Weiqi.Board
 			if (!EatOther(col, row)) {
 				if (EatSelf(col, row)) {
 					// 自杀一子为禁入
-					if (m_DeadPos.Count == 1) {
+					if (m_DeadPoses.Count == 1) {
 						BackOne();
 					}
 				}
@@ -222,19 +223,19 @@ namespace x01.Weiqi.Board
 		{
 			// 上、下、左、右各吃一通。
 			bool ok1 = false;
-			if (col != 0 && Steps[col, row].Color != Steps[col - 1, row].Color) {
+			if (col != 0 && StepInfos[col, row].Color != StepInfos[col - 1, row].Color) {
 				ok1 = EatSelf(col - 1, row);
 			}
 			bool ok2 = false;
-			if (col != 18 && Steps[col, row].Color != Steps[col + 1, row].Color) {
+			if (col != 18 && StepInfos[col, row].Color != StepInfos[col + 1, row].Color) {
 				ok2 = EatSelf(col + 1, row);
 			}
 			bool ok3 = false;
-			if (row != 0 && Steps[col, row].Color != Steps[col, row - 1].Color) {
+			if (row != 0 && StepInfos[col, row].Color != StepInfos[col, row - 1].Color) {
 				ok3 = EatSelf(col, row - 1);
 			}
 			bool ok4 = false;
-			if (row != 18 && Steps[col, row].Color != Steps[col, row + 1].Color) {
+			if (row != 18 && StepInfos[col, row].Color != StepInfos[col, row + 1].Color) {
 				ok4 = EatSelf(col, row + 1);
 			}
 
@@ -243,57 +244,57 @@ namespace x01.Weiqi.Board
 		private bool EatSelf(int col, int row)
 		{
 			ClearForEat();
-			if (CanEat(col, row, Steps[col, row].Color)) {
+			if (CanEat(col, row, StepInfos[col, row].Color)) {
 				DeadStep deadStep;
 				deadStep.Count = m_StepCount;
-				deadStep.Color = Steps[col, row].Color;
+				deadStep.Color = StepInfos[col, row].Color;
 				deadStep.DeadInfo = new Dictionary<int, Pos>();
-				if (m_DeadPos.Count == 1) {
+				if (m_DeadPoses.Count == 1) {
 					Pos pos;
-					pos.X = m_DeadPos[0].X;
-					pos.Y = m_DeadPos[0].Y;
+					pos.X = m_DeadPoses[0].X;
+					pos.Y = m_DeadPoses[0].Y;
 
 					NotInPos = new Pos(pos.X, pos.Y);
 
-					foreach (var item in Steps) {
+					foreach (var item in StepInfos) {
 						// 变色而已，m_StepCount 为上一步
 						if (item.Count == m_StepCount) {
 							ClearForEat(); // 预想下一步的进行
 							if (CanEat(pos.X, pos.Y, item.Color)) {
 								// 因有一子变色，故减一。实际 Count 至少为 3
-								if (m_DeadPos.Count - 1 > 0) {
+								if (m_DeadPoses.Count - 1 > 0) {
 									NotInPos = new Pos(-1, -1);
 								}
 							}
 						}
 					}
 
-					deadStep.DeadInfo.Add(Steps[pos.X, pos.Y].Count, new Pos(pos.X, pos.Y));
+					deadStep.DeadInfo.Add(StepInfos[pos.X, pos.Y].Count, new Pos(pos.X, pos.Y));
 
-					if (Steps[pos.X, pos.Y].Color == StoneColor.Black) {
+					if (StepInfos[pos.X, pos.Y].Color == StoneColor.Black) {
 						m_PosSearch.BlackPos.Remove(new Pos(pos.X, pos.Y));
 						m_PosSearch.EmptyPos.Add(new Pos(pos.X, pos.Y));
-					} else if (Steps[pos.X, pos.Y].Color == StoneColor.White) {
+					} else if (StepInfos[pos.X, pos.Y].Color == StoneColor.White) {
 						m_PosSearch.WhitePos.Remove(new Pos(pos.X, pos.Y));
 						m_PosSearch.EmptyPos.Add(new Pos(pos.X, pos.Y));
 					}
 
-					Steps[pos.X, pos.Y].Color = StoneColor.Empty;
-					Steps[pos.X, pos.Y].Stone.Visibility = System.Windows.Visibility.Hidden;
+					StepInfos[pos.X, pos.Y].Color = StoneColor.Empty;
+					StepInfos[pos.X, pos.Y].Stone.Visibility = System.Windows.Visibility.Hidden;
 				} else {
-					foreach (var item in m_DeadPos) {
-						deadStep.DeadInfo.Add(Steps[item.X, item.Y].Count, new Pos(item.X, item.Y));
+					foreach (var item in m_DeadPoses) {
+						deadStep.DeadInfo.Add(StepInfos[item.X, item.Y].Count, new Pos(item.X, item.Y));
 
-						if (Steps[item.X, item.Y].Color == StoneColor.Black) {
+						if (StepInfos[item.X, item.Y].Color == StoneColor.Black) {
 							m_PosSearch.BlackPos.Remove(new Pos(item.X, item.Y));
 							m_PosSearch.EmptyPos.Add(new Pos(item.X, item.Y));
-						} else if (Steps[item.X, item.Y].Color == StoneColor.White) {
+						} else if (StepInfos[item.X, item.Y].Color == StoneColor.White) {
 							m_PosSearch.WhitePos.Remove(new Pos(item.X, item.Y));
 							m_PosSearch.EmptyPos.Add(new Pos(item.X, item.Y));
 						}
 
-						Steps[item.X, item.Y].Color = StoneColor.Empty;
-						Steps[item.X, item.Y].Stone.Visibility = System.Windows.Visibility.Hidden;
+						StepInfos[item.X, item.Y].Color = StoneColor.Empty;
+						StepInfos[item.X, item.Y].Stone.Visibility = System.Windows.Visibility.Hidden;
 					}
 				}
 				m_DeadSteps.Add(deadStep);
@@ -305,19 +306,19 @@ namespace x01.Weiqi.Board
 		}
 		protected void ClearForEat()
 		{
-			foreach (var item in m_DeadPos) {
-				Steps[item.X, item.Y].IsDead = false;
+			foreach (var item in m_DeadPoses) {
+				StepInfos[item.X, item.Y].IsDead = false;
 			}
-			m_DeadPos.Clear();
+			m_DeadPoses.Clear();
 		}
 		protected bool CanEat(int col, int row, StoneColor currentColor)
 		{
-			if (Steps[col, row].Color == StoneColor.Empty) {
+			if (StepInfos[col, row].Color == StoneColor.Empty) {
 				return false;
 			}
 
-			m_DeadPos.Add(new Pos(col, row));
-			Steps[col, row].IsDead = true;
+			m_DeadPoses.Add(new Pos(col, row));
+			StepInfos[col, row].IsDead = true;
 
 			// 边界问题，头疼问题。笨人笨法，分别处理之
 			return CanEatLeft(col, row, currentColor) && CanEatRight(col, row, currentColor)
@@ -326,11 +327,11 @@ namespace x01.Weiqi.Board
 		bool CanEatLeft(int col, int row, StoneColor currentColor)
 		{
 			if (col != 0) {
-				if (Steps[col - 1, row].Color == StoneColor.Empty) {
+				if (StepInfos[col - 1, row].Color == StoneColor.Empty) {
 					return false;
-				} else if (Steps[col - 1, row].Color == currentColor && Steps[col - 1, row].IsDead == false) {
-					m_DeadPos.Add(new Pos(col - 1, row));
-					Steps[col - 1, row].IsDead = true;
+				} else if (StepInfos[col - 1, row].Color == currentColor && StepInfos[col - 1, row].IsDead == false) {
+					m_DeadPoses.Add(new Pos(col - 1, row));
+					StepInfos[col - 1, row].IsDead = true;
 					if (!CanEatUp(col - 1, row, currentColor)) {
 						return false;
 					}
@@ -348,11 +349,11 @@ namespace x01.Weiqi.Board
 		bool CanEatRight(int col, int row, StoneColor currentColor)
 		{
 			if (col != 18) {
-				if (Steps[col + 1, row].Color == StoneColor.Empty) {
+				if (StepInfos[col + 1, row].Color == StoneColor.Empty) {
 					return false;
-				} else if (Steps[col + 1, row].Color == currentColor && Steps[col + 1, row].IsDead == false) {
-					m_DeadPos.Add(new Pos(col + 1, row));
-					Steps[col + 1, row].IsDead = true;
+				} else if (StepInfos[col + 1, row].Color == currentColor && StepInfos[col + 1, row].IsDead == false) {
+					m_DeadPoses.Add(new Pos(col + 1, row));
+					StepInfos[col + 1, row].IsDead = true;
 					if (!CanEatUp(col + 1, row, currentColor)) {
 						return false;
 					}
@@ -370,11 +371,11 @@ namespace x01.Weiqi.Board
 		bool CanEatUp(int col, int row, StoneColor currentColor)
 		{
 			if (row != 0) {
-				if (Steps[col, row - 1].Color == StoneColor.Empty) {
+				if (StepInfos[col, row - 1].Color == StoneColor.Empty) {
 					return false;
-				} else if (Steps[col, row - 1].Color == currentColor && Steps[col, row - 1].IsDead == false) {
-					m_DeadPos.Add(new Pos(col, row - 1));
-					Steps[col, row - 1].IsDead = true;
+				} else if (StepInfos[col, row - 1].Color == currentColor && StepInfos[col, row - 1].IsDead == false) {
+					m_DeadPoses.Add(new Pos(col, row - 1));
+					StepInfos[col, row - 1].IsDead = true;
 					if (!CanEatLeft(col, row - 1, currentColor)) {
 						return false;
 					}
@@ -392,11 +393,11 @@ namespace x01.Weiqi.Board
 		bool CanEatDown(int col, int row, StoneColor currentColor)
 		{
 			if (row != 18) {
-				if (Steps[col, row + 1].Color == StoneColor.Empty) {
+				if (StepInfos[col, row + 1].Color == StoneColor.Empty) {
 					return false;
-				} else if (Steps[col, row + 1].Color == currentColor && Steps[col, row + 1].IsDead == false) {
-					m_DeadPos.Add(new Pos(col, row + 1));
-					Steps[col, row + 1].IsDead = true;
+				} else if (StepInfos[col, row + 1].Color == currentColor && StepInfos[col, row + 1].IsDead == false) {
+					m_DeadPoses.Add(new Pos(col, row + 1));
+					StepInfos[col, row + 1].IsDead = true;
 					if (!CanEatLeft(col, row + 1, currentColor)) {
 						return false;
 					}
@@ -451,22 +452,22 @@ namespace x01.Weiqi.Board
 						}
 
 						
-						Steps[col, row].Color = dead.Color;
+						StepInfos[col, row].Color = dead.Color;
 						// 以下为正确显示颜色
 						if (dead.Color == StoneColor.Black) {
-							Steps[col, row].Stone.FillBrush = BlackBrush;
+							StepInfos[col, row].Stone.FillBrush = BlackBrush;
 						} else if (dead.Color == StoneColor.White) {
-							Steps[col, row].Stone.FillBrush = WhiteBrush;
+							StepInfos[col, row].Stone.FillBrush = WhiteBrush;
 						}
 
-						Steps[col, row].Count = info.Key;
+						StepInfos[col, row].Count = info.Key;
 						// 以下为正确显示数字
 						int temp = m_StepCount;
 						m_StepCount = info.Key - 1;
-						SetShowNumber(Steps[col, row].Stone);
+						SetShowNumber(StepInfos[col, row].Stone);
 						m_StepCount = temp;
 
-						Steps[col, row].Stone.Visibility = System.Windows.Visibility.Visible;
+						StepInfos[col, row].Stone.Visibility = System.Windows.Visibility.Visible;
 					}
 				}
 			}
@@ -476,23 +477,23 @@ namespace x01.Weiqi.Board
 			}
 
 			Pos backPos = new Pos(-1, -1);
-			foreach (var item in Steps) {
+			foreach (var item in StepInfos) {
 				if (item.Count == count - 1) {
 					backPos = new Pos(item.Column, item.Row);
 					break;
 				}
 			}
 
-			foreach (var item in Steps) {
+			foreach (var item in StepInfos) {
 				if (item.Color != StoneColor.Empty && item.Count == count) {
 					int col = item.Column;
 					int row = item.Row;
 
 					RemovePos(col, row); // for PosSearch
 
-					Steps[col, row].Stone.Visibility = System.Windows.Visibility.Hidden;
-					Steps[col, row].Count = -1;
-					Steps[col, row].Color = StoneColor.Empty;
+					StepInfos[col, row].Stone.Visibility = System.Windows.Visibility.Hidden;
+					StepInfos[col, row].Count = -1;
+					StepInfos[col, row].Color = StoneColor.Empty;
 					m_IsBlack = !m_IsBlack;
 
 					string s = m_StepString.ToString();
@@ -503,17 +504,13 @@ namespace x01.Weiqi.Board
 							skip = true;
 							break;
 						}
-						s = s.Substring(0, s.LastIndexOf(","));
+						s = s.Substring(0, s.LastIndexOf(",")); // index base 0, 即 length - 1;
 					}
 					if (!skip) {
 						m_StepString = new StringBuilder(s + ",");
 					}
 
-					if (backPos == new Pos(-1, -1)) {
-						if (m_Canvas.Children.Contains(m_rectCurrent)) {
-							m_Canvas.Children.Remove(m_rectCurrent);
-						}
-					} else {
+					if (backPos != new Pos(-1, -1)) {
 						Canvas.SetLeft(m_rectCurrent, backPos.X * ChessSize + m_rectCurrent.Width);
 						Canvas.SetTop(m_rectCurrent, backPos.Y * ChessSize + m_rectCurrent.Height);
 						m_Canvas.Children.Add(m_rectCurrent);
@@ -525,20 +522,20 @@ namespace x01.Weiqi.Board
 		// For PosSearch
 		private void AddPos(int col, int row)
 		{
-			if (Steps[col, row].Color == StoneColor.Black) {
+			if (StepInfos[col, row].Color == StoneColor.Black) {
 				m_PosSearch.BlackPos.Add(new Pos(col, row));
 				m_PosSearch.EmptyPos.Remove(new Pos(col, row));
-			} else if (Steps[col, row].Color == StoneColor.White) {
+			} else if (StepInfos[col, row].Color == StoneColor.White) {
 				m_PosSearch.WhitePos.Add(new Pos(col, row));
 				m_PosSearch.EmptyPos.Remove(new Pos(col, row));
 			}
 		}
 		private void RemovePos(int col, int row)
 		{
-			if (Steps[col, row].Color == StoneColor.Black) {
+			if (StepInfos[col, row].Color == StoneColor.Black) {
 				m_PosSearch.BlackPos.Remove(new Pos(col, row));
 				m_PosSearch.EmptyPos.Add(new Pos(col, row));
-			} else if (Steps[col, row].Color == StoneColor.White) {
+			} else if (StepInfos[col, row].Color == StoneColor.White) {
 				m_PosSearch.WhitePos.Remove(new Pos(col, row));
 				m_PosSearch.EmptyPos.Add(new Pos(col, row));
 			}
@@ -546,12 +543,12 @@ namespace x01.Weiqi.Board
 
 		public void Save()
 		{
-			var dlg = new SaveStepWindow();
+			var dlg = new SaveRecordDialog();
 			dlg.ShowDialog();
 
 			string s = StepString.ToString();
-			Record step = new Record {
-				Step = s,
+			Record r = new Record {
+				Steps = s,
 				Description = dlg.Description,
 				SaveDate = DateTime.Now,
 				Black = dlg.BlackName,
@@ -561,7 +558,7 @@ namespace x01.Weiqi.Board
 
 			if (dlg.IsSaved) {
 				using (var db = new WeiqiContext()) {
-					db.Records.Add(step);
+					db.Records.Add(r);
 					db.SaveChanges();
 					MessageBox.Show("Save step success!");
 				}
@@ -576,7 +573,7 @@ namespace x01.Weiqi.Board
 				return true;
 			}
 
-			if (Steps[col, row].Color != StoneColor.Empty) {
+			if (StepInfos[col, row].Color != StoneColor.Empty) {
 				return true;
 			}
 
@@ -632,7 +629,7 @@ namespace x01.Weiqi.Board
 					int col = item.Col;
 					int row = item.Row;
 
-					if (Steps[col, row].Color != StoneColor.Empty) {
+					if (StepInfos[col, row].Color != StoneColor.Empty) {
 						return;
 					}
 

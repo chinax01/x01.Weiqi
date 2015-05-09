@@ -9,6 +9,7 @@ using System.Text;
 
 namespace x01.Weiqi.Board
 {
+	// 处理棋谱中的 Steps
     public struct Step
     {
         public int Col;

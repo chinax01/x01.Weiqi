@@ -1,8 +1,8 @@
-﻿<Window x:Class="x01.Weiqi.Dialog.LoadStepWindow"
+﻿<Window x:Class="x01.Weiqi.Dialog.LoadRecordDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Model="clr-namespace:x01.Weiqi.Model" 
-        Title="Load Step Window" Height="227" Width="257" 
+        Title="Load Record Dialog" Height="227" Width="257" 
         ShowInTaskbar="False" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight">    
     <StackPanel>
         <DataGrid x:Name="grid" ItemsSource="{Binding}" ToolTip="Double click select" 

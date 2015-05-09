@@ -33,15 +33,15 @@ namespace x01.Weiqi
 			this.SizeChanged += MainWindow_SizeChanged;
 		}
 
-		bool m_isSizeChanged = false;	// For StepBoard
+		bool m_IsSizeChanged = false;	// For StepBoard
 		void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			Width = ActualWidth;
 			Height = ActualHeight;
 
-			m_isSizeChanged = true;
+			m_IsSizeChanged = true;
 			Redraw();
-			m_isSizeChanged = false;
+			m_IsSizeChanged = false;
 		}
 
 		private void MenuSave_Click(object sender, RoutedEventArgs e)
@@ -73,7 +73,7 @@ namespace x01.Weiqi
 		}
 
 		InitFlag m_initFlag = InitFlag.Game;
-		StringBuilder m_sbSteps = new StringBuilder();
+		StringBuilder m_StepString = new StringBuilder();
 		private void InitBoard(InitFlag flag)
 		{
 			m_initFlag = flag;
@@ -110,7 +110,7 @@ namespace x01.Weiqi
 					Title = "x01.Weiqi - AIBoard";
 					break;
 				case InitFlag.Step:
-					m_Board = new StepBoard(size, m_isSizeChanged);
+					m_Board = new StepBoard(size, m_IsSizeChanged, m_IsNumberChanged); // 参数不嫌多
 					Title = "x01.Weiqi - StepBoard";
 					break;
 				default:
@@ -125,12 +125,15 @@ namespace x01.Weiqi
 			InitBoard(InitFlag.AI);
 		}
 
-		bool m_isShowNumber = true;
+		bool m_IsShowNumber = true;
+		bool m_IsNumberChanged = false;	// for StepBoard
 		private void MenuShowNumber_Click(object sender, RoutedEventArgs e)
 		{
-			m_isShowNumber = !m_isShowNumber;
-			(m_Board as BoardBase).IsShowNumber = m_isShowNumber;
+			m_IsNumberChanged = true;
+			m_IsShowNumber = !m_IsShowNumber;
+			(m_Board as BoardBase).IsShowNumber = m_IsShowNumber;
 			Redraw();
+			m_IsNumberChanged = false;
 		}
 
 		private void Redraw()
@@ -147,7 +150,7 @@ namespace x01.Weiqi
 				b.StepId = id;
 				string s;
 				using (var db = new WeiqiContext()) {
-					s = db.Records.First(t => t.Id == id).Step;
+					s = db.Records.First(t => t.Id == id).Steps;
 				}
 				b.StepString = new StringBuilder(s);
 				b.FillSteps();
@@ -156,20 +159,20 @@ namespace x01.Weiqi
 				}
 			} else {
 				bool showNumber = (m_Board as BoardBase).IsShowNumber;
-				m_sbSteps = (m_Board as BoardBase).StepString;
+				m_StepString = (m_Board as BoardBase).StepString;
 				
 				InitBoard(m_initFlag);
 				var b = m_Board as BoardBase;
 				b.IsShowNumber = showNumber;
-				b.StepString = m_sbSteps;
+				b.StepString = m_StepString;
 				b.FillSteps();
 				b.RenderChess();
 			}
 		}
 
-		private void About_Click(object sender, RoutedEventArgs e)
+		private void MenuAbout_Click(object sender, RoutedEventArgs e)
 		{
-			new AboutWindow().ShowDialog();
+			new AboutDialog().ShowDialog();
 		}
 
 		private void MenuClearAll_Click(object sender, RoutedEventArgs e)
@@ -184,7 +187,7 @@ namespace x01.Weiqi
 			}
 		}
 
-		private void Exit_Click(object sender, RoutedEventArgs e)
+		private void MenuExit_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
 		}
@@ -197,8 +200,13 @@ namespace x01.Weiqi
 				MenuClearAll_Click(this, null);
 			} else if (e.Key == System.Windows.Input.Key.F1) {
 				MenuShowNumber_Click(this, null);
-				this.m_MenuShowNumber.IsChecked = m_isShowNumber;
+				this.m_MenuShowNumber.IsChecked = m_IsShowNumber;
 			}
+		}
+
+		private void MenuDelete_Click(object sender, RoutedEventArgs e)
+		{
+			new DeleteRecordDialog().ShowDialog();
 		}
 
 	}

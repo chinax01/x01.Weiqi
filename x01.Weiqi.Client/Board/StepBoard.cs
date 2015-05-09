@@ -14,9 +14,11 @@ namespace x01.Weiqi.Board
 {
 	class StepBoard : BoardBase
 	{
-		public StepBoard(int chessSize = 38, bool isSizeChanged = false)
+		bool m_IsNumberChanged = false;
+		public StepBoard(int chessSize = 38, bool isSizeChanged = false, bool isNumberChanged = false)
 			: base(chessSize)
 		{
+			m_IsNumberChanged = isNumberChanged;
 			StepId = -1;
 			if (!isSizeChanged)
 				InitData();
@@ -31,12 +33,16 @@ namespace x01.Weiqi.Board
 		public int StepId { get; set; }
 		private void GetSteps()
 		{
-			LoadStepWindow dlg = new LoadStepWindow();
+			if (m_IsNumberChanged) {
+				return;
+			}
+
+			LoadRecordDialog dlg = new LoadRecordDialog();
 			dlg.ShowDialog();
 			if (dlg.IsStepLoaded) {
 				StepId = dlg.StepId;
 				using (var db = new WeiqiContext()) {
-					string s = db.Records.First(t=>t.Id == StepId).Step;
+					string s = db.Records.First(t=>t.Id == StepId).Steps;
 					StepString = new StringBuilder(s);
 				}
 			}
