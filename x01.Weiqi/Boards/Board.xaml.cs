@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using x01.Weiqi.Models;
+using x01.Weiqi.Windows;
 
 namespace x01.Weiqi.Boards
 {
@@ -21,7 +25,8 @@ namespace x01.Weiqi.Boards
 			Init();
 		}
 
-		public bool IsShowNumber { get; set; }	// 是否显示步数
+		// 是否显示步数
+		public bool IsShowNumber { get; set; }	
 
 		// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
@@ -35,12 +40,64 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-		public void NextOne(int row, int col)
+		// 棋步计数
+		int m_StepCount = 0;					
+		public int StepCount
+		{
+			get { return m_StepCount; }
+			set { m_StepCount = value; }
+		}
+
+		public void Redraw()
+		{
+			// 画线
+			for (int i = 0; i < 19; i++) {
+				Line l = m_LinesH[i];
+				int y = i * StoneSize + StoneSize / 2;
+				l.X1 = StoneSize / 2;
+				l.Y1 = y;
+				l.X2 = 19 * StoneSize - StoneSize / 2;
+				l.Y2 = y;
+
+				l = m_LinesV[i];
+				int x = i * StoneSize + StoneSize / 2;
+				l.X1 = x;
+				l.Y1 = StoneSize / 2;
+				l.X2 = x;
+				l.Y2 = 19 * StoneSize - StoneSize / 2;
+			}
+
+			// 画星
+			for (int j = 0; j < 3; j++) {
+				for (int i = 0; i < 3; i++) {
+					Ellipse e = m_Stars[i, j];
+					e.Width = e.Height = StoneSize / 3;
+					double left = 4 * StoneSize + j * 6 * StoneSize - StoneSize / 2 - e.Width / 2;
+					double top = 4 * StoneSize + i * 6 * StoneSize - StoneSize / 2 - e.Height / 2;
+					Canvas.SetLeft(e, left);
+					Canvas.SetTop(e, top);
+				}
+			}
+
+			// Stones and Numbers
+			for (int i = 0; i < 19; i++) {
+				for (int j = 0; j < 19; j++) {
+					var stone = m_Stones[i, j];
+					stone.Width = stone.Height = StoneSize;
+					Canvas.SetLeft(stone, j * StoneSize);
+					Canvas.SetTop(stone, i * StoneSize);
+
+					ShowNumber(i, j, m_Steps[i, j].StepCount);
+				}
+			}
+		}
+
+		public bool NextOne(int row, int col)
 		{
 			if (m_Steps[row, col].StoneColor != StoneColor.Empty)
-				return;
+				return false;
 			if (m_BanOnce.Row == row && m_BanOnce.Col == col) {
-				return;
+				return false;
 			}
 			m_BanOnce.Row = m_BanOnce.Col = -1;
 
@@ -74,9 +131,10 @@ namespace x01.Weiqi.Boards
 			if (isKillSelf) {
 				m_DeadBlocks.Remove(m_StepCount - 1);
 				BackOne();
+				return false;
 			}
 
-
+			return true;
 		}
 
 		public void BackOne()
@@ -86,7 +144,6 @@ namespace x01.Weiqi.Boards
 			}
 
 			m_StepCount--;
-		
 			foreach (var item in m_Steps) {
 				if (item.StepCount == m_StepCount) {
 					if (m_BlackSteps.Contains(item)) {
@@ -109,13 +166,46 @@ namespace x01.Weiqi.Boards
 
 			// Reset BanOnce 
 			int prevCount = m_StepCount - 1;
-			Step prev = m_AllSteps.First(s => s.StepCount == prevCount);
+			Step prev = m_AllSteps.FirstOrDefault(s => s.StepCount == prevCount);
+			if (prev == null) return;
 			List<Step> empties = LinkSteps(prev, StoneColor.Empty);
-			if (empties.Count == 1 && empties[0].StepCount == m_BanOnce.StepCount) {
+			if (empties.Count == 1 && empties[0].DeadStepCount == m_BanOnce.StepCount) {
 				m_BanOnce.Row = empties[0].Row;
 				m_BanOnce.Col = empties[0].Col;
 			}
-			
+
+
+		}
+
+		public void SaveSteps()
+		{
+			SaveStepWindow dlg = new SaveStepWindow();
+			dlg.ShowDialog();
+
+			StringBuilder steps = new StringBuilder();
+			int count = m_StepCount;
+			for (int i = 0; i < count; i++) {
+				foreach (var item in m_Steps) {
+					if (item.StepCount == i) {
+						steps.Append(item.Row.ToString() + "," + item.Col.ToString() + "," + i.ToString() + ",");
+						break;
+					}
+				}
+			}
+
+			using (var db = new WeiqiContext()) {
+				Record record = new Record {
+					Black = dlg.BlackName,
+					White = dlg.WhiteName,
+					Result = dlg.Result,
+					SaveDate = DateTime.Now,
+					Steps = steps.ToString(),
+					Description = dlg.Description
+				};
+				db.Records.Add(record);
+				db.SaveChanges();
+				MessageBox.Show("Save steps success!");
+			}
 		}
 
 		#region Init
@@ -124,8 +214,6 @@ namespace x01.Weiqi.Boards
 
 		Ellipse[,] m_Stones = new Ellipse[19, 19];			// 棋子，仅为显示
 		TextBlock[,] m_Numbers = new TextBlock[19, 19];		// 步数
-
-		int m_StepCount = 0;					// 棋步计数
 
 		// 棋盘纵横线和星
 		Line[] m_LinesH = new Line[19];
@@ -196,49 +284,6 @@ namespace x01.Weiqi.Boards
 			base.OnRender(drawingContext);
 			Redraw();
 		}
-		void Redraw()
-		{
-			// 画线
-			for (int i = 0; i < 19; i++) {
-				Line l = m_LinesH[i];
-				int y = i * StoneSize + StoneSize / 2;
-				l.X1 = StoneSize / 2;
-				l.Y1 = y;
-				l.X2 = 19 * StoneSize - StoneSize / 2;
-				l.Y2 = y;
-
-				l = m_LinesV[i];
-				int x = i * StoneSize + StoneSize / 2;
-				l.X1 = x;
-				l.Y1 = StoneSize / 2;
-				l.X2 = x;
-				l.Y2 = 19 * StoneSize - StoneSize / 2;
-			}
-
-			// 画星
-			for (int j = 0; j < 3; j++) {
-				for (int i = 0; i < 3; i++) {
-					Ellipse e = m_Stars[i, j];
-					e.Width = e.Height = StoneSize / 3;
-					double left = 4 * StoneSize + j * 6 * StoneSize - StoneSize / 2 - e.Width / 2;
-					double top = 4 * StoneSize + i * 6 * StoneSize - StoneSize / 2 - e.Height / 2;
-					Canvas.SetLeft(e, left);
-					Canvas.SetTop(e, top);
-				}
-			}
-
-			// Stones and Numbers
-			for (int i = 0; i < 19; i++) {
-				for (int j = 0; j < 19; j++) {
-					var stone = m_Stones[i, j];
-					stone.Width = stone.Height = StoneSize;
-					Canvas.SetLeft(stone, j * StoneSize);
-					Canvas.SetTop(stone, i * StoneSize);
-
-					ShowNumber(i, j, m_Steps[i, j].StepCount);
-				}
-			}
-		}
 
 		private void ShowNumber(int row, int col, int stepCount)
 		{
@@ -301,7 +346,8 @@ namespace x01.Weiqi.Boards
 		{
 			int row = step.Row;
 			int col = step.Col;
-			//m_Steps[row, col].StepCount = -1;
+			m_Steps[row, col].DeadStepCount = step.StepCount;
+			m_Steps[row, col].StepCount = -1;
 			m_Steps[row, col].StoneColor = StoneColor.Empty;
 			m_Stones[row, col].Visibility = System.Windows.Visibility.Hidden;
 			m_Numbers[row, col].Visibility = System.Windows.Visibility.Hidden;
@@ -358,32 +404,26 @@ namespace x01.Weiqi.Boards
 
 			var tmp = new List<Step>();
 			foreach (var step in copySteps) {
-				if (tmp.Contains(step)) continue;
-				List<Step> sameLinks = LinkSteps(step, step.StoneColor);
-				foreach (var link in sameLinks) {
-					if (tmp.Count != 0 && tmp.Intersect(sameLinks).Count() != 0) {
-						if (!tmp.Contains(link)) tmp.Add(link);
-					} else if (tmp.Count == 0) {	// first
-						tmp.Add(link);
-					}
-				}
+				if (tmp.Count == 0) tmp.Add(step);
+				var sameLinks = LinkSteps(step, step.StoneColor);
+				if (tmp.Intersect(sameLinks).Count() != 0)
+					tmp = tmp.Union(sameLinks).ToList();
+			}
+			foreach (var step in copySteps) {	// 防止遗漏
+				var sameLinks = LinkSteps(step, step.StoneColor);
+				if (tmp.Intersect(sameLinks).Count() != 0)
+					tmp = tmp.Union(sameLinks).ToList();
 			}
 			if (tmp.Count == 0) return;
 
 			Block block = new Block();
-			block.Steps.AddRange(tmp);
-			//block.UpdateBlockId();
+			block.Steps = tmp;
+			block.UpdateBlockId();
 			blocks.Add(block);
 
 			copySteps.RemoveAll(s => tmp.Contains(s));	// next block
 			UpdateBlocks(copySteps, blocks);	// 递归
 		}
-
-		private List<Step> GetLinkEmpties(Step step)
-		{
-			return LinkSteps(step, StoneColor.Empty).ToList();
-		}
-
 
 		bool UpdateDeadBlocks(List<Block> selfBlocks)
 		{
@@ -393,10 +433,7 @@ namespace x01.Weiqi.Boards
 			}
 
 			foreach (var block in blocks) {
-				List<Step> empties = new List<Step>();
-				foreach (var step in block.Steps) {
-					empties = empties.Union(GetLinkEmpties(step)).ToList();
-				}
+				List<Step> empties = GetEmpties(block);
 				block.EmptyCount = empties.Count;
 
 				if (empties.Count == 0) {
@@ -433,13 +470,14 @@ namespace x01.Weiqi.Boards
 			s.Col = step.Col;
 			s.BlockId = step.BlockId;
 			s.StepCount = step.StepCount;
+			s.DeadStepCount = step.DeadStepCount;
 			s.StoneColor = step.StoneColor;
 			return s;
 		}
 
 		//   +
 		// + + +	与 step 相连的棋子，包含自身
-		//   +		根据 color 参数决定是同色，黑色，白色，还是空色。
+		//   +		根据 color 参数决定是所有，同色，黑色，白色，还是空色。
 		List<Step> LinkSteps(Step step, StoneColor color = StoneColor.Empty)
 		{
 			List<Step> links = new List<Step>();

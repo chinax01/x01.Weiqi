@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\App.xaml
-2-181726517
+6698822492
 
-9840452433
-18-2008014736
-Boards\Board.xaml;MainWindow.xaml;
+18-645423308
+19-657093374
+Boards\Board.xaml;MainWindow.xaml;Windows\AboutPage.xaml;Windows\DeleteStepWindow.xaml;Windows\LoadStepWindow.xaml;Windows\SaveStepWindow.xaml;
 
-True
+False
 

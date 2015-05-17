@@ -65,6 +65,7 @@
       <HintPath>..\..\..\Lab\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Runtime.Serialization" />
@@ -87,11 +88,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Boards\AiBoard.cs" />
+    <Compile Include="Boards\Board.Think.cs" />
     <Compile Include="Boards\Board.xaml.cs">
       <DependentUpon>Board.xaml</DependentUpon>
     </Compile>
     <Compile Include="Boards\ForBoard.cs" />
     <Compile Include="Boards\GameBoard.cs" />
+    <Compile Include="Boards\StepBoard.cs" />
+    <Compile Include="Models\Record.cs" />
+    <Compile Include="Models\WeiqiContext.cs" />
+    <Compile Include="Windows\AboutPage.xaml.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\DeleteStepWindow.xaml.cs">
+      <DependentUpon>DeleteStepWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\LoadStepWindow.xaml.cs">
+      <DependentUpon>LoadStepWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SaveStepWindow.xaml.cs">
+      <DependentUpon>SaveStepWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Boards\Board.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -108,6 +126,22 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\DeleteStepWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\LoadStepWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SaveStepWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

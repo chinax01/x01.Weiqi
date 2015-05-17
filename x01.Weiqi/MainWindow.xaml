@@ -2,14 +2,20 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:b="clr-namespace:x01.Weiqi.Boards" WindowState="Maximized"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Main Window" Height="350" Width="525">
+	<Window.Resources>
+		<Style TargetType="MenuItem">
+			<Setter Property="Margin" Value="3" />
+			<Setter Property="FontSize" Value="16" />
+		</Style>
+	</Window.Resources>
 	<Grid Name="m_Grid">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="20" />
+			<RowDefinition Height="30" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
-			<MenuItem Header="围棋(_F)" ToolTip="Weiqi">
+			<MenuItem Header="围棋(_W)" ToolTip="Weiqi">
 				<MenuItem Header="开始对弈(_G)      Ctl+G" ToolTip="Start Game" Name="m_MenuStart" ></MenuItem>
 				<MenuItem Header="人机对弈(_I)       Ctl+I" ToolTip="AI Game" Name="m_MenuAI"  ></MenuItem>
 				<Separator />
@@ -24,7 +30,7 @@
 				<MenuItem Header="清除所有(_C)     ESC" ToolTip="Clear All" Name="m_MenuClearAll"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="帮助(_H)" ToolTip="Help">
-				<MenuItem Header="关于(_A)" ToolTip="About" Name="m_MenuAbout"></MenuItem>
+				<MenuItem Header="关于(_A)     Ctl+A" ToolTip="About" Name="m_MenuAbout"></MenuItem>
 			</MenuItem>
 		</Menu>
 	</Grid>

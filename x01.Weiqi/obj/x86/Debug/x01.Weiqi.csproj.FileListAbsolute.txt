@@ -162,3 +162,11 @@ C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\MainWi
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.g.resources
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.Properties.Resources.resources
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.csproj.GenerateResource.Cache
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\AboutPage.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\AboutPage.g.cs
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\DeleteStepWindow.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\LoadStepWindow.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\SaveStepWindow.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\DeleteStepWindow.g.cs
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\LoadStepWindow.g.cs
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\SaveStepWindow.g.cs
