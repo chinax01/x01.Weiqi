@@ -18,7 +18,7 @@
   围棋术语，大都采用日语的音译，如：aji，不知何云？名不正则言不顺，在围棋这一特定场景下，统一术语，
   是有必要的。当然，如“见合”等，在程序中尚无具体实现，可省略。简化版术语如下：<br />
 		<strong>围棋：weiqi；	 棋盘：board；	棋子：stone；	棋谱：record；	棋步：step；	
-		吃：eat；	飞：fly；	跳：jump；	尖：sharp；	长：grow；	征：levy；</strong><br />
+		吃：eat；	飞：fly；	跳：jump；	尖：cusp；	长、碰：touch；	征：levy；</strong><br />
 2.牵一发而动全身，小作修改，也能导致许多问题，一动不如一静也。
 <h3>2015年5月9日</h3>
 1.解决 BackOne() 时死子不能显示数字的问题。<br />

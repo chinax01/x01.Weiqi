@@ -22,11 +22,15 @@ namespace x01.Weiqi.Boards
 			InitializeComponent();
 
 			IsShowNumber = true;
+			IsShowCurrent = true;
+			IsShowMesh = false;
+
 			Init();
 		}
 
-		// 是否显示步数
-		public bool IsShowNumber { get; set; }	
+		public bool IsShowNumber { get; set; }		// 是否显示步数
+		public bool IsShowCurrent { get; set; }		// 显示当前标志
+		public bool IsShowMesh { get; set; }		// 点目
 
 		// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
@@ -37,11 +41,12 @@ namespace x01.Weiqi.Boards
 			{
 				m_StoneSize = value;
 				Width = Height = m_StoneSize * 19;
+				m_CurrentRect.Width = m_CurrentRect.Height = m_StoneSize / 3.8;
 			}
 		}
 
 		// 棋步计数
-		int m_StepCount = 0;					
+		int m_StepCount = 0;
 		public int StepCount
 		{
 			get { return m_StepCount; }
@@ -90,6 +95,18 @@ namespace x01.Weiqi.Boards
 					ShowNumber(i, j, m_Steps[i, j].StepCount);
 				}
 			}
+
+			// 点目标志
+			if (IsShowMesh)
+				for (int i = 0; i < 19; i++) {
+					for (int j = 0; j < 19; j++) {
+						var rect = m_EmptyRects[i, j];
+						rect.Width = rect.Height = m_CurrentRect.Width;
+						double offset = (StoneSize - rect.Width) / 2.0;
+						Canvas.SetLeft(rect, j * StoneSize + offset);
+						Canvas.SetTop(rect, i * StoneSize + offset);
+					}
+				}
 		}
 
 		public bool NextOne(int row, int col)
@@ -121,6 +138,8 @@ namespace x01.Weiqi.Boards
 				if (!UpdateDeadBlocks(m_BlackBlocks))
 					UpdateDeadBlocks(m_WhiteBlocks);
 			}
+
+			MoveCurrentRect();
 
 			m_StepCount++;
 
@@ -160,6 +179,11 @@ namespace x01.Weiqi.Boards
 						}
 						m_DeadBlocks.Remove(m_StepCount);
 					}
+
+					m_StepCount--;
+					MoveCurrentRect();
+					m_StepCount++;
+
 					break;
 				}
 			}
@@ -174,7 +198,8 @@ namespace x01.Weiqi.Boards
 				m_BanOnce.Col = empties[0].Col;
 			}
 
-
+			UpdateBlackBlocks();
+			UpdateWhiteBlocks();
 		}
 
 		public void SaveSteps()
@@ -209,6 +234,9 @@ namespace x01.Weiqi.Boards
 		}
 
 		#region Init
+
+		Rectangle m_CurrentRect = new Rectangle();			// 当前标志
+		Rectangle[,] m_EmptyRects = new Rectangle[19, 19];	// 点目标志
 
 		Step[,] m_Steps = new Step[19, 19];					// 棋步，逻辑棋子
 
@@ -277,6 +305,42 @@ namespace x01.Weiqi.Boards
 					m_AllSteps.Add(m_Steps[i, j]);
 				}
 			}
+
+			// 当前标志
+			m_CurrentRect.Visibility = System.Windows.Visibility.Hidden;
+			m_CurrentRect.Fill = Brushes.Red;
+			m_Canvas.Children.Add(m_CurrentRect);
+
+			for (int i = 0; i < 19; i++) {
+				for (int j = 0; j < 19; j++) {
+					Rectangle rect = new Rectangle();
+					rect.Visibility = System.Windows.Visibility.Hidden;
+					m_EmptyRects[i, j] = rect;
+					m_Canvas.Children.Add(m_EmptyRects[i,j]);
+
+				}
+			}
+		}
+
+		void MoveCurrentRect()
+		{
+			if (StepCount < 0) {
+				m_CurrentRect.Visibility = System.Windows.Visibility.Hidden;
+				return;
+			}
+
+			if (IsShowCurrent)
+				m_CurrentRect.Visibility = System.Windows.Visibility.Visible;
+			else
+				m_CurrentRect.Visibility = System.Windows.Visibility.Hidden;
+
+			Step step = m_AllSteps.FirstOrDefault(s => s.StepCount == StepCount);
+			if (step == null) return;
+			int row = step.Row;
+			int col = step.Col;
+			double offset = (StoneSize - m_CurrentRect.Width) / 2.0;
+			Canvas.SetLeft(m_CurrentRect, col * StoneSize + offset);
+			Canvas.SetTop(m_CurrentRect, row * StoneSize + offset);
 		}
 
 		protected override void OnRender(DrawingContext drawingContext)
@@ -419,6 +483,7 @@ namespace x01.Weiqi.Boards
 			Block block = new Block();
 			block.Steps = tmp;
 			block.UpdateBlockId();
+			//block.UpdateBlockHealth();
 			blocks.Add(block);
 
 			copySteps.RemoveAll(s => tmp.Contains(s));	// next block

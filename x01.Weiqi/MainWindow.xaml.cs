@@ -40,9 +40,18 @@ namespace x01.Weiqi
 			m_MenuExit.Click += (s, e) => Close();
 
 			m_MenuShowNumber.Click += (s, e) => ShowNumber();
+			m_MenuShowEmpties.Click += (s, e) => ShowEmpties();
 			m_MenuClearAll.Click += (s, e) => ClearAll();
 
 			m_MenuAbout.Click += m_MenuAbout_Click;
+		}
+
+		private void ShowEmpties()
+		{
+			m_Board.IsShowMesh = m_MenuShowEmpties.IsChecked;
+			if (m_Board.IsShowMesh) m_Board.ShowMeshes();
+			else m_Board.HideMeshes();
+			m_Board.Redraw();
 		}
 
 		void m_MenuAbout_Click(object sender, RoutedEventArgs e)
@@ -71,6 +80,7 @@ namespace x01.Weiqi
 
 		void InitBoard(Board board)
 		{
+			ClearAll();
 			if (m_Grid.Children.Contains(m_Board))
 				m_Grid.Children.Remove(m_Board);
 			m_Board = board;
@@ -104,6 +114,9 @@ namespace x01.Weiqi
 				Close();
 			} else if (e.Key == Key.F1) {
 				ShowNumber();
+			} else if (e.Key == Key.F2) {
+				m_MenuShowEmpties.IsChecked = !m_MenuShowEmpties.IsChecked;
+				ShowEmpties();
 			} else if (e.Key == Key.Escape) {
 				ClearAll();
 			} else if (e.Key == Key.A && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {

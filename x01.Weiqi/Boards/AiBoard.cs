@@ -9,18 +9,22 @@ namespace x01.Weiqi.Boards
 	class AiBoard : Board
 	{
 		Timer m_Timer = new Timer();
+		bool m_CanDown = false;
 
 		public AiBoard()
 		{
-			m_Timer.Interval = 100;
+			m_Timer.Interval = 10;
 			m_Timer.Tick += m_Timer_Tick;
 			m_Timer.Start();
 		}
 
 		void m_Timer_Tick(object sender, EventArgs e)
 		{
+			if (StepCount == 0) m_CanDown = false;
 			if (m_CanDown) return;
 			Pos pos = Think();
+			if (pos == m_InvalidPos) return;
+
 			if (NextOne(pos.Row, pos.Col))
 				m_CanDown = true;
 		}

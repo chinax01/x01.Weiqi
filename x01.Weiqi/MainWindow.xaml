@@ -27,6 +27,8 @@
 			</MenuItem>
 			<MenuItem Header="操作(_O)" ToolTip="Operate" >
 				<MenuItem Header="显示步数(_N)     F1" ToolTip="Show Number" Name="m_MenuShowNumber" IsChecked="True" IsCheckable="True"/>
+				<MenuItem Header="点目(_M)           F2" ToolTip="Show Empties" Name="m_MenuShowEmpties" IsChecked="False" IsCheckable="True"/>
+				<Separator />
 				<MenuItem Header="清除所有(_C)     ESC" ToolTip="Clear All" Name="m_MenuClearAll"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="帮助(_H)" ToolTip="Help">

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace x01.Weiqi.Boards
 {
@@ -8,6 +9,7 @@ namespace x01.Weiqi.Boards
 		{
 			Row = Col = StepCount = BlockId = DeadStepCount = -1;
 			StoneColor = Boards.StoneColor.Empty;
+			//Health = 64;
 		}
 
 		public int Row { get; set; }
@@ -16,9 +18,10 @@ namespace x01.Weiqi.Boards
 		public int BlockId { get; set; }
 		public int DeadStepCount { get; set; }
 		public StoneColor StoneColor { get; set; }
+		//public int Health { get; set; }
 	}
 
-	enum StoneColor
+	public enum StoneColor
 	{
 		Black, White, Empty, All
 	}
@@ -50,18 +53,27 @@ namespace x01.Weiqi.Boards
 
 			Id = blockId;
 		}
+		//public void UpdateBlockHealth()
+		//{
+		//	int health = EmptyCount * 16;
+		//	foreach (var item in Steps) {
+		//		item.Health = health;
+		//	}
+		//}
 	}
 
 	// 本欲用 Point，但 double 类型不方便
-	public struct Pos
+	public class Pos
 	{
-		public int Col;
-		public int Row;
+		public int Row { get; set; }
+		public int Col { get; set; }
+		public StoneColor PosColor { get; set; }
 
-		public Pos(int row, int col)
+		public Pos(int row, int col, StoneColor posColor = StoneColor.Empty)
 		{
 			Row = row;
 			Col = col;
+			PosColor = posColor;
 		}
 
 		public override bool Equals(object obj)
@@ -89,5 +101,59 @@ namespace x01.Weiqi.Boards
 		{
 			return !(p1 == p2);
 		}
+	}
+
+	struct Vector
+	{
+		public int Row;
+		public int Col;
+
+		public Vector(int row, int col)
+		{
+			Row = row;
+			Col = col;
+		}
+
+		public double Length
+		{
+			get { return Math.Round(Math.Sqrt(Row * Row + Col * Col), 2); }
+		}
+	}
+
+	class PosBlock
+	{
+		public PosBlock()
+		{
+			Poses = new List<Pos>();
+			PosColor = StoneColor.Empty;
+			Count = -1;
+		}
+		public Pos LeftTop
+		{
+			get
+			{
+				Pos pos = new Pos(18, 18);
+				foreach (var item in Poses) {
+					if (item.Row < pos.Row) pos.Row = item.Row;
+					if (item.Col < pos.Col) pos.Col = item.Col;
+				}
+				return pos;
+			}
+		}
+		public Pos RightBottom
+		{
+			get
+			{
+				Pos pos = new Pos(0, 0);
+				foreach (var item in Poses) {
+					if (item.Row > pos.Row) pos.Row = item.Row;
+					if (item.Col > pos.Col) pos.Col = item.Col;
+				}
+				return pos;
+			}
+		}
+		public List<Pos> Poses { get; set; }
+		public StoneColor PosColor { get; set; }
+		public int Count { get; set; }
 	}
 }
