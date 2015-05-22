@@ -83,10 +83,15 @@ namespace x01.Weiqi
 			ClearAll();
 			if (m_Grid.Children.Contains(m_Board))
 				m_Grid.Children.Remove(m_Board);
+
+			board.IsShowCurrent = false;
+			if (board == m_StepBoard) 
+				(board as StepBoard).LoadSteps();
 			m_Board = board;
 			m_Grid.Children.Add(m_Board);
 			m_Board.SetValue(Grid.RowProperty, 1);
 			m_Board.StoneSize = (int)((Math.Min(ActualWidth, ActualHeight) - 60) / 19);
+			board.IsShowCurrent = true;
 		}
 
 		void ShowNumber()

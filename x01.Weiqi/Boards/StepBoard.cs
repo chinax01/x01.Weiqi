@@ -9,27 +9,17 @@ namespace x01.Weiqi.Boards
 {
 	class StepBoard : Board
 	{
-		struct StepInfo
-		{
-			public int Row, Col, StepCount;
-		}
-
 		Record m_Record = new Record();
 		List<StepInfo> m_StepInfos = new List<StepInfo>();
-
-		public StepBoard()
-		{
-			Loaded += StepBoard_Loaded;
-		}
-
-		void StepBoard_Loaded(object sender, System.Windows.RoutedEventArgs e)
+		
+		public void LoadSteps()
 		{
 			LoadStepWindow dlg = new LoadStepWindow();
 			dlg.ShowDialog();
 			m_Record = dlg.Record;
+			if (m_Record == null) return;
 			ShowAll();
 		}
-
 
 		protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
 		{
@@ -50,16 +40,16 @@ namespace x01.Weiqi.Boards
 		public void ShowAll()
 		{
 			InitStepInfos();
-
-			foreach (var item in m_StepInfos) {
-				if (item.StepCount == StepCount) {
-					NextOne(item.Row, item.Col);
-				}
+			int count = m_StepInfos.Count;
+			for (int i = 0; i < count; i++ ) {
+				NextOne();
 			}
 		}
 
 		private void InitStepInfos()
 		{
+			m_StepInfos.Clear();
+
 			string s = m_Record.Steps;
 			string[] steps = s.Substring(0, s.Length - 1).Split(',');
 			StepInfo info = new StepInfo();

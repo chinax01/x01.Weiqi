@@ -9,7 +9,6 @@ namespace x01.Weiqi.Boards
 		{
 			Row = Col = StepCount = BlockId = DeadStepCount = -1;
 			StoneColor = Boards.StoneColor.Empty;
-			//Health = 64;
 		}
 
 		public int Row { get; set; }
@@ -18,7 +17,11 @@ namespace x01.Weiqi.Boards
 		public int BlockId { get; set; }
 		public int DeadStepCount { get; set; }
 		public StoneColor StoneColor { get; set; }
-		//public int Health { get; set; }
+	}
+
+	struct StepInfo
+	{
+		public int Row, Col, StepCount;
 	}
 
 	public enum StoneColor
@@ -26,9 +29,9 @@ namespace x01.Weiqi.Boards
 		Black, White, Empty, All
 	}
 
-	class Block
+	class StepBlock
 	{
-		public Block()
+		public StepBlock()
 		{
 			Steps = new List<Step>();
 			Id = EmptyCount = -1;
@@ -53,21 +56,14 @@ namespace x01.Weiqi.Boards
 
 			Id = blockId;
 		}
-		//public void UpdateBlockHealth()
-		//{
-		//	int health = EmptyCount * 16;
-		//	foreach (var item in Steps) {
-		//		item.Health = health;
-		//	}
-		//}
 	}
 
 	// 本欲用 Point，但 double 类型不方便
-	public class Pos
+	public struct Pos
 	{
-		public int Row { get; set; }
-		public int Col { get; set; }
-		public StoneColor PosColor { get; set; }
+		public int Row;
+		public int Col;
+		public StoneColor PosColor;
 
 		public Pos(int row, int col, StoneColor posColor = StoneColor.Empty)
 		{
@@ -125,35 +121,38 @@ namespace x01.Weiqi.Boards
 		public PosBlock()
 		{
 			Poses = new List<Pos>();
+			LinkEmptyPoses = new List<Pos>();
+			LinkBlackPoses = new List<Pos>();
+			LinkWhitePoses = new List<Pos>();
+			Id = LinkEmptyCount = LinkBlackCount = LinkWhiteCount = -1;
 			PosColor = StoneColor.Empty;
-			Count = -1;
 		}
-		public Pos LeftTop
+		public PosBlock(StepBlock block)
 		{
-			get
-			{
-				Pos pos = new Pos(18, 18);
-				foreach (var item in Poses) {
-					if (item.Row < pos.Row) pos.Row = item.Row;
-					if (item.Col < pos.Col) pos.Col = item.Col;
-				}
-				return pos;
-			}
+			List<Step> steps = block.Steps;
+			
+			Id = block.Id;
+			PosColor = steps[0].StoneColor;
+			LinkEmptyCount = block.EmptyCount;
+
+			Poses = new List<Pos>();
+			steps.ForEach(s => Poses.Add(new Pos(s.Row, s.Col, s.StoneColor)));
+
+			LinkEmptyPoses = new List<Pos>();
+			LinkBlackPoses = new List<Pos>();
+			LinkWhitePoses = new List<Pos>();
+			LinkBlackCount = LinkWhiteCount = -1;
 		}
-		public Pos RightBottom
-		{
-			get
-			{
-				Pos pos = new Pos(0, 0);
-				foreach (var item in Poses) {
-					if (item.Row > pos.Row) pos.Row = item.Row;
-					if (item.Col > pos.Col) pos.Col = item.Col;
-				}
-				return pos;
-			}
-		}
+
+		public int Id { get; set; }
 		public List<Pos> Poses { get; set; }
 		public StoneColor PosColor { get; set; }
-		public int Count { get; set; }
+
+		public int LinkEmptyCount { get; set; }
+		public List<Pos> LinkEmptyPoses { get; set; }
+		public int LinkBlackCount { get; set; }
+		public List<Pos> LinkBlackPoses { get; set; }
+		public int LinkWhiteCount { get; set; }
+		public List<Pos> LinkWhitePoses { get; set; }
 	}
 }

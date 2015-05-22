@@ -16,23 +16,23 @@
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
 			<MenuItem Header="围棋(_W)" ToolTip="Weiqi">
-				<MenuItem Header="开始对弈(_G)      Ctl+G" ToolTip="Start Game" Name="m_MenuStart" ></MenuItem>
-				<MenuItem Header="人机对弈(_I)       Ctl+I" ToolTip="AI Game" Name="m_MenuAI"  ></MenuItem>
+				<MenuItem Header="开始对弈(_G)" ToolTip="Start Game  Ctl+G" Name="m_MenuStart" ></MenuItem>
+				<MenuItem Header="人机对弈(_I)" ToolTip="AI Game  Ctl+I" Name="m_MenuAI"  ></MenuItem>
 				<Separator />
-				<MenuItem Header="加载棋谱(_L)      Ctl+L" ToolTip="Load" Name="m_MenuLoad"></MenuItem>
-				<MenuItem Header="保存棋谱(_S)      Ctl+S" ToolTip="Save" Name="m_MenuSave"></MenuItem>
-				<MenuItem Header="删除棋谱(_D)     Ctl+D" ToolTip="Delete" Name="m_MenuDelete"></MenuItem>
+				<MenuItem Header="加载棋谱(_L)" ToolTip="Load  Ctl+L" Name="m_MenuLoad"></MenuItem>
+				<MenuItem Header="保存棋谱(_S)" ToolTip="Save  Ctl+S" Name="m_MenuSave"></MenuItem>
+				<MenuItem Header="删除棋谱(_D)" ToolTip="Delete  Ctl+D" Name="m_MenuDelete"></MenuItem>
 				<Separator />
-				<MenuItem Header="退出(_E)            Ctl+E" ToolTip="Exit" Name="m_MenuExit"></MenuItem>
+				<MenuItem Header="退出(_E)" ToolTip="Exit  Ctl+E" Name="m_MenuExit"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="操作(_O)" ToolTip="Operate" >
-				<MenuItem Header="显示步数(_N)     F1" ToolTip="Show Number" Name="m_MenuShowNumber" IsChecked="True" IsCheckable="True"/>
-				<MenuItem Header="点目(_M)           F2" ToolTip="Show Empties" Name="m_MenuShowEmpties" IsChecked="False" IsCheckable="True"/>
+				<MenuItem Header="显示步数(_N)" ToolTip="Show Number  F1" Name="m_MenuShowNumber" IsChecked="True" IsCheckable="True"/>
+				<MenuItem Header="点目(_M)" ToolTip="Show Meshes  F2" Name="m_MenuShowEmpties" IsChecked="False" IsCheckable="True"/>
 				<Separator />
-				<MenuItem Header="清除所有(_C)     ESC" ToolTip="Clear All" Name="m_MenuClearAll"></MenuItem>
+				<MenuItem Header="清除所有(_C)" ToolTip="Clear All  ESC" Name="m_MenuClearAll"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="帮助(_H)" ToolTip="Help">
-				<MenuItem Header="关于(_A)     Ctl+A" ToolTip="About" Name="m_MenuAbout"></MenuItem>
+				<MenuItem Header="关于(_A)" ToolTip="About  Ctl+A" Name="m_MenuAbout"></MenuItem>
 			</MenuItem>
 		</Menu>
 	</Grid>

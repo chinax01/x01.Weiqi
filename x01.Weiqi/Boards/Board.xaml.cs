@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -100,7 +101,7 @@ namespace x01.Weiqi.Boards
 			if (IsShowMesh)
 				for (int i = 0; i < 19; i++) {
 					for (int j = 0; j < 19; j++) {
-						var rect = m_EmptyRects[i, j];
+						var rect = m_MeshRects[i, j];
 						rect.Width = rect.Height = m_CurrentRect.Width;
 						double offset = (StoneSize - rect.Width) / 2.0;
 						Canvas.SetLeft(rect, j * StoneSize + offset);
@@ -129,17 +130,17 @@ namespace x01.Weiqi.Boards
 			}
 			m_EmptySteps.Remove(m_Steps[row, col]);
 
-			UpdateBlackBlocks();
-			UpdateWhiteBlocks();
+			UpdateAllStepBlocks();
 			if (isBlack) {
-				if (!UpdateDeadBlocks(m_WhiteBlocks))
-					UpdateDeadBlocks(m_BlackBlocks);
+				if (!UpdateDeadBlocks(m_WhiteStepBlocks))
+					UpdateDeadBlocks(m_BlackStepBlocks);
 			} else {
-				if (!UpdateDeadBlocks(m_BlackBlocks))
-					UpdateDeadBlocks(m_WhiteBlocks);
+				if (!UpdateDeadBlocks(m_BlackStepBlocks))
+					UpdateDeadBlocks(m_WhiteStepBlocks);
 			}
 
 			MoveCurrentRect();
+			m_StepString.AppendFormat("{0},{1},{2},", row, col, m_StepCount);
 
 			m_StepCount++;
 
@@ -190,7 +191,7 @@ namespace x01.Weiqi.Boards
 
 			// Reset BanOnce 
 			int prevCount = m_StepCount - 1;
-			Step prev = m_AllSteps.FirstOrDefault(s => s.StepCount == prevCount);
+			Step prev = m_AllSteps.FirstOrDefault(step => step.StepCount == prevCount);
 			if (prev == null) return;
 			List<Step> empties = LinkSteps(prev, StoneColor.Empty);
 			if (empties.Count == 1 && empties[0].DeadStepCount == m_BanOnce.StepCount) {
@@ -198,34 +199,30 @@ namespace x01.Weiqi.Boards
 				m_BanOnce.Col = empties[0].Col;
 			}
 
-			UpdateBlackBlocks();
-			UpdateWhiteBlocks();
+			UpdateAllStepBlocks();
+
+			string s = m_StepString.ToString();
+			s = m_Regex.Replace(s, "");
+			m_StepString.Clear();
+			m_StepString.Append(s);
+
 		}
 
 		public void SaveSteps()
 		{
+			string steps = m_StepString.ToString();
+			m_StepString.Clear();
+
 			SaveStepWindow dlg = new SaveStepWindow();
 			dlg.ShowDialog();
-
-			StringBuilder steps = new StringBuilder();
-			int count = m_StepCount;
-			for (int i = 0; i < count; i++) {
-				foreach (var item in m_Steps) {
-					if (item.StepCount == i) {
-						steps.Append(item.Row.ToString() + "," + item.Col.ToString() + "," + i.ToString() + ",");
-						break;
-					}
-				}
-			}
-
 			using (var db = new WeiqiContext()) {
 				Record record = new Record {
 					Black = dlg.BlackName,
 					White = dlg.WhiteName,
 					Result = dlg.Result,
+					Description = dlg.Description,
 					SaveDate = DateTime.Now,
-					Steps = steps.ToString(),
-					Description = dlg.Description
+					Steps = steps
 				};
 				db.Records.Add(record);
 				db.SaveChanges();
@@ -235,8 +232,11 @@ namespace x01.Weiqi.Boards
 
 		#region Init
 
+		StringBuilder m_StepString = new StringBuilder(2000);	// 保存棋谱
+		Regex m_Regex = new Regex(@"(\d+,){3}$");				// 悔棋匹配
+
 		Rectangle m_CurrentRect = new Rectangle();			// 当前标志
-		Rectangle[,] m_EmptyRects = new Rectangle[19, 19];	// 点目标志
+		Rectangle[,] m_MeshRects = new Rectangle[19, 19];	// 点目标志
 
 		Step[,] m_Steps = new Step[19, 19];					// 棋步，逻辑棋子
 
@@ -258,10 +258,11 @@ namespace x01.Weiqi.Boards
 		List<Step> m_EmptySteps = new List<Step>();		// 所有空棋
 
 		// key: StepCount, value: Steps 死子块的集合
-		Dictionary<int, Block> m_DeadBlocks = new Dictionary<int, Block>();
+		Dictionary<int, StepBlock> m_DeadBlocks = new Dictionary<int, StepBlock>();
 
-		List<Block> m_BlackBlocks = new List<Block>();
-		List<Block> m_WhiteBlocks = new List<Block>();
+		List<StepBlock> m_BlackStepBlocks = new List<StepBlock>();
+		List<StepBlock> m_WhiteStepBlocks = new List<StepBlock>();
+		List<StepBlock> m_EmptyStepBlocks = new List<StepBlock>();
 
 		Step m_BanOnce = new Step();	// 劫争
 
@@ -315,8 +316,8 @@ namespace x01.Weiqi.Boards
 				for (int j = 0; j < 19; j++) {
 					Rectangle rect = new Rectangle();
 					rect.Visibility = System.Windows.Visibility.Hidden;
-					m_EmptyRects[i, j] = rect;
-					m_Canvas.Children.Add(m_EmptyRects[i,j]);
+					m_MeshRects[i, j] = rect;
+					m_Canvas.Children.Add(m_MeshRects[i, j]);
 
 				}
 			}
@@ -428,7 +429,7 @@ namespace x01.Weiqi.Boards
 			int row = step.Row;
 			int col = step.Col;
 			m_Steps[row, col].StoneColor = step.StoneColor;
-			m_Steps[row, col].StepCount = step.StepCount;
+			m_Steps[row, col].StepCount = step.StepCount == -1 ? step.DeadStepCount : step.StepCount;
 
 			if (step.StoneColor == StoneColor.Black) {
 				m_BlackSteps.Add(m_Steps[row, col]);
@@ -447,17 +448,28 @@ namespace x01.Weiqi.Boards
 
 		#region Blocks
 
-		void UpdateBlackBlocks()
+		void UpdateAllStepBlocks()
 		{
-			m_BlackBlocks.Clear();
-			UpdateBlocks(m_BlackSteps, m_BlackBlocks);
+			UpdateEmptyStepBlocks();
+			UpdateBlackStepBlocks();
+			UpdateWhiteStepBlocks();
 		}
-		void UpdateWhiteBlocks()
+		void UpdateEmptyStepBlocks()
 		{
-			m_WhiteBlocks.Clear();
-			UpdateBlocks(m_WhiteSteps, m_WhiteBlocks);
+			m_EmptyStepBlocks.Clear();
+			UpdateStepBlocks(m_EmptySteps, m_EmptyStepBlocks);
 		}
-		private void UpdateBlocks(List<Step> steps, List<Block> blocks)
+		void UpdateBlackStepBlocks()
+		{
+			m_BlackStepBlocks.Clear();
+			UpdateStepBlocks(m_BlackSteps, m_BlackStepBlocks);
+		}
+		void UpdateWhiteStepBlocks()
+		{
+			m_WhiteStepBlocks.Clear();
+			UpdateStepBlocks(m_WhiteSteps, m_WhiteStepBlocks);
+		}
+		private void UpdateStepBlocks(List<Step> steps, List<StepBlock> blocks)
 		{
 			List<Step> copySteps = new List<Step>();
 			foreach (var item in steps) {
@@ -471,34 +483,34 @@ namespace x01.Weiqi.Boards
 				if (tmp.Count == 0) tmp.Add(step);
 				var sameLinks = LinkSteps(step, step.StoneColor);
 				if (tmp.Intersect(sameLinks).Count() != 0)
-					tmp = tmp.Union(sameLinks).ToList();
+					sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
+
 			}
 			foreach (var step in copySteps) {	// 防止遗漏
 				var sameLinks = LinkSteps(step, step.StoneColor);
 				if (tmp.Intersect(sameLinks).Count() != 0)
-					tmp = tmp.Union(sameLinks).ToList();
+					sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
 			}
 			if (tmp.Count == 0) return;
 
-			Block block = new Block();
+			StepBlock block = new StepBlock();
 			block.Steps = tmp;
 			block.UpdateBlockId();
-			//block.UpdateBlockHealth();
 			blocks.Add(block);
 
 			copySteps.RemoveAll(s => tmp.Contains(s));	// next block
-			UpdateBlocks(copySteps, blocks);	// 递归
+			UpdateStepBlocks(copySteps, blocks);	// 递归
 		}
 
-		bool UpdateDeadBlocks(List<Block> selfBlocks)
+		bool UpdateDeadBlocks(List<StepBlock> selfBlocks)
 		{
-			List<Block> blocks = new List<Block>();
+			List<StepBlock> blocks = new List<StepBlock>();
 			foreach (var item in selfBlocks) {
 				blocks.Add(item);	//copy
 			}
 
 			foreach (var block in blocks) {
-				List<Step> empties = GetEmpties(block);
+				List<Step> empties = GetLinkEmptySteps(block);
 				block.EmptyCount = empties.Count;
 
 				if (empties.Count == 0) {
@@ -508,7 +520,7 @@ namespace x01.Weiqi.Boards
 						m_BanOnce.StepCount = block.Steps[0].StepCount;
 					}
 
-					Block deadInfo = new Block();
+					StepBlock deadInfo = new StepBlock();
 					foreach (var dead in block.Steps) {
 						var d = CloneStep(dead);
 						deadInfo.Steps.Add(d);

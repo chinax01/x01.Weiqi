@@ -9,6 +9,8 @@
  *	3.如果 Pos 是具体位置，那么，Mesh 就是逻辑位置，所谓点目也。
  *	4.点目（ShowMeshes）中死活是关键，准备如编译器的扫描部分，
  *	  多遍进行调整。
+ *	5.按理是先解决死活问题，再讨论点目，但死活过于复杂，只好反其道
+ *	  而行之。先点目，再解决死活，可能会缩小范围，降低复杂度吧？
  */
 
 using System;
@@ -38,13 +40,13 @@ namespace x01.Weiqi.Boards
 			InitMeshes();
 
 			foreach (var pos in m_BlackMeshes) {
-				m_EmptyRects[pos.Row, pos.Col].Visibility = System.Windows.Visibility.Visible;
-				m_EmptyRects[pos.Row, pos.Col].Fill = Brushes.Black;
+				m_MeshRects[pos.Row, pos.Col].Visibility = System.Windows.Visibility.Visible;
+				m_MeshRects[pos.Row, pos.Col].Fill = Brushes.Black;
 			}
 
 			foreach (var pos in m_WhiteMeshes) {
-				m_EmptyRects[pos.Row, pos.Col].Visibility = System.Windows.Visibility.Visible;
-				m_EmptyRects[pos.Row, pos.Col].Fill = Brushes.White;
+				m_MeshRects[pos.Row, pos.Col].Visibility = System.Windows.Visibility.Visible;
+				m_MeshRects[pos.Row, pos.Col].Fill = Brushes.White;
 			}
 
 			int blackCount = m_BlackMeshes.Count;
@@ -55,7 +57,7 @@ namespace x01.Weiqi.Boards
 		}
 		public void HideMeshes()
 		{
-			foreach (var item in m_EmptyRects) {
+			foreach (var item in m_MeshRects) {
 				item.Visibility = System.Windows.Visibility.Hidden;
 			}
 		}
@@ -67,53 +69,51 @@ namespace x01.Weiqi.Boards
 		// 一口气
 		Pos OneEmpty()
 		{
-			foreach (var block in m_WhiteBlocks) {	// Eat white
+			foreach (var block in m_WhiteStepBlocks) {	// Eat white
 				if (block.EmptyCount == 1) {
-					List<Step> empties = GetEmpties(block);
+					List<Step> empties = GetLinkEmptySteps(block);
 					return new Pos(empties[0].Row, empties[0].Col);
 				}
 			}
-			foreach (var block in m_BlackBlocks) {	// Feel black
+			foreach (var block in m_BlackStepBlocks) {	// Feel black
 				if (block.EmptyCount == 1) {
-					List<Step> empties = GetEmpties(block);
+					List<Step> empties = GetLinkEmptySteps(block);
 					return new Pos(empties[0].Row, empties[0].Col);
 				}
 			}
 			return m_InvalidPos;
 		}
-		private List<Step> GetEmpties(Block block)
+		List<Step> GetLinkBlackSteps(StepBlock block)
+		{
+			List<Step> blacks = new List<Step>();
+			foreach (var step in block.Steps) {
+				LinkSteps(step, StoneColor.Black).ForEach(s => {
+					if (!blacks.Contains(s)) blacks.Add(s);
+				});
+			}
+			return blacks;
+		}
+		List<Step> GetLinkWhiteSteps(StepBlock block)
+		{
+			List<Step> whites = new List<Step>();
+			foreach (var step in block.Steps) {
+				LinkSteps(step, StoneColor.White).ForEach(s => {
+					if (!whites.Contains(s)) whites.Add(s);
+				});
+			}
+			return whites;
+		}
+		List<Step> GetLinkEmptySteps(StepBlock block)
 		{
 			List<Step> empties = new List<Step>();
 			foreach (var step in block.Steps) {
-				empties = empties.Union(LinkSteps(step, StoneColor.Empty)).ToList();
+				LinkSteps(step, StoneColor.Empty).ForEach(s => {
+					if (!empties.Contains(s)) empties.Add(s);
+				});
 			}
 			return empties;
 		}
-		List<Step> GetBlackEmpties()
-		{
-			var steps = new List<Step>();
-			foreach (var block in m_BlackBlocks) {
-				steps = steps.Union(GetEmpties(block)).ToList();
-			}
-			return steps;
-		}
-		List<Step> GetWhiteEmpties()
-		{
-			var steps = new List<Step>();
-			foreach (var block in m_WhiteBlocks) {
-				steps = steps.Union(GetEmpties(block)).ToList();
-			}
-			return steps;
-		}
-		List<Step> GetBlackEmpties_W()
-		{
-			return GetBlackEmpties().Except(GetWhiteEmpties()).ToList();
-		}
-		List<Step> GetWhiteEmpties_B()
-		{
-			return GetWhiteEmpties().Except(GetBlackEmpties()).ToList();
-		}
-
+		
 		private Pos RandDown()
 		{
 			int row = m_Rand.Next(0, 19);
@@ -176,6 +176,64 @@ namespace x01.Weiqi.Boards
 					m_EmptyPoses.Add(new Pos(step.Row, step.Col));
 				}
 				return m_EmptyPoses;
+			}
+		}
+
+		List<PosBlock> m_EmptyPosBlocks = new List<PosBlock>();
+		List<PosBlock> EmptyPosBlocks
+		{
+			get
+			{
+				m_EmptyPosBlocks.Clear();
+				foreach (var block in m_EmptyStepBlocks) {
+					PosBlock pb = new PosBlock(block);
+					GetLinkBlackSteps(block).ForEach(s => pb.LinkBlackPoses.Add(new Pos(s.Row, s.Col, StoneColor.Black)));
+					pb.LinkBlackCount = pb.LinkBlackPoses.Count;
+					GetLinkWhiteSteps(block).ForEach(s => pb.LinkWhitePoses.Add(new Pos(s.Row, s.Col, StoneColor.White)));
+					pb.LinkWhiteCount = pb.LinkWhitePoses.Count;
+					pb.LinkEmptyPoses = pb.Poses;
+					pb.LinkEmptyCount = pb.Poses.Count;
+					m_EmptyPosBlocks.Add(pb);
+				}
+				return m_EmptyPosBlocks;
+			}
+		}
+		List<PosBlock> m_BlackPosBlocks = new List<PosBlock>();
+		List<PosBlock> BlackPosBlocks
+		{
+			get
+			{
+				m_BlackPosBlocks.Clear();
+				foreach (var block in m_BlackStepBlocks) {
+					PosBlock pb = new PosBlock(block);
+					GetLinkEmptySteps(block).ForEach(s => pb.LinkEmptyPoses.Add(new Pos(s.Row, s.Col)));
+					pb.LinkEmptyCount = pb.LinkEmptyPoses.Count;
+					GetLinkWhiteSteps(block).ForEach(s => pb.LinkWhitePoses.Add(new Pos(s.Row, s.Col, StoneColor.White)));
+					pb.LinkWhiteCount = pb.LinkWhitePoses.Count;
+					pb.LinkBlackPoses = pb.Poses;
+					pb.LinkBlackCount = pb.Poses.Count;
+					m_BlackPosBlocks.Add(pb);
+				}
+				return m_BlackPosBlocks;
+			}
+		}
+		List<PosBlock> m_WhitePosBlocks = new List<PosBlock>();
+		List<PosBlock> WhitePosBlocks
+		{
+			get
+			{
+				m_WhitePosBlocks.Clear();
+				foreach (var block in m_WhiteStepBlocks) {
+					PosBlock pb = new PosBlock(block);
+					GetLinkEmptySteps(block).ForEach(s => pb.LinkEmptyPoses.Add(new Pos(s.Row, s.Col)));
+					pb.LinkEmptyCount = pb.LinkEmptyPoses.Count;
+					GetLinkBlackSteps(block).ForEach(s => pb.LinkBlackPoses.Add(new Pos(s.Row, s.Col, StoneColor.Black)));
+					pb.LinkBlackCount = pb.LinkBlackPoses.Count;
+					pb.LinkWhitePoses = pb.Poses;
+					pb.LinkWhiteCount = pb.Poses.Count;
+					m_WhitePosBlocks.Add(pb);
+				}
+				return m_WhitePosBlocks;
 			}
 		}
 
@@ -294,7 +352,7 @@ namespace x01.Weiqi.Boards
 			return LineThree().Union(LineFour()).Union(LineFive()).Union(LineSix())
 				.Union(LineSeven()).Union(LineEight()).Union(LineNine()).ToList();	// Line3-9 area
 		}
-		List<Pos> AllPos()
+		List<Pos> AllPoses()
 		{
 			return LineCenter().Union(LineOne()).Union(LineTwo()).ToList();
 		}
@@ -391,128 +449,101 @@ namespace x01.Weiqi.Boards
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();
 		List<Pos> m_WhiteMeshes = new List<Pos>();
+		List<Pos> m_EmptyMeshes = new List<Pos>();
 
 		// Learning UpdateBlocks(), But not use.
-		List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
-		List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
-		void UpdateMeshBlocks(List<Pos> poses, List<PosBlock> blocks, StoneColor stoneColor)
-		{
-			List<Pos> copyPoses = new List<Pos>();
-			foreach (var item in poses) {
-				copyPoses.Add(item);
-			}
+		//List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
+		//List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
+		//List<PosBlock> m_EmptyMeshBlocks = new List<PosBlock>();
+		//void UpdateMeshBlocks(List<Pos> poses, List<PosBlock> blocks, StoneColor stoneColor)
+		//{
+		//	List<Pos> copyPoses = new List<Pos>();
+		//	foreach (var item in poses) {
+		//		copyPoses.Add(item);
+		//	}
 
-			if (copyPoses.Count == 0) return;
+		//	if (copyPoses.Count == 0) return;
 
-			var tmp = new List<Pos>();
-			foreach (var pos in copyPoses) {
-				if (tmp.Count == 0) tmp.Add(pos);
-				var links = LinkPoses(pos);
-				if (tmp.Intersect(links).Count() != 0)
-					tmp = tmp.Union(links).ToList();
-			}
-			//foreach (var step in copyPoses) {	// 防止遗漏
-			//	var sameLinks = LinkPoses(step);
-			//	if (tmp.Intersect(sameLinks).Count() != 0)
-			//		tmp = tmp.Union(sameLinks).ToList();
-			//}
-			if (tmp.Count == 0) return;
+		//	var tmp = new List<Pos>();
+		//	foreach (var pos in copyPoses) {
+		//		if (tmp.Count == 0) tmp.Add(pos);
+		//		var links = LinkPoses(pos);
+		//		if (tmp.Intersect(links).Count() != 0)
+		//			links.ForEach(l => { if (!tmp.Contains(l)) tmp.Add(l); });
+		//	}
+		//	foreach (var step in copyPoses) {	// 防止遗漏
+		//		var sameLinks = LinkPoses(step);
+		//		if (tmp.Intersect(sameLinks).Count() != 0)
+		//			sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
+		//	}
+		//	if (tmp.Count == 0) return;
 
-			PosBlock block = new PosBlock();
-			block.Poses = tmp;
-			block.PosColor = stoneColor;
-			block.Count = tmp.Count;
-			blocks.Add(block);
+		//	PosBlock block = new PosBlock();
+		//	block.Poses = tmp;
+		//	block.PosColor = stoneColor;
+		//	block.LinkEmptyCount = tmp.Count;
+		//	blocks.Add(block);
 
-			copyPoses.RemoveAll(s => tmp.Contains(s));	// next block
-			UpdateMeshBlocks(copyPoses, blocks, stoneColor);	// 递归
-		}
-		void UpdateBlackMeshBlocks()
-		{
-			m_BlackMeshBlocks.Clear();
-			UpdateMeshBlocks(m_BlackMeshes.Union(BlackPoses).ToList(), m_BlackMeshBlocks, StoneColor.Black);
-
-			m_BlackMeshBlocks.ForEach(b => { if (b.Count < 10) b.PosColor = StoneColor.White; });
-		}
-		void UpdateWhiteMeshBlocks()
-		{
-			m_WhiteMeshBlocks.Clear();
-			UpdateMeshBlocks(m_WhiteMeshes.Union(WhitePoses).ToList(), m_WhiteMeshBlocks, StoneColor.White);
-
-			m_WhiteMeshBlocks.ForEach(b => { if (b.Count < 10) b.PosColor = StoneColor.Black; });
-		}
+		//	copyPoses.RemoveAll(s => tmp.Contains(s));	// next block
+		//	UpdateMeshBlocks(copyPoses, blocks, stoneColor);	// 递归
+		//}
+		//void UpdateBlackMeshBlocks()
+		//{
+		//	m_BlackMeshBlocks.Clear();
+		//	UpdateMeshBlocks(m_BlackMeshes.Union(BlackPoses).ToList(), m_BlackMeshBlocks, StoneColor.Black);
+		//}
+		//void UpdateWhiteMeshBlocks()
+		//{
+		//	m_WhiteMeshBlocks.Clear();
+		//	UpdateMeshBlocks(m_WhiteMeshes.Union(WhitePoses).ToList(), m_WhiteMeshBlocks, StoneColor.White);
+		//}
+		//void UpdateEmptyMeshBlocks()
+		//{
+		//	m_EmptyMeshBlocks.Clear();
+		//	UpdateMeshBlocks(m_EmptyMeshes.Union(EmptyPoses).ToList(), m_EmptyMeshBlocks, StoneColor.Empty);
+		//}
 
 		private void InitMeshes()
 		{
 			UpdateMeshes();
-			AddBlackMeshes();
-			AddWhiteMeshes();
-
-			m_BlackMeshes = m_BlackMeshes.Except(m_WhiteMeshes).Union(BlackPoses).ToList();
-			m_WhiteMeshes = m_WhiteMeshes.Except(m_BlackMeshes).Union(WhitePoses).ToList();
-
-			UpdateBlackMeshBlocks();
-			UpdateWhiteMeshBlocks();
-
-			foreach (var block in m_BlackMeshBlocks) {
-				if (block.PosColor == StoneColor.White) {
-					foreach (var pos in block.Poses) {
-						m_BlackMeshes.Remove(pos);
-						m_WhiteMeshes.Add(pos);
-					}
-				}
-			}
-
-			foreach (var block in m_WhiteMeshBlocks) {
-				if (block.PosColor == StoneColor.Black) {
-					foreach (var pos in block.Poses) {
-						m_WhiteMeshes.Remove(pos);
-						m_BlackMeshes.Add(pos);
-					}
-				}
-			}
 		}
+
 		void UpdateMeshes()
 		{
 			m_BlackMeshes.Clear();
-			foreach (var step in m_BlackSteps) {
-				int row = step.Row;
-				int col = step.Col;
-				m_BlackMeshes.Add(new Pos(row, col));
-			}
-			foreach (var step in GetBlackEmpties_W()) {
-				int row = step.Row;
-				int col = step.Col;
-				m_BlackMeshes.Add(new Pos(row, col));
-			}
+			BlackPosBlocks.ForEach(b => b.Poses.ForEach(p => m_BlackMeshes.Add(p)));
+			AddBlackMeshes();
 
 			m_WhiteMeshes.Clear();
-			foreach (var step in m_WhiteSteps) {
-				int row = step.Row;
-				int col = step.Col;
-				m_WhiteMeshes.Add(new Pos(row, col));
-			}
-			foreach (var step in GetWhiteEmpties_B()) {
-				int row = step.Row;
-				int col = step.Col;
-				m_WhiteMeshes.Add(new Pos(row, col));
-			}
+			WhitePosBlocks.ForEach(b => b.Poses.ForEach(p => m_WhiteMeshes.Add(p)));
+			AddWhiteMeshes();
+
+			var intersect = m_BlackMeshes.Intersect(m_WhiteMeshes).ToList();
+			m_BlackMeshes.RemoveAll(b => intersect.Contains(b));
+			m_WhiteMeshes.RemoveAll(w => intersect.Contains(w));
+
+			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
+			m_BlackMeshes.ForEach(b => b.PosColor = StoneColor.Black);
+			WhitePoses.ForEach(p => m_WhiteMeshes.Add(p));
+			m_WhiteMeshes.ForEach(w => w.PosColor = StoneColor.White);
 		}
 		void AddBlackMeshes()
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_BlackMeshes) {
+				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
 				AddLinkPoses(poses, pos);
 			}
-			m_BlackMeshes = m_BlackMeshes.Union(poses).ToList();
+			poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
 		}
 		void AddWhiteMeshes()
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_WhiteMeshes) {
+				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
 				AddLinkPoses(poses, pos);
 			}
-			m_WhiteMeshes = m_WhiteMeshes.Union(poses).ToList();
+			poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
 		}
 		// 三四线为实地向下，五六七线为势力向上。
 		private void AddLinkPoses(List<Pos> poses, Pos pos)
@@ -521,15 +552,15 @@ namespace x01.Weiqi.Boards
 				List<Pos> links = LinkPoses(pos);
 				foreach (var link in links) {	// 2,3 line
 					if (LineTwo().Contains(link) || LineThree().Contains(link)) {
-						poses.Add(link);
+						if (!poses.Contains(link)) poses.Add(link);
 						var lines = LinkPoses(link);
 						foreach (var l in lines) {	// l,2 line
 							if (LineOne().Contains(l) || LineTwo().Contains(l)) {
-								poses.Add(l);
+								if (!poses.Contains(l)) poses.Add(l);
 								var ones = LinkPoses(l);
 								foreach (var one in ones) {	// 1 line
 									if (LineOne().Contains(one))
-										poses.Add(one);
+										if (!poses.Contains(one)) poses.Add(one);
 								}
 							}
 						}
@@ -540,15 +571,15 @@ namespace x01.Weiqi.Boards
 				List<Pos> links = LinkPoses(pos);
 				foreach (var link in links) {	// 6,7,8 line
 					if (LineSix().Contains(link) || LineSeven().Contains(link) || LineEight().Contains(link)) {
-						poses.Add(link);
+						if (!poses.Contains(link)) poses.Add(link);
 						var lines = LinkPoses(link);
 						foreach (var l in lines) {	// 7,8,9 line
 							if (LineSeven().Contains(l) || LineEight().Contains(l) || LineNine().Contains(l)) {
-								poses.Add(l);
+								if (!poses.Contains(l)) poses.Add(l);
 								var nines = LinkPoses(l);
 								foreach (var nine in nines) {	// 8,9 line
 									if (LineEight().Contains(nine) || LineNine().Contains(nine))
-										poses.Add(nine);
+										if (!poses.Contains(nine)) poses.Add(nine);
 								}
 							}
 						}
