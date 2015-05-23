@@ -25,7 +25,7 @@ namespace x01.Weiqi.Boards
 	partial class Board
 	{
 		protected readonly Pos m_InvalidPos = new Pos(-1, -1);
-		List<Pos> AllPoses { get; set; }
+		protected List<Pos> AllPoses { get; set; }
 
 		public Pos Think()
 		{
@@ -50,12 +50,14 @@ namespace x01.Weiqi.Boards
 				m_MeshRects[pos.Row, pos.Col].Fill = Brushes.White;
 			}
 
-			int blackCount = m_BlackMeshes.Count;
-			int whiteCount = m_WhiteMeshes.Count;
-			int winCount = blackCount - whiteCount;
-			string s = winCount > 0 ? "黑胜: " + winCount.ToString() : 
-				winCount < 0 ? "白胜: " + (-winCount).ToString() : "和棋";
-			MessageBox.Show(s);
+			if (StepCount > 120) {
+				int blackCount = m_BlackMeshes.Count;
+				int whiteCount = m_WhiteMeshes.Count;
+				int winCount = blackCount - whiteCount;
+				string s = winCount > 0 ? "黑胜: " + winCount.ToString() :
+					winCount < 0 ? "白胜: " + (-winCount).ToString() : "和棋";
+				MessageBox.Show(s);
+			}
 		}
 		public void HideMeshes()
 		{
@@ -340,7 +342,6 @@ namespace x01.Weiqi.Boards
 			return LineThree().Union(LineFour()).Union(LineFive()).Union(LineSix())
 				.Union(LineSeven()).Union(LineEight()).Union(LineNine()).ToList();	// Line3-9 area
 		}
-
 		List<Pos> GetLines(LineFlag flag)
 		{
 			List<Pos> lines = new List<Pos>();
@@ -436,7 +437,7 @@ namespace x01.Weiqi.Boards
 		List<Pos> m_WhiteMeshes = new List<Pos>();
 		List<Pos> m_EmptyMeshes = new List<Pos>();
 
-		// Learning UpdateBlocks().
+		// Learning UpdateStepBlocks().
 		List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
 		List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
 		List<PosBlock> m_EmptyMeshBlocks = new List<PosBlock>();
@@ -500,15 +501,15 @@ namespace x01.Weiqi.Boards
 		private void InitMeshes()
 		{
 			UpdateMeshes1();
-			
-			if (StepCount < 120) return;
-
 			UpdateMeshes2();
-			UpdateMeshes3();
-			UpdateMeshes4(5);
-			UpdateMeshes4(8); // 二次扫描
-			UpdateMeshes5();
-			UpdateMeshes6();
+
+			UpdateMeshes3(2);
+			UpdateMeshes3(3);
+			UpdateMeshes3(4);
+			UpdateMeshes3(5);
+			UpdateMeshes3(10); // 多次扫描有必要
+
+			UpdateMeshes4();
 		}
 
 		void UpdateMeshes1()
@@ -598,25 +599,24 @@ namespace x01.Weiqi.Boards
 
 		void UpdateMeshes2()
 		{
-			foreach (var pos in m_EmptyMeshes) {
-				// pos is struct, value type. so that use Intersect().
+			var copyEmpties = m_EmptyMeshes.ToList();
+			foreach (var pos in copyEmpties) {
 				var links = LinkPoses(pos);
 				var b_poses = links.Intersect(m_BlackMeshes).ToList();
 				var w_poses = links.Intersect(m_WhiteMeshes).ToList();
-				var lineOnes = links.Intersect(LineOne()).ToList();
 				if (b_poses.Count >= 2 && b_poses.Count > w_poses.Count) {
-					if (!m_BlackMeshes.Contains(pos)) m_BlackMeshes.Add(pos);
+					if (!m_BlackMeshes.Contains(pos)) {
+						m_BlackMeshes.Add(pos);
+						m_EmptyMeshes.Remove(pos);
+					}
 				} else if (w_poses.Count >= 2 && w_poses.Count > b_poses.Count) {
-					if (!m_WhiteMeshes.Contains(pos)) m_WhiteMeshes.Add(pos);
-				} else if (lineOnes.Count > 0 && b_poses.Count > 0 && b_poses.Count > w_poses.Count) {
-					if (!m_BlackMeshes.Contains(pos)) m_BlackMeshes.Add(pos);
-				} else if (lineOnes.Count > 0 && w_poses.Count > 0 && w_poses.Count > b_poses.Count) {
-					if (!m_WhiteMeshes.Contains(pos)) m_WhiteMeshes.Add(pos);
+					if (!m_WhiteMeshes.Contains(pos)) {
+						m_WhiteMeshes.Add(pos);
+						m_EmptyMeshes.Remove(pos);
+					}
 				}
 			}
-		}
-		void UpdateMeshes3()
-		{
+
 			foreach (var pos in LineOne()) {
 				if (m_EmptyMeshes.Contains(pos)) {
 					var links = LinkPoses(pos);
@@ -633,24 +633,54 @@ namespace x01.Weiqi.Boards
 					});
 				}
 			}
-		}
-		void UpdateMeshes4(int count)
+
+			UpdateAllMeshBlocks();
+
+			foreach (var block in m_EmptyMeshBlocks) {
+				if (block.Poses.Count < 10) {
+					var b_poses = new List<Pos>();
+					var w_poses = new List<Pos>();
+					foreach (var pos in block.Poses) {
+						var links = LinkPoses(pos);
+						links.ForEach(l => {
+							if (m_BlackMeshes.Contains(l)) b_poses.Add(l);
+							else if (m_WhiteMeshes.Contains(l)) w_poses.Add(l);
+						});
+					}
+					if (b_poses.Count > w_poses.Count) {
+						m_BlackMeshes.AddRange(block.Poses);
+						m_EmptyMeshes.RemoveAll(e => block.Poses.Contains(e));
+					} else if (b_poses.Count < w_poses.Count) {
+						m_WhiteMeshes.AddRange(block.Poses);
+						m_EmptyMeshes.RemoveAll(e => block.Poses.Contains(e));
+					}
+				}
+			}
+		}	
+		void UpdateMeshes3(int count)
 		{
+			if (StepCount < 100) return;
+
 			UpdateAllMeshBlocks();
 			foreach (var block in m_BlackMeshBlocks) {
 				if (block.Poses.Count < count) {
-					m_BlackMeshes = m_BlackMeshes.Except(block.Poses).ToList();
-					m_WhiteMeshes = m_WhiteMeshes.Union(block.Poses).ToList();
+					block.Poses.ForEach(p => {
+						m_BlackMeshes.Remove(p);
+						m_WhiteMeshes.Add(p);
+					});
 				}
 			}
 			foreach (var block in m_WhiteMeshBlocks) {
 				if (block.Poses.Count < count) {
-					m_WhiteMeshes = m_WhiteMeshes.Except(block.Poses).ToList();
-					m_BlackMeshes = m_BlackMeshes.Union(block.Poses).ToList();
+					block.Poses.ForEach(p => {
+						m_WhiteMeshes.Remove(p);
+						m_BlackMeshes.Add(p);
+					});
 				}
 			}
+			UpdateMeshColors();
 		}
-		void UpdateMeshes5()
+		void UpdateMeshes4()
 		{
 			UpdateAllMeshBlocks();
 			foreach (var block in m_EmptyMeshBlocks) {
@@ -671,8 +701,9 @@ namespace x01.Weiqi.Boards
 					m_WhiteMeshes.AddRange(block.Poses);
 				}
 			}
+			UpdateMeshColors();
 		}
-		void UpdateMeshes6()
+		void UpdateMeshColors()
 		{
 			m_BlackMeshes.ForEach(p => {
 				if (m_EmptyMeshes.Contains(p)) m_EmptyMeshes.Remove(p);

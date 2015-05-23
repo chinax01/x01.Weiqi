@@ -121,38 +121,7 @@ namespace x01.Weiqi.Boards
 		public PosBlock()
 		{
 			Poses = new List<Pos>();
-			//LinkEmptyPoses = new List<Pos>();
-			//LinkBlackPoses = new List<Pos>();
-			//LinkWhitePoses = new List<Pos>();
-			//Id = LinkEmptyCount = LinkBlackCount = LinkWhiteCount = -1;
-			//PosColor = StoneColor.Empty;
 		}
-		//public PosBlock(StepBlock block)
-		//{
-		//	List<Step> steps = block.Steps;
-			
-		//	Id = block.Id;
-		//	PosColor = steps[0].StoneColor;
-		//	LinkEmptyCount = block.EmptyCount;
-
-		//	Poses = new List<Pos>();
-		//	steps.ForEach(s => Poses.Add(new Pos(s.Row, s.Col, s.StoneColor)));
-
-		//	LinkEmptyPoses = new List<Pos>();
-		//	LinkBlackPoses = new List<Pos>();
-		//	LinkWhitePoses = new List<Pos>();
-		//	LinkBlackCount = LinkWhiteCount = -1;
-		//}
-
-		//public int Id { get; set; }
 		public List<Pos> Poses { get; set; }
-		//public StoneColor PosColor { get; set; }
-
-		//public int LinkEmptyCount { get; set; }
-		//public List<Pos> LinkEmptyPoses { get; set; }
-		//public int LinkBlackCount { get; set; }
-		//public List<Pos> LinkBlackPoses { get; set; }
-		//public int LinkWhiteCount { get; set; }
-		//public List<Pos> LinkWhitePoses { get; set; }
 	}
 }
