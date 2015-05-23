@@ -26,6 +26,8 @@ namespace x01.Weiqi.Boards
 			IsShowCurrent = true;
 			IsShowMesh = false;
 
+			AllPoses = new List<Pos>();
+
 			Init();
 		}
 
@@ -304,6 +306,8 @@ namespace x01.Weiqi.Boards
 					m_Steps[i, j].Col = j;
 					m_EmptySteps.Add(m_Steps[i, j]);
 					m_AllSteps.Add(m_Steps[i, j]);
+
+
 				}
 			}
 
@@ -319,6 +323,7 @@ namespace x01.Weiqi.Boards
 					m_MeshRects[i, j] = rect;
 					m_Canvas.Children.Add(m_MeshRects[i, j]);
 
+					AllPoses.Add(new Pos(i, j));
 				}
 			}
 		}

@@ -25,6 +25,7 @@ namespace x01.Weiqi.Boards
 	partial class Board
 	{
 		protected readonly Pos m_InvalidPos = new Pos(-1, -1);
+		List<Pos> AllPoses { get; set; }
 
 		public Pos Think()
 		{
@@ -52,8 +53,9 @@ namespace x01.Weiqi.Boards
 			int blackCount = m_BlackMeshes.Count;
 			int whiteCount = m_WhiteMeshes.Count;
 			int winCount = blackCount - whiteCount;
-			string s = winCount > 0 ? "Black win: " + winCount.ToString() : "White win: " + (-winCount).ToString();
-			//MessageBox.Show(s);
+			string s = winCount > 0 ? "黑胜: " + winCount.ToString() : 
+				winCount < 0 ? "白胜: " + (-winCount).ToString() : "和棋";
+			MessageBox.Show(s);
 		}
 		public void HideMeshes()
 		{
@@ -113,7 +115,7 @@ namespace x01.Weiqi.Boards
 			}
 			return empties;
 		}
-		
+
 		private Pos RandDown()
 		{
 			int row = m_Rand.Next(0, 19);
@@ -186,13 +188,8 @@ namespace x01.Weiqi.Boards
 			{
 				m_EmptyPosBlocks.Clear();
 				foreach (var block in m_EmptyStepBlocks) {
-					PosBlock pb = new PosBlock(block);
-					GetLinkBlackSteps(block).ForEach(s => pb.LinkBlackPoses.Add(new Pos(s.Row, s.Col, StoneColor.Black)));
-					pb.LinkBlackCount = pb.LinkBlackPoses.Count;
-					GetLinkWhiteSteps(block).ForEach(s => pb.LinkWhitePoses.Add(new Pos(s.Row, s.Col, StoneColor.White)));
-					pb.LinkWhiteCount = pb.LinkWhitePoses.Count;
-					pb.LinkEmptyPoses = pb.Poses;
-					pb.LinkEmptyCount = pb.Poses.Count;
+					PosBlock pb = new PosBlock();
+					block.Steps.ForEach(s => pb.Poses.Add(new Pos(s.Row, s.Col, s.StoneColor)));
 					m_EmptyPosBlocks.Add(pb);
 				}
 				return m_EmptyPosBlocks;
@@ -205,13 +202,8 @@ namespace x01.Weiqi.Boards
 			{
 				m_BlackPosBlocks.Clear();
 				foreach (var block in m_BlackStepBlocks) {
-					PosBlock pb = new PosBlock(block);
-					GetLinkEmptySteps(block).ForEach(s => pb.LinkEmptyPoses.Add(new Pos(s.Row, s.Col)));
-					pb.LinkEmptyCount = pb.LinkEmptyPoses.Count;
-					GetLinkWhiteSteps(block).ForEach(s => pb.LinkWhitePoses.Add(new Pos(s.Row, s.Col, StoneColor.White)));
-					pb.LinkWhiteCount = pb.LinkWhitePoses.Count;
-					pb.LinkBlackPoses = pb.Poses;
-					pb.LinkBlackCount = pb.Poses.Count;
+					PosBlock pb = new PosBlock();
+					block.Steps.ForEach(s => pb.Poses.Add(new Pos(s.Row, s.Col, s.StoneColor)));
 					m_BlackPosBlocks.Add(pb);
 				}
 				return m_BlackPosBlocks;
@@ -224,13 +216,14 @@ namespace x01.Weiqi.Boards
 			{
 				m_WhitePosBlocks.Clear();
 				foreach (var block in m_WhiteStepBlocks) {
-					PosBlock pb = new PosBlock(block);
-					GetLinkEmptySteps(block).ForEach(s => pb.LinkEmptyPoses.Add(new Pos(s.Row, s.Col)));
-					pb.LinkEmptyCount = pb.LinkEmptyPoses.Count;
-					GetLinkBlackSteps(block).ForEach(s => pb.LinkBlackPoses.Add(new Pos(s.Row, s.Col, StoneColor.Black)));
-					pb.LinkBlackCount = pb.LinkBlackPoses.Count;
-					pb.LinkWhitePoses = pb.Poses;
-					pb.LinkWhiteCount = pb.Poses.Count;
+					PosBlock pb = new PosBlock();
+					block.Steps.ForEach(s => pb.Poses.Add(new Pos(s.Row, s.Col, s.StoneColor)));
+					//GetLinkEmptySteps(block).ForEach(s => pb.LinkEmptyPoses.Add(new Pos(s.Row, s.Col)));
+					//pb.LinkEmptyCount = pb.LinkEmptyPoses.Count;
+					//GetLinkBlackSteps(block).ForEach(s => pb.LinkBlackPoses.Add(new Pos(s.Row, s.Col, StoneColor.Black)));
+					//pb.LinkBlackCount = pb.LinkBlackPoses.Count;
+					//pb.LinkWhitePoses = pb.Poses;
+					//pb.LinkWhiteCount = pb.Poses.Count;
 					m_WhitePosBlocks.Add(pb);
 				}
 				return m_WhitePosBlocks;
@@ -240,7 +233,7 @@ namespace x01.Weiqi.Boards
 		//   +
 		// + + +	Copy code from LinkSteps().
 		//   +
-		List<Pos> LinkPoses(Pos pos, StoneColor posColor = StoneColor.Empty)
+		List<Pos> LinkPoses(Pos pos)
 		{
 			List<Pos> links = new List<Pos>();
 			for (int i = -1; i < 2; i++) {
@@ -255,12 +248,7 @@ namespace x01.Weiqi.Boards
 			}
 			links.Add(pos);
 
-			if (posColor == StoneColor.All) {
-				return links;
-			} else {
-				links.RemoveAll(l => l.PosColor != posColor);
-				return links;
-			}
+			return links;
 		}
 
 		// Nine Star
@@ -352,10 +340,7 @@ namespace x01.Weiqi.Boards
 			return LineThree().Union(LineFour()).Union(LineFive()).Union(LineSix())
 				.Union(LineSeven()).Union(LineEight()).Union(LineNine()).ToList();	// Line3-9 area
 		}
-		List<Pos> AllPoses()
-		{
-			return LineCenter().Union(LineOne()).Union(LineTwo()).ToList();
-		}
+
 		List<Pos> GetLines(LineFlag flag)
 		{
 			List<Pos> lines = new List<Pos>();
@@ -451,64 +436,82 @@ namespace x01.Weiqi.Boards
 		List<Pos> m_WhiteMeshes = new List<Pos>();
 		List<Pos> m_EmptyMeshes = new List<Pos>();
 
-		// Learning UpdateBlocks(), But not use.
-		//List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
-		//List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
-		//List<PosBlock> m_EmptyMeshBlocks = new List<PosBlock>();
-		//void UpdateMeshBlocks(List<Pos> poses, List<PosBlock> blocks, StoneColor stoneColor)
-		//{
-		//	List<Pos> copyPoses = new List<Pos>();
-		//	foreach (var item in poses) {
-		//		copyPoses.Add(item);
-		//	}
+		// Learning UpdateBlocks().
+		List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
+		List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
+		List<PosBlock> m_EmptyMeshBlocks = new List<PosBlock>();
+		void UpdateMeshBlocks(List<Pos> poses, List<PosBlock> blocks)
+		{
+			List<Pos> copyPoses = poses.ToList();
+			if (copyPoses.Count == 0) return;
 
-		//	if (copyPoses.Count == 0) return;
+			List<Pos> tmp = new List<Pos>();
+			foreach (var pos in copyPoses) {
+				if (tmp.Count == 0) tmp.Add(pos);
+				var links = LinkPoses(pos);
+				if (tmp.Intersect(links).Count() > 0) {
+					links.ForEach(l => {
+						if (copyPoses.Contains(l) && !tmp.Contains(l))
+							tmp.Add(l);
+					});
+				}
+			}
+			for (int i = 0; i < 4; i++) {	// 确保不遗漏到疯狂程度
+				foreach (var pos in copyPoses) {
+					var links = LinkPoses(pos);
+					if (tmp.Intersect(links).Count() > 0) {
+						links.ForEach(l => {
+							if (copyPoses.Contains(l) && !tmp.Contains(l))
+								tmp.Add(l);
+						});
+					}
+				}
+			}
 
-		//	var tmp = new List<Pos>();
-		//	foreach (var pos in copyPoses) {
-		//		if (tmp.Count == 0) tmp.Add(pos);
-		//		var links = LinkPoses(pos);
-		//		if (tmp.Intersect(links).Count() != 0)
-		//			links.ForEach(l => { if (!tmp.Contains(l)) tmp.Add(l); });
-		//	}
-		//	foreach (var step in copyPoses) {	// 防止遗漏
-		//		var sameLinks = LinkPoses(step);
-		//		if (tmp.Intersect(sameLinks).Count() != 0)
-		//			sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
-		//	}
-		//	if (tmp.Count == 0) return;
+			PosBlock block = new PosBlock();
+			block.Poses = tmp;
+			blocks.Add(block);
 
-		//	PosBlock block = new PosBlock();
-		//	block.Poses = tmp;
-		//	block.PosColor = stoneColor;
-		//	block.LinkEmptyCount = tmp.Count;
-		//	blocks.Add(block);
-
-		//	copyPoses.RemoveAll(s => tmp.Contains(s));	// next block
-		//	UpdateMeshBlocks(copyPoses, blocks, stoneColor);	// 递归
-		//}
-		//void UpdateBlackMeshBlocks()
-		//{
-		//	m_BlackMeshBlocks.Clear();
-		//	UpdateMeshBlocks(m_BlackMeshes.Union(BlackPoses).ToList(), m_BlackMeshBlocks, StoneColor.Black);
-		//}
-		//void UpdateWhiteMeshBlocks()
-		//{
-		//	m_WhiteMeshBlocks.Clear();
-		//	UpdateMeshBlocks(m_WhiteMeshes.Union(WhitePoses).ToList(), m_WhiteMeshBlocks, StoneColor.White);
-		//}
-		//void UpdateEmptyMeshBlocks()
-		//{
-		//	m_EmptyMeshBlocks.Clear();
-		//	UpdateMeshBlocks(m_EmptyMeshes.Union(EmptyPoses).ToList(), m_EmptyMeshBlocks, StoneColor.Empty);
-		//}
+			copyPoses.RemoveAll(p => tmp.Contains(p));
+			UpdateMeshBlocks(copyPoses, blocks);
+		}
+		void UpdateBlackMeshBlocks()
+		{
+			m_BlackMeshBlocks.Clear();
+			UpdateMeshBlocks(m_BlackMeshes, m_BlackMeshBlocks);
+		}
+		void UpdateWhiteMeshBlocks()
+		{
+			m_WhiteMeshBlocks.Clear();
+			UpdateMeshBlocks(m_WhiteMeshes, m_WhiteMeshBlocks);
+		}
+		void UpdateEmptyMeshBlocks()
+		{
+			m_EmptyMeshBlocks.Clear();
+			UpdateMeshBlocks(m_EmptyMeshes, m_EmptyMeshBlocks);
+		}
+		void UpdateAllMeshBlocks()
+		{
+			UpdateBlackMeshBlocks();
+			UpdateWhiteMeshBlocks();
+			UpdateEmptyMeshBlocks();
+		}
 
 		private void InitMeshes()
 		{
-			UpdateMeshes();
+			UpdateMeshes1();
+			
+			if (StepCount < 120) return;
+
+			UpdateMeshes2();
+			UpdateMeshes3();
+			UpdateMeshes4(5);
+			UpdateMeshes4(8); // 二次扫描
+			UpdateMeshes5();
+			UpdateMeshes6();
 		}
 
-		void UpdateMeshes()
+		void UpdateMeshes1()
 		{
 			m_BlackMeshes.Clear();
 			BlackPosBlocks.ForEach(b => b.Poses.ForEach(p => m_BlackMeshes.Add(p)));
@@ -522,10 +525,15 @@ namespace x01.Weiqi.Boards
 			m_BlackMeshes.RemoveAll(b => intersect.Contains(b));
 			m_WhiteMeshes.RemoveAll(w => intersect.Contains(w));
 
-			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
+			BlackPoses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
 			m_BlackMeshes.ForEach(b => b.PosColor = StoneColor.Black);
-			WhitePoses.ForEach(p => m_WhiteMeshes.Add(p));
+			WhitePoses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
 			m_WhiteMeshes.ForEach(w => w.PosColor = StoneColor.White);
+
+			m_EmptyMeshes.Clear();
+			AllPoses.ForEach(p => {
+				if (!(m_BlackMeshes.Contains(p) || m_WhiteMeshes.Contains(p))) m_EmptyMeshes.Add(p);
+			});
 		}
 		void AddBlackMeshes()
 		{
@@ -586,6 +594,97 @@ namespace x01.Weiqi.Boards
 					}
 				}
 			}
+		}
+
+		void UpdateMeshes2()
+		{
+			foreach (var pos in m_EmptyMeshes) {
+				// pos is struct, value type. so that use Intersect().
+				var links = LinkPoses(pos);
+				var b_poses = links.Intersect(m_BlackMeshes).ToList();
+				var w_poses = links.Intersect(m_WhiteMeshes).ToList();
+				var lineOnes = links.Intersect(LineOne()).ToList();
+				if (b_poses.Count >= 2 && b_poses.Count > w_poses.Count) {
+					if (!m_BlackMeshes.Contains(pos)) m_BlackMeshes.Add(pos);
+				} else if (w_poses.Count >= 2 && w_poses.Count > b_poses.Count) {
+					if (!m_WhiteMeshes.Contains(pos)) m_WhiteMeshes.Add(pos);
+				} else if (lineOnes.Count > 0 && b_poses.Count > 0 && b_poses.Count > w_poses.Count) {
+					if (!m_BlackMeshes.Contains(pos)) m_BlackMeshes.Add(pos);
+				} else if (lineOnes.Count > 0 && w_poses.Count > 0 && w_poses.Count > b_poses.Count) {
+					if (!m_WhiteMeshes.Contains(pos)) m_WhiteMeshes.Add(pos);
+				}
+			}
+		}
+		void UpdateMeshes3()
+		{
+			foreach (var pos in LineOne()) {
+				if (m_EmptyMeshes.Contains(pos)) {
+					var links = LinkPoses(pos);
+					links.ForEach(l => {
+						if (LineTwo().Contains(l)) {
+							if (m_BlackMeshes.Contains(l) && !m_BlackMeshes.Contains(pos)) {
+								m_BlackMeshes.Add(pos);
+								m_EmptyMeshes.Remove(pos);
+							} else if (m_WhiteMeshes.Contains(l) && !m_WhiteMeshes.Contains(pos)) {
+								m_WhiteMeshes.Add(pos);
+								m_EmptyMeshes.Remove(pos);
+							}
+						}
+					});
+				}
+			}
+		}
+		void UpdateMeshes4(int count)
+		{
+			UpdateAllMeshBlocks();
+			foreach (var block in m_BlackMeshBlocks) {
+				if (block.Poses.Count < count) {
+					m_BlackMeshes = m_BlackMeshes.Except(block.Poses).ToList();
+					m_WhiteMeshes = m_WhiteMeshes.Union(block.Poses).ToList();
+				}
+			}
+			foreach (var block in m_WhiteMeshBlocks) {
+				if (block.Poses.Count < count) {
+					m_WhiteMeshes = m_WhiteMeshes.Except(block.Poses).ToList();
+					m_BlackMeshes = m_BlackMeshes.Union(block.Poses).ToList();
+				}
+			}
+		}
+		void UpdateMeshes5()
+		{
+			UpdateAllMeshBlocks();
+			foreach (var block in m_EmptyMeshBlocks) {
+				List<Pos> b_poses = new List<Pos>();
+				List<Pos> w_poses = new List<Pos>();
+				foreach (var pos in block.Poses) {
+					var links = LinkPoses(pos);
+					links.ForEach(l => {
+						if (m_BlackMeshes.Contains(l) && !b_poses.Contains(l))
+							b_poses.Add(l);
+						if (m_WhiteMeshes.Contains(l) && !w_poses.Contains(l))
+							w_poses.Add(l);
+					});
+				}
+				if (b_poses.Count > w_poses.Count) {
+					m_BlackMeshes.AddRange(block.Poses);
+				} else if (b_poses.Count < w_poses.Count) {
+					m_WhiteMeshes.AddRange(block.Poses);
+				}
+			}
+		}
+		void UpdateMeshes6()
+		{
+			m_BlackMeshes.ForEach(p => {
+				if (m_EmptyMeshes.Contains(p)) m_EmptyMeshes.Remove(p);
+				p.PosColor = StoneColor.Black;
+			});
+			m_WhiteMeshes.ForEach(p => {
+				if (m_EmptyMeshes.Contains(p)) m_EmptyMeshes.Remove(p);
+				p.PosColor = StoneColor.White;
+			});
+			m_EmptyMeshes.ForEach(p => {
+				p.PosColor = StoneColor.Empty;
+			});
 		}
 
 		#endregion
