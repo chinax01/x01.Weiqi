@@ -89,6 +89,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Boards\AiBoard.cs" />
+    <Compile Include="Boards\Board.Mesh.cs" />
     <Compile Include="Boards\Board.Think.cs" />
     <Compile Include="Boards\Board.xaml.cs">
       <DependentUpon>Board.xaml</DependentUpon>

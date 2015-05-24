@@ -121,7 +121,12 @@ namespace x01.Weiqi.Boards
 		public PosBlock()
 		{
 			Poses = new List<Pos>();
+			IsDead = false;
+			EmptyCount = -1;
 		}
 		public List<Pos> Poses { get; set; }
+		public bool IsDead { get; set; }
+		public Pos KeyPos { get; set; }
+		public int EmptyCount { get; set; }
 	}
 }
