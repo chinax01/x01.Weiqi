@@ -40,15 +40,22 @@ namespace x01.Weiqi
 			m_MenuExit.Click += (s, e) => Close();
 
 			m_MenuShowNumber.Click += (s, e) => ShowNumber();
-			m_MenuShowEmpties.Click += (s, e) => ShowEmpties();
+			m_MenuShowMeshes.Click += (s, e) => ShowMeshes();
+			m_MenuPlaySound.Click += (s, e) => PlaySound();
 			m_MenuClearAll.Click += (s, e) => ClearAll();
 
 			m_MenuAbout.Click += m_MenuAbout_Click;
 		}
 
-		private void ShowEmpties()
+		void PlaySound()
 		{
-			m_Board.IsShowMesh = m_MenuShowEmpties.IsChecked;
+			m_Board.IsPlaySound = !m_Board.IsPlaySound;
+			m_MenuPlaySound.IsChecked = m_Board.IsPlaySound;
+		}
+
+		private void ShowMeshes()
+		{
+			m_Board.IsShowMesh = m_MenuShowMeshes.IsChecked;
 			if (m_Board.IsShowMesh) m_Board.ShowMeshes();
 			else m_Board.HideMeshes();
 			m_Board.Redraw();
@@ -120,8 +127,10 @@ namespace x01.Weiqi
 			} else if (e.Key == Key.F1) {
 				ShowNumber();
 			} else if (e.Key == Key.F2) {
-				m_MenuShowEmpties.IsChecked = !m_MenuShowEmpties.IsChecked;
-				ShowEmpties();
+				m_MenuShowMeshes.IsChecked = !m_MenuShowMeshes.IsChecked;
+				ShowMeshes();
+			} else if (e.Key == Key.F3) {
+				PlaySound();
 			} else if (e.Key == Key.Escape) {
 				ClearAll();
 			} else if (e.Key == Key.A && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {

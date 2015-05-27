@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -25,6 +26,7 @@ namespace x01.Weiqi.Boards
 			IsShowNumber = true;
 			IsShowCurrent = true;
 			IsShowMesh = false;
+			IsPlaySound = false;
 
 			AllPoses = new List<Pos>();
 
@@ -34,6 +36,7 @@ namespace x01.Weiqi.Boards
 		public bool IsShowNumber { get; set; }		// 是否显示步数
 		public bool IsShowCurrent { get; set; }		// 显示当前标志
 		public bool IsShowMesh { get; set; }		// 点目
+		public bool IsPlaySound { get; set; }		// 播放声音
 
 		// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
@@ -143,6 +146,10 @@ namespace x01.Weiqi.Boards
 
 			MoveCurrentRect();
 			m_StepString.AppendFormat("{0},{1},{2},", row, col, m_StepCount);
+			if (IsPlaySound) {
+				m_Media.Position = TimeSpan.Zero;
+				m_Media.Play();
+			}
 
 			m_StepCount++;
 
@@ -155,6 +162,8 @@ namespace x01.Weiqi.Boards
 				BackOne();
 				return false;
 			}
+
+			m_CurrentStep = m_Steps[row, col];
 
 			return true;
 		}
@@ -234,6 +243,8 @@ namespace x01.Weiqi.Boards
 
 		#region Init
 
+		SoundPlayer m_Player = new SoundPlayer();
+
 		StringBuilder m_StepString = new StringBuilder(2000);	// 保存棋谱
 		Regex m_Regex = new Regex(@"(\d+,){3}$");				// 悔棋匹配
 
@@ -241,6 +252,7 @@ namespace x01.Weiqi.Boards
 		Rectangle[,] m_MeshRects = new Rectangle[19, 19];	// 点目标志
 
 		Step[,] m_Steps = new Step[19, 19];					// 棋步，逻辑棋子
+		Step m_CurrentStep = null;
 
 		Ellipse[,] m_Stones = new Ellipse[19, 19];			// 棋子，仅为显示
 		TextBlock[,] m_Numbers = new TextBlock[19, 19];		// 步数

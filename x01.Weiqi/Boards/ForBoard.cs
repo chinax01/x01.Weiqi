@@ -7,7 +7,7 @@ namespace x01.Weiqi.Boards
 	{
 		public Step()
 		{
-			Row = Col = StepCount = BlockId = DeadStepCount = -1;
+			Row = Col = StepCount = BlockId = DeadStepCount = EmptyCount = -1;
 			StoneColor = Boards.StoneColor.Empty;
 		}
 
@@ -17,6 +17,7 @@ namespace x01.Weiqi.Boards
 		public int BlockId { get; set; }
 		public int DeadStepCount { get; set; }
 		public StoneColor StoneColor { get; set; }
+		public int EmptyCount { get; set; }
 	}
 
 	struct StepInfo
@@ -123,6 +124,7 @@ namespace x01.Weiqi.Boards
 			Poses = new List<Pos>();
 			IsDead = false;
 			EmptyCount = -1;
+			KeyPos = new Pos(-1, -1);
 		}
 		public List<Pos> Poses { get; set; }
 		public bool IsDead { get; set; }

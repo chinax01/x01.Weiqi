@@ -26,10 +26,11 @@
 				<MenuItem Header="退出(_E)" ToolTip="Exit  Ctl+E" Name="m_MenuExit"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="操作(_O)" ToolTip="Operate" >
-				<MenuItem Header="显示步数(_N)    F1" ToolTip="Show Number  F1" Name="m_MenuShowNumber" IsChecked="True" IsCheckable="True"/>
-				<MenuItem Header="点目(_M)" ToolTip="Show Meshes  F2" Name="m_MenuShowEmpties" IsChecked="False" IsCheckable="True"/>
+				<MenuItem Header="显示步数(_N)    F1" ToolTip="Show Number" Name="m_MenuShowNumber" IsChecked="True" IsCheckable="True"/>
+				<MenuItem Header="点目(_M)" ToolTip="Show Meshes    F2" Name="m_MenuShowMeshes" IsChecked="False" IsCheckable="True"/>
+				<MenuItem Header="音效(_S)" ToolTip="Play Sound    F3" Name="m_MenuPlaySound" IsChecked="False" IsCheckable="True"/>
 				<Separator />
-				<MenuItem Header="清除所有(_C)    ESC" ToolTip="Clear All  ESC" Name="m_MenuClearAll"></MenuItem>
+				<MenuItem Header="清除所有(_C)    ESC" ToolTip="Clear All" Name="m_MenuClearAll"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="帮助(_H)" ToolTip="Help">
 				<MenuItem Header="关于(_A)" ToolTip="About  Ctl+A" Name="m_MenuAbout"></MenuItem>

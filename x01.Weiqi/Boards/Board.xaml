@@ -22,7 +22,9 @@
 			</RadialGradientBrush.GradientStops>
 		</RadialGradientBrush>
 	</UserControl.Resources>
-	
-	<Canvas Name="m_Canvas" Background="#5eefdf56">
-	</Canvas>
+	<Grid>
+		<MediaElement Source="d.mp3" LoadedBehavior="Manual" Name="m_Media" />
+		<Canvas Name="m_Canvas" Background="#5eefdf56">
+		</Canvas>
+	</Grid>
 </UserControl>

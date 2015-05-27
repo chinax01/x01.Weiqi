@@ -13,7 +13,9 @@ namespace x01.Weiqi.Boards
 
 		public AiBoard()
 		{
-			m_Timer.Interval = 50;
+			IsShowCurrent = false;
+
+			m_Timer.Interval = 100;
 			m_Timer.Tick += m_Timer_Tick;
 			m_Timer.Start();
 		}
