@@ -49,7 +49,7 @@ namespace x01.Weiqi.Boards
 
 		#region Mesh Helper
 		
-		const int EndCount = 120;
+		const int EndCount = 10;
 
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();
@@ -323,6 +323,7 @@ namespace x01.Weiqi.Boards
 			if (StepCount < EndCount) return;
 
 			UpdateAllMeshBlocks();
+
 			foreach (var block in m_EmptyMeshBlocks) {
 				List<Pos> b_poses = new List<Pos>();
 				List<Pos> w_poses = new List<Pos>();
@@ -528,6 +529,8 @@ namespace x01.Weiqi.Boards
 					}
 				});
 			}
+
+			UpdateMeshes4();	// 居然还需调用一次！
 
 			UpdateMeshColors();
 		}

@@ -503,10 +503,12 @@ namespace x01.Weiqi.Boards
 					sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
 
 			}
-			foreach (var step in copySteps) {	// 防止遗漏
-				var sameLinks = LinkSteps(step, step.StoneColor);
-				if (tmp.Intersect(sameLinks).Count() != 0)
-					sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
+			for (int i = 0; i < 4; i++) {
+				foreach (var step in copySteps) {	// 防止遗漏
+					var sameLinks = LinkSteps(step, step.StoneColor);
+					if (tmp.Intersect(sameLinks).Count() != 0)
+						sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
+				}
 			}
 			if (tmp.Count == 0) return;
 

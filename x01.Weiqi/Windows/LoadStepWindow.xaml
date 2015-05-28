@@ -9,6 +9,11 @@
 		<DataGrid x:Name="m_RecordGrid" ItemsSource="{Binding}" ToolTip="Double click select" 
 				  SelectedIndex="0" AutoGenerateColumns="False" 
 				  MouseDoubleClick="m_RecordGrid_MouseDoubleClick" PreviewKeyDown="m_RecordGrid_PreviewKeyDown">
+			<DataGrid.ColumnHeaderStyle>
+				<Style TargetType="DataGridColumnHeader">
+					<Setter Property="HorizontalAlignment" Value="Center" />
+				</Style>
+			</DataGrid.ColumnHeaderStyle>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Id"  Binding="{Binding Path=Id}" />
 				<DataGridTextColumn Header="黑方" Binding="{Binding Path=Black}" />

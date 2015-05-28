@@ -31,8 +31,10 @@ namespace x01.Weiqi.Boards
 			if (StepCount < 10)
 				return RandDown();
 
-			List<Pos> poses;
-			Pos pos = EffectPos(out poses);
+			List<Pos> poses = new List<Pos>();
+			Pos pos = Defend();
+			if (pos == m_InvalidPos)
+				pos = EffectPos(out poses);
 			if (pos == m_InvalidPos)
 				pos = FindPos(poses);
 
@@ -118,7 +120,7 @@ namespace x01.Weiqi.Boards
 			var pos = new Pos(row, col);
 
 			if (StepCount < 4) {
-				if (GoldHorn().Contains(pos))
+				if (GoldHorn().Contains(pos) && LinkPoses(pos).Intersect(EmptyPoses).Count() == 5) // include self
 					return pos;
 			} else if (StepCount < 40) {
 				if (LineThree().Contains(pos) || LineFour().Contains(pos))
@@ -169,11 +171,9 @@ namespace x01.Weiqi.Boards
 				}
 			}
 			if (StepCount < EndCount)
-				poses = temp.Except(LineOne()).Except(LineTwo()).ToList();	// 根据形势判断决定落子范围
+				poses = temp.Union(CurrentEffectPoses).Except(LineOne()).Except(LineTwo()).ToList();	// 根据形势判断决定落子范围
 			else
-				poses = temp.ToList();
-
-			if (OneEmpty() != m_InvalidPos) return OneEmpty();
+				poses = temp.Union(CurrentEffectPoses).ToList();
 
 			// 根据 UpdateMeshes() 决定是否吃子或做活
 			if (StepCount < EndCount) return m_InvalidPos;
@@ -205,7 +205,7 @@ namespace x01.Weiqi.Boards
 			var result = m_InvalidPos;
 			var empties = poses.ToList();
 			int count = -1;
-			
+
 			bool isPlay = IsPlaySound;
 			IsPlaySound = false;
 			for (int i = 0; i < 20; i++) {
@@ -265,15 +265,46 @@ namespace x01.Weiqi.Boards
 
 		Pos Defend()
 		{
-			Pos pos = CurrentPos;
-			var rounds = RoundTwoPoses(pos).Intersect(WhitePoses).ToList();
-			foreach (var r in rounds) {
-				if (IsTouch(r, pos)) return Touch(pos, r);
-				else if (IsCusp(r, pos)) return Cusp(pos, r);
-				else if (IsJumpOne(r, pos)) return JumpOne(pos, r);
-				else if (IsFlyOne(r, pos)) return FlyOne(pos, r);
-				else if (IsElephant(r, pos)) return Elephant(pos, r);
-			}
+			UpdateEmptyCount();
+
+			if (OneEmpty() != m_InvalidPos) return OneEmpty();
+
+			var pos = CurrentPos;
+			var poses = CurrentEffectPoses;
+
+			var links = LinkPoses(pos);
+			var b_links = links.Intersect(BlackPoses).ToList();
+			var w_links = links.Intersect(WhitePoses).ToList();
+			var e_links = links.Intersect(EmptyPoses).ToList();
+			
+			// Touch
+			if (b_links.Count == 1 && e_links.Count == 3) {
+				var b = b_links[0];
+				var step = GetStep(b);
+				if (step.EmptyCount >= 3) {
+					foreach (var item in e_links) {
+						if (IsTouch(item, pos) && IsCusp(item, b)
+							&& LinkPoses(item).Intersect(EmptyPoses).Count() > 2)
+							return item;
+					}
+				} else if (step.EmptyCount == 2) {
+					var b_empties = LinkPoses(b).Intersect(EmptyPoses).ToList();
+					foreach (var e in b_empties) {
+						if (LinkPoses(e).Intersect(BlackPoses).Count() > 1)
+							return e;
+					}
+				}
+			} else if (b_links.Count == 1 && w_links.Count >= 2) {
+				var b = b_links[0];
+				var w = w_links[0];
+				if (GetStep(b).EmptyCount < GetStep(w).EmptyCount) {
+					var b_empties = LinkPoses(b).Intersect(EmptyPoses).ToList();
+					foreach (var item in b_empties) {
+						if (IsTouch(item, b) && IsCusp(item, pos) && !LineOneTwo.Contains(item)) 
+							return item;
+					}
+				}
+			} 
 
 			return m_InvalidPos;
 		}
@@ -357,7 +388,28 @@ namespace x01.Weiqi.Boards
 		#region Pos Helper
 
 		Pos CurrentPos { get { return new Pos(m_CurrentStep.Row, m_CurrentStep.Col); } }
-		List<Pos> CurrentEffectPoses { get { return RoundTwoPoses(CurrentPos); } }
+		List<Pos> CurrentEffectPoses { get { return RoundThreePoses(CurrentPos).Intersect(EmptyPoses).ToList(); } }
+		Step GetStep(Pos pos)
+		{
+			return m_Steps[pos.Row, pos.Col];
+		}
+		StepBlock GetStepBlock(Pos pos)
+		{
+			UpdateAllStepBlocks();
+
+			int id = GetStep(pos).BlockId;
+			foreach (var block in m_BlackStepBlocks) {
+				if (id == block.Id) return block;
+			}
+			foreach (var block in m_WhiteStepBlocks) {
+				if (id == block.Id) return block;
+			}
+			foreach (var block in m_EmptyStepBlocks) {
+				if (id == block.Id) return block;
+			}
+
+			return null;
+		}
 
 		// 使用属性而不是字段
 		List<Pos> m_BlackPoses = new List<Pos>();
@@ -477,7 +529,6 @@ namespace x01.Weiqi.Boards
 			}
 			return links;
 		}
-		// again add a round.
 		List<Pos> RoundTwoPoses(Pos pos)
 		{
 			var links = new List<Pos>();
@@ -573,6 +624,8 @@ namespace x01.Weiqi.Boards
 			}
 			return goldHorn;
 		}
+
+		List<Pos> LineOneTwo { get { return LineOne().Union(LineTwo()).ToList(); } }
 
 		enum LineFlag { One, Two, Three, Four, Five, Six, Seven, Eight, Nine }
 		List<Pos> LineOne()
