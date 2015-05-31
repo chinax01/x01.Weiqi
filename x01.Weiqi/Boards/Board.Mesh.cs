@@ -31,7 +31,7 @@ namespace x01.Weiqi.Boards
 				m_MeshRects[pos.Row, pos.Col].Fill = Brushes.White;
 			}
 
-			if (StepCount > 120) {
+			if (StepCount > EndCount) {
 				int blackCount = m_BlackMeshes.Count;
 				int whiteCount = m_WhiteMeshes.Count;
 				int winCount = blackCount - whiteCount;
@@ -49,7 +49,7 @@ namespace x01.Weiqi.Boards
 
 		#region Mesh Helper
 		
-		const int EndCount = 10;
+		const int EndCount = 120;
 
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();

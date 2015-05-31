@@ -48,8 +48,6 @@ namespace x01.Weiqi.Boards
 		// 一口气
 		Pos OneEmpty()
 		{
-			UpdateEmptyCount();
-
 			var w_blocks = m_WhiteStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 			var b_blocks = m_BlackStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 
@@ -57,7 +55,7 @@ namespace x01.Weiqi.Boards
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
-					if (LineOne().Contains(pos))
+					if (new Pos(m_BanOnce.Row, m_BanOnce.Col) == pos)
 						continue;
 					return pos;
 				}
@@ -66,7 +64,22 @@ namespace x01.Weiqi.Boards
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
-					if (LineOne().Contains(pos))
+					var links = LinkPoses(pos).Intersect(EmptyPoses).ToList();
+					links.Remove(pos);
+					if (links.Count == 2) {
+						Pos p1, p2, p;
+						var links0_w = LinkPoses(links[0]).Intersect(WhitePoses).ToList();
+						var links1_w = LinkPoses(links[1]).Intersect(WhitePoses).ToList();
+						if (links0_w.Count == 1) {
+							p2 = links[0]; p1 = links[1];
+							if (CanLevy(p1, p2, pos)) continue;
+						} else if (links1_w.Count == 1) {
+							p2 = links[1]; p1 = links[0];
+							if (CanLevy(p1, p2, pos)) continue;
+						}
+					}
+					if ((LinkPoses(pos).Intersect(BlackPoses).Count() < 2) &&
+						(LineOne().Contains(pos) || new Pos(m_BanOnce.Row, m_BanOnce.Col) == pos))	// 暂不考虑征子有利
 						continue;
 					return pos;
 				}
@@ -112,6 +125,105 @@ namespace x01.Weiqi.Boards
 			m_BlackStepBlocks.ForEach(b => GetLinkEmptySteps(b));
 			m_WhiteStepBlocks.ForEach(b => GetLinkEmptySteps(b));
 		}
+		// 两口气
+		Pos TwoEmpty()
+		{
+			var w_blocks = m_WhiteStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
+			var b_blocks = m_BlackStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
+
+			foreach (var w_block in w_blocks) {		// 吃白
+				if (w_block.EmptyCount == 2) {
+					var empties = GetLinkEmptySteps(w_block);
+					Pos p = GetPos(w_block, empties);
+					var p1 = GetPos(empties[0]);
+					var p2 = GetPos(empties[1]);
+					if (LinkPoses(p1).Intersect(BlackPoses).Count() >= 1 && CanLevy(p1, p2, p, false)) { // 有黑子帮忙
+						if (LinkPoses(p2).Intersect(WhitePoses).Count() < 3)	// 虎口
+							return p2;
+					} else if (LinkPoses(p2).Intersect(BlackPoses).Count() >= 1 && CanLevy(p2, p1, p, false)) {
+						if (LinkPoses(p1).Intersect(WhitePoses).Count() < 3)
+							return p1;
+					}
+				}
+			}
+
+			foreach (var b_block in b_blocks) {		// 逃黑
+				if (b_block.EmptyCount == 2) {
+					var empties = GetLinkEmptySteps(b_block);
+					Pos p = GetPos(b_block, empties);
+					var p1 = GetPos(empties[0]);
+					var p2 = GetPos(empties[1]);
+					if (LinkPoses(p1).Intersect(WhitePoses).Count() == 0
+						&& (!LineOneTwo.Contains(p1) || LinkPoses(p1).Intersect(BlackPoses).Count() > 1)) {
+						return p1;
+					} else if (LinkPoses(p2).Intersect(WhitePoses).Count() == 0
+						&& (!LineOneTwo.Contains(p2) || LinkPoses(p2).Intersect(BlackPoses).Count() > 1)) {
+						return p2;
+					}
+				}
+			}
+
+			return m_InvalidPos;
+		}
+
+		private Pos GetPos(StepBlock block, List<Step> empties)	// For CanLevy()
+		{
+			Pos p = m_InvalidPos;
+
+			if (empties.Count != 2)
+				return p;
+
+			foreach (var item in block.Steps) {
+				var i_empties = LinkSteps(item);
+				if (i_empties.Contains(empties[0]) && i_empties.Contains(empties[1])) {
+					p = GetPos(item);
+					break;
+				}
+			}
+			return p;
+		}
+		// 两口气的征子判断，p1, p2 为气，p2 为前进方向，p 为逃跑之子。
+		bool CanLevy(Pos p1, Pos p2, Pos p, bool isBlack = true)
+		{
+			if (!IsCusp(p1, p2)) return true;
+			if (p == m_InvalidPos) return true;
+
+			List<Pos> selfPoses = isBlack ? BlackPoses : WhitePoses;
+			List<Pos> otherPoses = !isBlack ? BlackPoses : WhitePoses;
+
+			// 征而被叫，岂不大笑？
+			var p1_links = LinkPoses(p1).Intersect(otherPoses).ToList();
+			if (p1_links.Count == 1 && p1_links.Intersect(EmptyPoses).Count() == 2)
+				return false;
+			var p2_links = LinkPoses(p2).Intersect(otherPoses).ToList();
+			if (p2_links.Count == 1 && p2_links.Intersect(EmptyPoses).Count() == 2)
+				return false;
+
+			int count = 0;
+			while (true) {
+				if (!InRange(p2.Row, p2.Col))
+					break;
+				bool isRow = p2.Row - p.Row == 0 ? true : false;
+				int rowOffset = isRow ? (count == 0 ? p1.Row - p2.Row : p2.Row - p1.Row) : 0;
+				int colOffset = isRow ? 0 : (count ==  0 ? p1.Col - p2.Col :p2.Col - p1.Col);
+				Pos pos = new Pos(p2.Row + rowOffset, p2.Col + colOffset);
+				var rounds = count < 5 ? LinkPoses(pos) : RoundTwoPoses(pos);
+				foreach (var r in rounds) {
+					if (isBlack && count < 2) continue; // 黑需先走两步
+					if (selfPoses.Contains(r))
+						return false;
+					if (otherPoses.Contains(r)) {
+						return true;
+					}
+				}
+				count++;
+				p1 = p;
+				p = p2;
+				p2 = pos;
+			}
+
+			return true;
+		}
 
 		Pos RandDown()
 		{
@@ -139,6 +251,7 @@ namespace x01.Weiqi.Boards
 		{
 			// UpdateMeshes() 开销大，所以应该多干点。
 			UpdateMeshes();
+
 			int b_count = m_BlackMeshes.Count;
 			int w_count = m_WhiteMeshes.Count;
 
@@ -171,9 +284,9 @@ namespace x01.Weiqi.Boards
 				}
 			}
 			if (StepCount < EndCount)
-				poses = temp.Union(CurrentEffectPoses).Except(LineOne()).Except(LineTwo()).ToList();	// 根据形势判断决定落子范围
+				poses = temp.Union(CurrentEffectEmptyPoses).Except(LineOne()).Except(LineTwo()).ToList();	// 根据形势判断决定落子范围
 			else
-				poses = temp.Union(CurrentEffectPoses).ToList();
+				poses = temp.Union(CurrentEffectEmptyPoses).ToList();
 
 			// 根据 UpdateMeshes() 决定是否吃子或做活
 			if (StepCount < EndCount) return m_InvalidPos;
@@ -224,162 +337,115 @@ namespace x01.Weiqi.Boards
 			return result;
 		}
 
-		//Pos FindPos(List<Pos> poses)
-		//{
-		//	var empties = CurrentEffectPoses.Union(poses).Intersect(EmptyPoses).ToList();
-		//	int count = empties.Count;
-		//	Dictionary<Pos, int> store = new Dictionary<Pos, int>();
-		//	int backCount = 0;
-
-		//	for (int j = 0; j < 20; j++) {
-		//		bool isFirst = false;
-		//		Pos firstPos = m_InvalidPos;
-		//		for (int i = 0; i < 4; i++) {
-		//			int index = m_Rand.Next(0, count);
-		//			Pos e = empties[index];
-		//			if (!NextOne(e.Row, e.Col)) continue;
-		//			if (!isFirst) {
-		//				isFirst = true;
-		//				firstPos = e;
-		//			}
-		//			backCount++;
-		//		}
-		//		UpdateMeshes1();
-		//		store[firstPos] = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-		//		for (int b = 0; b < backCount; b++) {
-		//			BackOne();
-		//		}
-		//		backCount = 0;
-		//	}
-
-		//	int value = -1;
-		//	Pos pos = m_InvalidPos;
-		//	foreach (var pair in store) {
-		//		if (value < pair.Value) {
-		//			value = pair.Value;
-		//			pos = pair.Key;
-		//		}
-		//	}
-		//	return pos;
-		//}
-
 		Pos Defend()
 		{
+			UpdateAllStepBlocks();
 			UpdateEmptyCount();
 
 			if (OneEmpty() != m_InvalidPos) return OneEmpty();
+			if (TwoEmpty() != m_InvalidPos) return TwoEmpty();
 
+			return Shape();
+		}
+
+		private Pos Shape() 		// 棋型处理
+		{
 			var pos = CurrentPos;
-			var poses = CurrentEffectPoses;
+
+			var empties = CurrentEffectEmptyPoses;
+			var copyEmpties = empties.ToList();
+			foreach (var e in copyEmpties) {
+				if (LinkPoses(e).Intersect(empties).Count() < 3)
+					empties.Remove(e);	// 虎口和禁入
+			}
+			var blacks = CurrentEffectBlackPoses;
+			var whites = CurrentEffectWhitePoses;
+
+			var rounds = RoundOnePoses(pos);
+			var b_rounds = rounds.Intersect(blacks).ToList();
+			var w_rounds = rounds.Intersect(whites).ToList();
+			var e_rounds = rounds.Intersect(empties).ToList();
 
 			var links = LinkPoses(pos);
-			var b_links = links.Intersect(BlackPoses).ToList();
-			var w_links = links.Intersect(WhitePoses).ToList();
-			var e_links = links.Intersect(EmptyPoses).ToList();
-			
-			// Touch
-			if (b_links.Count == 1 && e_links.Count == 3) {
-				var b = b_links[0];
-				var step = GetStep(b);
-				if (step.EmptyCount >= 3) {
-					foreach (var item in e_links) {
-						if (IsTouch(item, pos) && IsCusp(item, b)
-							&& LinkPoses(item).Intersect(EmptyPoses).Count() > 2)
-							return item;
-					}
-				} else if (step.EmptyCount == 2) {
-					var b_empties = LinkPoses(b).Intersect(EmptyPoses).ToList();
-					foreach (var e in b_empties) {
-						if (LinkPoses(e).Intersect(BlackPoses).Count() > 1)
-							return e;
+			var b_links = links.Intersect(blacks).ToList();
+			var w_links = links.Intersect(whites).ToList();
+			var e_links = links.Intersect(empties).ToList();
+
+			foreach (var r in b_rounds) {
+				foreach (var l in b_links) {
+					if (IsFlyOne(r, l)) {	// 跨断飞
+						foreach (var e in e_links) {
+							if (IsTouch(e, r) && IsCusp(e, l))
+								return e;
+						}
 					}
 				}
-			} else if (b_links.Count == 1 && w_links.Count >= 2) {
-				var b = b_links[0];
-				var w = w_links[0];
-				if (GetStep(b).EmptyCount < GetStep(w).EmptyCount) {
-					var b_empties = LinkPoses(b).Intersect(EmptyPoses).ToList();
-					foreach (var item in b_empties) {
-						if (IsTouch(item, b) && IsCusp(item, pos) && !LineOneTwo.Contains(item)) 
-							return item;
+			}
+
+			foreach (var b in b_links) {
+				foreach (var l in w_links) {
+					if (IsCusp(b, l)) {
+						foreach (var e in e_rounds) {	// 后推车
+							if (!LineOneTwo.Contains(e) && IsTouch(e, b) && IsFlyOne(e, l))
+								return e;
+							else if (GetStepBlock(pos).Steps.Count == 2) {	// 反长
+								if (!LineOneTwo.Contains(e) && IsTouch(e, l) && IsTouch(e, b))
+									return e;
+							}
+						}
 					}
 				}
-			} 
 
-			return m_InvalidPos;
-		}
-		Pos Touch(Pos pos, Pos white) // 碰(CurrentPos Touch black)
-		{
-			UpdateEmptyCount();
-			int b_count = m_Steps[pos.Row, pos.Col].EmptyCount;
-			int w_count = m_Steps[white.Row, white.Col].EmptyCount;
-			var rounds = RoundOnePoses(pos).Intersect(EmptyPoses);
-			foreach (var r in rounds) {
-				if (b_count >= w_count && IsTouch(r, white) && IsCusp(r, pos))
-					return r;
-				else if (b_count < w_count && IsCusp(r, white) && IsTouch(r, pos))
-					return r;
+				foreach (var w in w_rounds) {	// 扳
+					if (IsCusp(pos, w)) {
+						bool isRow = b.Row - pos.Row == 0 ? true : false;
+						int r_off = 0, c_off = 0;
+						if (isRow) {
+							c_off = pos.Col > w.Col ? w.Col - pos.Col : pos.Col - w.Col;
+						} else {
+							r_off = pos.Row > b.Row ? b.Row - pos.Row : pos.Row - b.Row;
+						}
+						Pos p = new Pos(b.Row + r_off, b.Col + c_off);
+						if (empties.Contains(p))
+							return p;
+						else if (blacks.Contains(p)) {
+							foreach (var e in e_links) {
+								if (IsTouch(e, pos) && IsFlyOne(e, w))
+									return e;
+							}
+						}
+					}
+				}
 			}
 
-			return m_InvalidPos;
-		}
-		Pos Cusp(Pos pos, Pos white)
-		{
-			UpdateEmptyCount();
-			int b_count = m_Steps[pos.Row, pos.Col].EmptyCount;
-			int w_count = m_Steps[white.Row, white.Col].EmptyCount;
-			var rounds = RoundOnePoses(pos).Intersect(EmptyPoses);
-			foreach (var r in rounds) {
-				if (b_count >= w_count && IsTouch(r, white) && IsTouch(r, pos))
-					return r;
+			var copy_e_rounds = rounds.Intersect(copyEmpties).ToList();
+			foreach (var e in copy_e_rounds) {
+				if (LinkPoses(e).Intersect(b_rounds).Count() == 2)	// 刺一间跳
+					return e;
 			}
 
-			return m_InvalidPos;
-		}
-		Pos JumpOne(Pos pos, Pos white) // 跳 
-		{
-
-			UpdateEmptyCount();
-			int b_count = m_Steps[pos.Row, pos.Col].EmptyCount;
-			int w_count = m_Steps[white.Row, white.Col].EmptyCount;
-			var rounds = RoundTwoPoses(pos).Intersect(EmptyPoses);
-			foreach (var r in rounds) {
-				if (b_count > w_count && (IsJumpOne(r, pos) || IsFlyOne(r, pos))
-					&& (IsTouch(r, white) || IsElephant(r, white)))
-					return r;
-				else if (b_count <= w_count && (IsJumpOne(r, pos) || IsFlyOne(r, pos)))
-					return r;
+			foreach (var w in whites) {
+				if (IsFlyOne(w, pos)) {		// 飞靠
+					foreach (var l in b_links) {
+						if (IsTouch(l, pos) && IsJumpOne(l, w)) {
+							foreach (var e in e_links) {
+								if (IsCusp(e, l) && IsFlyTwo(e, w))
+									return e;
+							}
+						}
+					}
+				} else if (IsJumpOne(w, pos)) {	// 跳压
+					foreach (var l in b_links) {
+						if (IsTouch(l, pos) && IsFlyOne(l, w)) {
+							foreach (var e in e_links) {
+								if (IsCusp(e, l) && IsJumpTwo(e, w))
+									return e;
+							}
+						}
+					}
+				}
 			}
 
-			return m_InvalidPos;
-		}
-		Pos FlyOne(Pos pos, Pos white) // 飞 
-		{
-			UpdateEmptyCount();
-			int b_count = m_Steps[pos.Row, pos.Col].EmptyCount;
-			int w_count = m_Steps[white.Row, white.Col].EmptyCount;
-			var rounds = RoundTwoPoses(pos).Intersect(EmptyPoses);
-			foreach (var r in rounds) {
-				if (b_count > w_count && (IsTouch(r, white) || IsFlyOne(r, pos) || IsJumpOne(r, pos)))
-					return r;
-				else if (!IsElephant(r, pos))
-					return r;
-			}
-			return m_InvalidPos;
-		}
-		Pos Elephant(Pos pos, Pos white)
-		{
-
-			UpdateEmptyCount();
-			int b_count = m_Steps[pos.Row, pos.Col].EmptyCount;
-			int w_count = m_Steps[white.Row, white.Col].EmptyCount;
-			var rounds = RoundTwoPoses(pos).Intersect(EmptyPoses);
-			foreach (var r in rounds) {
-				if (b_count > w_count && IsJumpOne(r, pos) && IsJumpOne(r, white))
-					return r;
-				else if (IsJumpOne(r, pos) || IsFlyOne(r, pos))
-					return r;
-			}
 			return m_InvalidPos;
 		}
 
@@ -388,7 +454,9 @@ namespace x01.Weiqi.Boards
 		#region Pos Helper
 
 		Pos CurrentPos { get { return new Pos(m_CurrentStep.Row, m_CurrentStep.Col); } }
-		List<Pos> CurrentEffectPoses { get { return RoundThreePoses(CurrentPos).Intersect(EmptyPoses).ToList(); } }
+		List<Pos> CurrentEffectEmptyPoses { get { return RoundThreePoses(CurrentPos).Intersect(EmptyPoses).ToList(); } }
+		List<Pos> CurrentEffectBlackPoses { get { return RoundThreePoses(CurrentPos).Intersect(BlackPoses).ToList(); } }
+		List<Pos> CurrentEffectWhitePoses { get { return RoundThreePoses(CurrentPos).Intersect(WhitePoses).ToList(); } }
 		Step GetStep(Pos pos)
 		{
 			return m_Steps[pos.Row, pos.Col];
@@ -409,6 +477,10 @@ namespace x01.Weiqi.Boards
 			}
 
 			return null;
+		}
+		Pos GetPos(Step step)
+		{
+			return new Pos(step.Row, step.Col);
 		}
 
 		// 使用属性而不是字段

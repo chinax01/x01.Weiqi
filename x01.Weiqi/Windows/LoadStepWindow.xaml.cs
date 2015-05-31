@@ -28,8 +28,14 @@ namespace x01.Weiqi.Windows
 
 			Record = new Models.Record();
 
-			m_RecordGrid.DataContext = GetRecords();
-			m_RecordGrid.Focus();
+			Loaded += (s, e) => {
+				try {
+					m_RecordGrid.DataContext = GetRecords();
+					m_RecordGrid.Focus();
+				} catch (Exception ex) {
+					MessageBox.Show("GetRecords() Error: \n" + ex.Message);
+				}
+			};
 		}
 
 		public List<Record> GetRecords()

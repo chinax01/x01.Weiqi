@@ -147,8 +147,10 @@ namespace x01.Weiqi.Boards
 			MoveCurrentRect();
 			m_StepString.AppendFormat("{0},{1},{2},", row, col, m_StepCount);
 			if (IsPlaySound) {
-				m_Media.Position = TimeSpan.Zero;
-				m_Media.Play();
+				// 如果是 XP 系统，m_Media 相关代码需去掉，换 SoundPlayer.
+				// 否则，取消以下和 Board.xaml 中的注释，即可播放声音。
+				// m_Media.Position = TimeSpan.Zero;
+				// m_Media.Play();
 			}
 
 			m_StepCount++;
@@ -544,10 +546,15 @@ namespace x01.Weiqi.Boards
 						var d = CloneStep(dead);
 						deadInfo.Steps.Add(d);
 
-						if (dead.StoneColor == StoneColor.Black)
+						if (dead.StoneColor == StoneColor.Black) {
+							//dead.StoneColor = StoneColor.Empty;
 							m_BlackSteps.Remove(dead);
-						else if (dead.StoneColor == StoneColor.White)
+							//m_WhiteSteps.Add(dead);
+						} else if (dead.StoneColor == StoneColor.White) {
+							//dead.StoneColor = StoneColor.Empty;
 							m_WhiteSteps.Remove(dead);
+							//m_BlackSteps.Add(dead);
+						}
 						m_EmptySteps.Add(dead);
 						HideStep(dead);
 					}
