@@ -64,6 +64,8 @@ namespace x01.Weiqi.Boards
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
+					if (LinkPoses(pos).Intersect(BlackPoses).Count() >= 2) //有子接应
+						return pos;
 					var links = LinkPoses(pos).Intersect(EmptyPoses).ToList();
 					links.Remove(pos);
 					if (links.Count == 2) {
@@ -144,6 +146,41 @@ namespace x01.Weiqi.Boards
 						if (LinkPoses(p1).Intersect(WhitePoses).Count() < 3)
 							return p1;
 					}
+
+					// 双叫吃
+					var p1_links = LinkPoses(p1).Intersect(WhitePoses).ToList();
+					var p2_links = LinkPoses(p2).Intersect(WhitePoses).ToList();
+					foreach (var p1_l in p1_links) {
+						if (IsCusp(p1_l, p) && LinkPoses(p1_l).Intersect(EmptyPoses).Count() == 2)
+							return p1;
+					}
+					foreach (var p2_l in p2_links) {
+						if (IsCusp(p2_l, p) && LinkPoses(p2_l).Intersect(EmptyPoses).Count() == 2)
+							return p2;
+					}
+
+					// 二路
+					if (LineTwo().Contains(p1)) {
+						if (LinkPoses(p1).Intersect(WhitePoses).Count() == 1)
+							return p1;
+					} else if (LineTwo().Contains(p2)) {
+						if ((LinkPoses(p2).Intersect(WhitePoses).Count() == 1))
+							return p2;
+					} else if (LineOne().Contains(p1) && LineOne().Contains(p2)) {
+						if (LinkPoses(p1).Intersect(WhitePoses).Count() == 1)
+							return p1;
+						if ((LinkPoses(p2).Intersect(WhitePoses).Count() == 1))
+							return p2;
+					}
+
+					// 枷
+					if (LinkPoses(p1).Intersect(BlackPoses).Count() == 1 && LinkPoses(p2).Intersect(BlackPoses).Count() == 1) {
+						var e_rounds = RoundOnePoses(p).Intersect(EmptyPoses).ToList();
+						foreach (var e in e_rounds) {
+							if (IsCusp(e, p) && IsTouch(e, p1) && IsTouch(e, p2))
+								return e;
+						}
+					}
 				}
 			}
 
@@ -159,6 +196,19 @@ namespace x01.Weiqi.Boards
 					} else if (LinkPoses(p2).Intersect(WhitePoses).Count() == 0
 						&& (!LineOneTwo.Contains(p2) || LinkPoses(p2).Intersect(BlackPoses).Count() > 1)) {
 						return p2;
+					}
+
+
+					// 双叫吃
+					var p1_links = LinkPoses(p1).Intersect(BlackPoses).ToList();
+					var p2_links = LinkPoses(p2).Intersect(BlackPoses).ToList();
+					foreach (var p1_l in p1_links) {
+						if (IsCusp(p1_l, p) && LinkPoses(p1_l).Intersect(EmptyPoses).Count() == 2)
+							return p1;
+					}
+					foreach (var p2_l in p2_links) {
+						if (IsCusp(p2_l, p) && LinkPoses(p2_l).Intersect(EmptyPoses).Count() == 2)
+							return p2;
 					}
 				}
 			}
@@ -182,7 +232,7 @@ namespace x01.Weiqi.Boards
 			}
 			return p;
 		}
-		// 两口气的征子判断，p1, p2 为气，p2 为前进方向，p 为逃跑之子。
+		// 征子判断，p1, p2 为气，p2 为前进方向，p 为逃跑之子。
 		bool CanLevy(Pos p1, Pos p2, Pos p, bool isBlack = true)
 		{
 			if (!IsCusp(p1, p2)) return true;
@@ -193,10 +243,10 @@ namespace x01.Weiqi.Boards
 
 			// 征而被叫，岂不大笑？
 			var p1_links = LinkPoses(p1).Intersect(otherPoses).ToList();
-			if (p1_links.Count == 1 && p1_links.Intersect(EmptyPoses).Count() == 2)
+			if (p1_links.Count == 1 && LinkPoses(p1_links[0]).Intersect(EmptyPoses).Count() == 2)
 				return false;
 			var p2_links = LinkPoses(p2).Intersect(otherPoses).ToList();
-			if (p2_links.Count == 1 && p2_links.Intersect(EmptyPoses).Count() == 2)
+			if (p2_links.Count == 1 && LinkPoses(p2_links[0]).Intersect(EmptyPoses).Count() == 2)
 				return false;
 
 			int count = 0;
@@ -205,13 +255,18 @@ namespace x01.Weiqi.Boards
 					break;
 				bool isRow = p2.Row - p.Row == 0 ? true : false;
 				int rowOffset = isRow ? (count == 0 ? p1.Row - p2.Row : p2.Row - p1.Row) : 0;
-				int colOffset = isRow ? 0 : (count ==  0 ? p1.Col - p2.Col :p2.Col - p1.Col);
+				int colOffset = isRow ? 0 : (count == 0 ? p1.Col - p2.Col : p2.Col - p1.Col);
 				Pos pos = new Pos(p2.Row + rowOffset, p2.Col + colOffset);
 				var rounds = count < 5 ? LinkPoses(pos) : RoundTwoPoses(pos);
+				var c_rounds = rounds.ToList();
+				foreach (var c in c_rounds) {
+					if (IsElephant(c, pos))
+						rounds.Remove(c);		// 去角
+				}
 				foreach (var r in rounds) {
-					if (isBlack && count < 2) continue; // 黑需先走两步
 					if (selfPoses.Contains(r))
 						return false;
+					if (isBlack && count < 2) continue; // 黑需先走两步
 					if (otherPoses.Contains(r)) {
 						return true;
 					}
@@ -283,13 +338,13 @@ namespace x01.Weiqi.Boards
 					}
 				}
 			}
-			if (StepCount < EndCount)
+			if (StepCount < m_EndCount)
 				poses = temp.Union(CurrentEffectEmptyPoses).Except(LineOne()).Except(LineTwo()).ToList();	// 根据形势判断决定落子范围
 			else
 				poses = temp.Union(CurrentEffectEmptyPoses).ToList();
 
 			// 根据 UpdateMeshes() 决定是否吃子或做活
-			if (StepCount < EndCount) return m_InvalidPos;
+			if (StepCount < m_EndCount) return m_InvalidPos;
 
 			var w_blocks = m_WhiteMeshBlocks.OrderByDescending(b => b.Poses.Count).ToList();
 			var b_blocks = m_BlackMeshBlocks.OrderByDescending(b => b.Poses.Count).ToList();

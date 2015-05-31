@@ -31,7 +31,7 @@ namespace x01.Weiqi.Boards
 				m_MeshRects[pos.Row, pos.Col].Fill = Brushes.White;
 			}
 
-			if (StepCount > EndCount) {
+			if (StepCount > m_EndCount) {
 				int blackCount = m_BlackMeshes.Count;
 				int whiteCount = m_WhiteMeshes.Count;
 				int winCount = blackCount - whiteCount;
@@ -49,7 +49,7 @@ namespace x01.Weiqi.Boards
 
 		#region Mesh Helper
 		
-		const int EndCount = 120;
+		int m_EndCount = 0;
 
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();
@@ -134,6 +134,8 @@ namespace x01.Weiqi.Boards
 
 			UpdateMeshes5();  // 第一次涉及到比气
 			UpdateMeshes5(false);
+
+			UpdateMeshes4();
 		}
 
 		void UpdateMeshes1()
@@ -272,7 +274,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
-			if (StepCount < EndCount) return;
+			if (StepCount < m_EndCount) return;
 
 			UpdateAllMeshBlocks();
 
@@ -320,7 +322,7 @@ namespace x01.Weiqi.Boards
 		}
 		void UpdateMeshes4()
 		{
-			if (StepCount < EndCount) return;
+			if (StepCount < m_EndCount) return;
 
 			UpdateAllMeshBlocks();
 
@@ -346,7 +348,7 @@ namespace x01.Weiqi.Boards
 		}
 		void UpdateMeshes5(bool isFirst = true)
 		{
-			if (StepCount < EndCount) return;
+			if (StepCount < m_EndCount) return;
 
 			UpdateAllMeshBlocks();
 
@@ -530,7 +532,7 @@ namespace x01.Weiqi.Boards
 				});
 			}
 
-			UpdateMeshes4();	// 居然还需调用一次！
+			//UpdateMeshes4();	// 居然还需调用一次！
 
 			UpdateMeshColors();
 		}

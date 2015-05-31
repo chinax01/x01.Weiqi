@@ -367,6 +367,10 @@ namespace x01.Weiqi.Boards
 		{
 			base.OnRender(drawingContext);
 			Redraw();
+
+			StepCount--;
+			MoveCurrentRect();
+			StepCount++;
 		}
 
 		private void ShowNumber(int row, int col, int stepCount)
@@ -505,7 +509,7 @@ namespace x01.Weiqi.Boards
 					sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
 
 			}
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 6; i++) {
 				foreach (var step in copySteps) {	// 防止遗漏
 					var sameLinks = LinkSteps(step, step.StoneColor);
 					if (tmp.Intersect(sameLinks).Count() != 0)

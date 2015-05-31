@@ -9,7 +9,7 @@ namespace x01.Weiqi.Boards
 {
 	class StepBoard : Board
 	{
-		Record m_Record = new Record();
+		Record m_Record = null;
 		List<StepInfo> m_StepInfos = new List<StepInfo>();
 		
 		public void LoadSteps()
