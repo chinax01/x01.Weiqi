@@ -163,6 +163,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="App.Config" />
+    <Compile Include="Boards\Board.Shape.cs" />
     <None Include="Properties\DataSources\x01.Weiqi.Model.DbStepEntities.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

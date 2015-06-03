@@ -540,9 +540,19 @@ namespace x01.Weiqi.Boards
 
 				if (empties.Count == 0) {
 					if (block.Steps.Count == 1) {
-						m_BanOnce.Row = block.Steps[0].Row;
-						m_BanOnce.Col = block.Steps[0].Col;
-						m_BanOnce.StepCount = block.Steps[0].StepCount;
+						var step = block.Steps[0];
+						var otherColor = step.StoneColor == StoneColor.Black ? StoneColor.White : StoneColor.Black;
+						var links = LinkSteps(step,otherColor);
+						bool isBanOnce = false;
+						foreach (var link in links) {
+							if (link.EmptyCount == 1 && LinkSteps(link, link.StoneColor).Count == 1)
+								isBanOnce = true;
+						}
+						if (isBanOnce) { // 为倒扑
+							m_BanOnce.Row = block.Steps[0].Row;
+							m_BanOnce.Col = block.Steps[0].Col;
+							m_BanOnce.StepCount = block.Steps[0].StepCount;
+						}
 					}
 
 					StepBlock deadInfo = new StepBlock();
@@ -551,13 +561,9 @@ namespace x01.Weiqi.Boards
 						deadInfo.Steps.Add(d);
 
 						if (dead.StoneColor == StoneColor.Black) {
-							//dead.StoneColor = StoneColor.Empty;
 							m_BlackSteps.Remove(dead);
-							//m_WhiteSteps.Add(dead);
 						} else if (dead.StoneColor == StoneColor.White) {
-							//dead.StoneColor = StoneColor.Empty;
 							m_WhiteSteps.Remove(dead);
-							//m_BlackSteps.Add(dead);
 						}
 						m_EmptySteps.Add(dead);
 						HideStep(dead);

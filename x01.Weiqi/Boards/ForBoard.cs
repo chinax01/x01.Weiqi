@@ -3,6 +3,16 @@ using System.Collections.Generic;
 
 namespace x01.Weiqi.Boards
 {
+	public enum StoneColor
+	{
+		Black, White, Empty, All
+	}
+
+	public enum Directions
+	{
+		Up, Down, Left, Right
+	}
+
 	class Step
 	{
 		public Step()
@@ -23,11 +33,6 @@ namespace x01.Weiqi.Boards
 	struct StepInfo
 	{
 		public int Row, Col, StepCount;
-	}
-
-	public enum StoneColor
-	{
-		Black, White, Empty, All
 	}
 
 	class StepBlock

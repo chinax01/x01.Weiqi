@@ -49,7 +49,7 @@ namespace x01.Weiqi.Boards
 
 		#region Mesh Helper
 		
-		int m_EndCount = 0;
+		int m_EndCount = 120;
 
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();
@@ -135,7 +135,7 @@ namespace x01.Weiqi.Boards
 			UpdateMeshes5();  // 第一次涉及到比气
 			UpdateMeshes5(false);
 
-			UpdateMeshes4();
+			UpdateMeshes6(); // 修正 UpdateMeshes2 的错误，之所以不直接修改，因为涉及到共气，死活等复杂问题。
 		}
 
 		void UpdateMeshes1()
@@ -165,7 +165,7 @@ namespace x01.Weiqi.Boards
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_BlackMeshes) {
 				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
-				AddLinkPoses(poses, pos);
+				//AddLinkPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
 		}
@@ -174,25 +174,25 @@ namespace x01.Weiqi.Boards
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_WhiteMeshes) {
 				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
-				AddLinkPoses(poses, pos);
+				//AddLinkPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
 		}
 		// 三四线为实地向下，五六七线为势力向上。
 		private void AddLinkPoses(List<Pos> poses, Pos pos)
 		{
-			if (LineThree().Contains(pos) || LineFour().Contains(pos)) {
+			if (LineThree.Contains(pos) || LineFour.Contains(pos)) {
 				List<Pos> links = LinkPoses(pos);
 				foreach (var link in links) {	// 2,3 line
-					if (LineTwo().Contains(link) || LineThree().Contains(link)) {
+					if (LineTwo.Contains(link) || LineThree.Contains(link)) {
 						if (!poses.Contains(link)) poses.Add(link);
 						var lines = LinkPoses(link);
 						foreach (var l in lines) {	// l,2 line
-							if (LineOne().Contains(l) || LineTwo().Contains(l)) {
+							if (LineOne.Contains(l) || LineTwo.Contains(l)) {
 								if (!poses.Contains(l)) poses.Add(l);
 								var ones = LinkPoses(l);
 								foreach (var one in ones) {	// 1 line
-									if (LineOne().Contains(one))
+									if (LineOne.Contains(one))
 										if (!poses.Contains(one)) poses.Add(one);
 								}
 							}
@@ -200,18 +200,18 @@ namespace x01.Weiqi.Boards
 					}
 				}
 			}
-			if (LineFive().Contains(pos) || LineSix().Contains(pos) || LineSeven().Contains(pos)) {
+			if (LineFive.Contains(pos) || LineSix.Contains(pos) || LineSeven.Contains(pos)) {
 				List<Pos> links = LinkPoses(pos);
 				foreach (var link in links) {	// 6,7,8 line
-					if (LineSix().Contains(link) || LineSeven().Contains(link) || LineEight().Contains(link)) {
+					if (LineSix.Contains(link) || LineSeven.Contains(link) || LineEight.Contains(link)) {
 						if (!poses.Contains(link)) poses.Add(link);
 						var lines = LinkPoses(link);
 						foreach (var l in lines) {	// 7,8,9 line
-							if (LineSeven().Contains(l) || LineEight().Contains(l) || LineNine().Contains(l)) {
+							if (LineSeven.Contains(l) || LineEight.Contains(l) || LineNine.Contains(l)) {
 								if (!poses.Contains(l)) poses.Add(l);
 								var nines = LinkPoses(l);
 								foreach (var nine in nines) {	// 8,9 line
-									if (LineEight().Contains(nine) || LineNine().Contains(nine))
+									if (LineEight.Contains(nine) || LineNine.Contains(nine))
 										if (!poses.Contains(nine)) poses.Add(nine);
 								}
 							}
@@ -241,11 +241,11 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
-			foreach (var pos in LineTwo()) {
+			foreach (var pos in LineTwo) {
 				if (m_EmptyMeshes.Contains(pos)) {
 					var links = LinkPoses(pos);
 					links.ForEach(l => {
-						if (LineThree().Contains(l)) {
+						if (LineThree.Contains(l)) {
 							if (m_BlackMeshes.Contains(l) && !m_BlackMeshes.Contains(pos)) {
 								m_BlackMeshes.Add(pos);
 								m_EmptyMeshes.Remove(pos);
@@ -257,11 +257,11 @@ namespace x01.Weiqi.Boards
 					});
 				}
 			}
-			foreach (var pos in LineOne()) {
+			foreach (var pos in LineOne) {
 				if (m_EmptyMeshes.Contains(pos)) {
 					var links = LinkPoses(pos);
 					links.ForEach(l => {
-						if (LineTwo().Contains(l)) {
+						if (LineTwo.Contains(l)) {
 							if (m_BlackMeshes.Contains(l) && !m_BlackMeshes.Contains(pos)) {
 								m_BlackMeshes.Add(pos);
 								m_EmptyMeshes.Remove(pos);
@@ -535,6 +535,42 @@ namespace x01.Weiqi.Boards
 			//UpdateMeshes4();	// 居然还需调用一次！
 
 			UpdateMeshColors();
+		}
+		void UpdateMeshes6()
+		{
+			UpdateAllStepBlocks();
+
+			foreach (var block in m_BlackStepBlocks) {
+				foreach (var step in block.Steps) {
+					var pos = GetPos(step);
+					if (m_BlackMeshes.Contains(pos)) {
+						foreach (var item in block.Steps) {
+							var p = GetPos(item);
+							if (!m_BlackMeshes.Contains(p) && m_WhiteMeshes.Contains(p)) {
+								m_WhiteMeshes.Remove(p);
+								m_BlackMeshes.Add(p);
+							}
+						}
+						break;
+					}
+				}
+			}
+
+			foreach (var block in m_WhiteStepBlocks) {
+				foreach (var step in block.Steps) {
+					var pos = GetPos(step);
+					if (m_WhiteMeshes.Contains(pos)) {
+						foreach (var item in block.Steps) {
+							var p = GetPos(item);
+							if (!m_WhiteMeshes.Contains(p) && m_BlackMeshes.Contains(p)) {
+								m_BlackMeshes.Remove(p);
+								m_WhiteMeshes.Add(p);
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 
 		void UpdateMeshColors()
