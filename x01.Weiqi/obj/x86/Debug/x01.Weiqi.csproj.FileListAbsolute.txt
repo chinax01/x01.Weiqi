@@ -172,3 +172,5 @@ C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\MainWi
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.g.resources
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.Properties.Resources.resources
 C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.csproj.GenerateResource.Cache
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\WaitWindow.baml
+C:\Users\Administrator\Documents\GitHub\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\WaitWindow.g.cs

@@ -76,7 +76,7 @@ namespace x01.Weiqi.Boards
 					});
 				}
 			}
-			for (int i = 0; i < 4; i++) {	// 确保不遗漏到疯狂程度
+			for (int i = 0; i < 6; i++) {	// 确保不遗漏到疯狂程度
 				foreach (var pos in copyPoses) {
 					var links = LinkPoses(pos);
 					if (tmp.Intersect(links).Any()) {
@@ -122,23 +122,26 @@ namespace x01.Weiqi.Boards
 			UpdateMeshes1();
 			UpdateMeshes2();
 
-			UpdateMeshes3(2);
-			UpdateMeshes3(3);
-			UpdateMeshes3(4);
-			UpdateMeshes3(5);
-			UpdateMeshes3(6);
-			UpdateMeshes3(7);
-			UpdateMeshes3(8); // 多次扫描有必要
+			UpdateMeshes3();
+			UpdateMeshes3();
 
-			UpdateMeshes4();
+			UpdateMeshes4(2);
+			UpdateMeshes4(3);
+			UpdateMeshes4(4);
+			UpdateMeshes4(5);
+			UpdateMeshes4(6);
+			UpdateMeshes4(7);
+			UpdateMeshes4(8); // 多次扫描有必要
 
-			UpdateMeshes5();  // 第一次涉及到比气
-			UpdateMeshes5(false);
+			UpdateMeshes5();
 
-			UpdateMeshes6(); // 修正 UpdateMeshes2 的错误，之所以不直接修改，因为涉及到共气，死活等复杂问题。
+			UpdateMeshes6();  // 第一次涉及到比气
+			UpdateMeshes6(false);
+
+			UpdateMeshes7(); // 修正 UpdateMeshes2 的错误，之所以不直接修改，因为涉及到共气，死活等复杂问题。
 		}
 
-		void UpdateMeshes1()
+		void UpdateMeshes1()	// 基本目添加
 		{
 			m_BlackMeshes.Clear();
 			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
@@ -165,7 +168,6 @@ namespace x01.Weiqi.Boards
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_BlackMeshes) {
 				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
-				//AddLinkPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
 		}
@@ -174,7 +176,6 @@ namespace x01.Weiqi.Boards
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_WhiteMeshes) {
 				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
-				//AddLinkPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
 		}
@@ -221,85 +222,93 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-		void UpdateMeshes2()
+		private void UpdateMeshes2()	// 添加1、2线及同色之连接点
 		{
-			var copyEmpties = m_EmptyMeshes.ToList();
-			foreach (var pos in copyEmpties) {
-				var links = LinkPoses(pos);
-				var b_poses = links.Intersect(m_BlackMeshes).ToList();
-				var w_poses = links.Intersect(m_WhiteMeshes).ToList();
-				if (b_poses.Count >= 2 && b_poses.Count > w_poses.Count) {
-					if (!m_BlackMeshes.Contains(pos)) {
-						m_BlackMeshes.Add(pos);
-						m_EmptyMeshes.Remove(pos);
-					}
-				} else if (w_poses.Count >= 2 && w_poses.Count > b_poses.Count) {
-					if (!m_WhiteMeshes.Contains(pos)) {
-						m_WhiteMeshes.Add(pos);
-						m_EmptyMeshes.Remove(pos);
+			var two_empties = LineTwo.Intersect(m_EmptyMeshes).ToList();
+			foreach (var e in two_empties) {
+				var links = LinkPoses(e);
+				foreach (var l in links) {
+					if (LineThree.Contains(l) && IsTouch(l, e)) {
+						if (m_BlackMeshes.Contains(l)) {
+							m_EmptyMeshes.Remove(e);
+							m_BlackMeshes.Add(e);
+						} else if (m_WhiteMeshes.Contains(l)) {
+							m_EmptyMeshes.Remove(e);
+							m_WhiteMeshes.Add(e);
+						}
 					}
 				}
 			}
-
-			foreach (var pos in LineTwo) {
-				if (m_EmptyMeshes.Contains(pos)) {
-					var links = LinkPoses(pos);
-					links.ForEach(l => {
-						if (LineThree.Contains(l)) {
-							if (m_BlackMeshes.Contains(l) && !m_BlackMeshes.Contains(pos)) {
-								m_BlackMeshes.Add(pos);
-								m_EmptyMeshes.Remove(pos);
-							} else if (m_WhiteMeshes.Contains(l) && !m_WhiteMeshes.Contains(pos)) {
-								m_WhiteMeshes.Add(pos);
-								m_EmptyMeshes.Remove(pos);
-							}
+			var one_empties = LineOne.Intersect(m_EmptyMeshes).ToList();
+			foreach (var e in one_empties) {
+				var links = LinkPoses(e);
+				foreach (var l in links) {
+					if (LineTwo.Contains(l) && IsTouch(l, e)) {
+						if (m_BlackMeshes.Contains(l)) {
+							m_EmptyMeshes.Remove(e);
+							m_BlackMeshes.Add(e);
+						} else if (m_WhiteMeshes.Contains(l)) {
+							m_EmptyMeshes.Remove(e);
+							m_WhiteMeshes.Add(e);
 						}
-					});
+					}
 				}
 			}
-			foreach (var pos in LineOne) {
-				if (m_EmptyMeshes.Contains(pos)) {
-					var links = LinkPoses(pos);
-					links.ForEach(l => {
-						if (LineTwo.Contains(l)) {
-							if (m_BlackMeshes.Contains(l) && !m_BlackMeshes.Contains(pos)) {
-								m_BlackMeshes.Add(pos);
-								m_EmptyMeshes.Remove(pos);
-							} else if (m_WhiteMeshes.Contains(l) && !m_WhiteMeshes.Contains(pos)) {
-								m_WhiteMeshes.Add(pos);
-								m_EmptyMeshes.Remove(pos);
-							}
-						}
-					});
+			var empties = m_EmptyMeshes.ToList();
+			foreach (var e in empties) {
+				var links = LinkPoses(e);
+				var bs = links.Intersect(BlackPoses).ToList();
+				var ws = links.Intersect(WhitePoses).ToList();
+				if (bs.Count >= ws.Count && bs.Count >= 2) {
+					m_EmptyMeshes.Remove(e);
+					m_BlackMeshes.Add(e);
+				} else if (ws.Count >= bs.Count && ws.Count >= 2) {
+					m_EmptyMeshes.Remove(e);
+					m_WhiteMeshes.Add(e);
 				}
 			}
-
-			if (StepCount < m_EndCount) return;
-
+		}
+		void UpdateMeshes3()	// 添加小的空块，暂不考虑死活
+		{
 			UpdateAllMeshBlocks();
 
-			foreach (var block in m_EmptyMeshBlocks) {
-				if (block.Poses.Count < 10) {
-					var b_poses = new List<Pos>();
-					var w_poses = new List<Pos>();
-					foreach (var pos in block.Poses) {
-						var links = LinkPoses(pos);
-						links.ForEach(l => {
-							if (m_BlackMeshes.Contains(l)) b_poses.Add(l);
-							else if (m_WhiteMeshes.Contains(l)) w_poses.Add(l);
-						});
+			var emptyMeshBlocks = m_EmptyMeshBlocks.ToList();
+			foreach (var eblock in emptyMeshBlocks) {
+				int count = eblock.Poses.Count;
+				if (count < 12) {
+					var bs = new List<Pos>();
+					var ws = new List<Pos>();
+					var bws = new List<Pos>();
+					foreach (var e in eblock.Poses) {
+						var links = LinkPoses(e);
+						if (links.Intersect(m_BlackMeshes).Any() && !bs.Contains(e))
+							bs.Add(e);
+						if (links.Intersect(m_WhiteMeshes).Any() && !ws.Contains(e))
+							ws.Add(e);
 					}
-					if (b_poses.Count > w_poses.Count) {
-						m_BlackMeshes.AddRange(block.Poses);
-						m_EmptyMeshes.RemoveAll(e => block.Poses.Contains(e));
-					} else if (b_poses.Count < w_poses.Count) {
-						m_WhiteMeshes.AddRange(block.Poses);
-						m_EmptyMeshes.RemoveAll(e => block.Poses.Contains(e));
+					bws = bs.Intersect(ws).ToList();
+					bs = bs.Except(bws).ToList();
+					ws = ws.Except(bws).ToList();
+					foreach (var b in bs) {
+						m_EmptyMeshes.Remove(b);
+						m_BlackMeshes.Add(b);
+					}
+					foreach (var w in ws) {
+						m_EmptyMeshes.Remove(w);
+						m_WhiteMeshes.Add(w);
+					}
+					int c = 0;
+					foreach (var bw in bws) {
+						m_EmptyMeshes.Remove(bw);
+						if (c++ % 2  == 1)
+							m_BlackMeshes.Add(bw);
+						else
+							m_WhiteMeshes.Add(bw);
 					}
 				}
 			}
 		}
-		void UpdateMeshes3(int count)
+		void UpdateMeshes4(int count)	// 逐步剔除死子
 		{
 			UpdateAllMeshBlocks();
 			foreach (var block in m_BlackMeshBlocks) {
@@ -320,36 +329,33 @@ namespace x01.Weiqi.Boards
 			}
 			//UpdateMeshColors();
 		}
-		void UpdateMeshes4()
+		void UpdateMeshes5()	// 添加大的空块
 		{
-			if (StepCount < m_EndCount) return;
-
 			UpdateAllMeshBlocks();
 
 			foreach (var block in m_EmptyMeshBlocks) {
-				List<Pos> b_poses = new List<Pos>();
-				List<Pos> w_poses = new List<Pos>();
-				foreach (var pos in block.Poses) {
-					var links = LinkPoses(pos);
-					links.ForEach(l => {
-						if (m_BlackMeshes.Contains(l) && !b_poses.Contains(l))
-							b_poses.Add(l);
-						if (m_WhiteMeshes.Contains(l) && !w_poses.Contains(l))
-							w_poses.Add(l);
-					});
-				}
-				if (b_poses.Count > w_poses.Count) {
-					m_BlackMeshes.AddRange(block.Poses);
-				} else if (b_poses.Count < w_poses.Count) {
-					m_WhiteMeshes.AddRange(block.Poses);
+				if (block.Poses.Count < 30) {
+					List<Pos> b_poses = new List<Pos>();
+					List<Pos> w_poses = new List<Pos>();
+					foreach (var pos in block.Poses) {
+						var links = LinkPoses(pos);
+						links.ForEach(l => {
+							if (m_BlackMeshes.Contains(l) && !b_poses.Contains(l))
+								b_poses.Add(l);
+							if (m_WhiteMeshes.Contains(l) && !w_poses.Contains(l))
+								w_poses.Add(l);
+						});
+					}
+					if (b_poses.Count > w_poses.Count) {
+						block.Poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
+					} else if (b_poses.Count < w_poses.Count) {
+						block.Poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
+					}
 				}
 			}
-			//UpdateMeshColors();
 		}
-		void UpdateMeshes5(bool isFirst = true)
+		void UpdateMeshes6(bool isFirst = true)
 		{
-			if (StepCount < m_EndCount) return;
-
 			UpdateAllMeshBlocks();
 
 			m_BlackMeshBlocks.ForEach(block => {
@@ -531,12 +537,8 @@ namespace x01.Weiqi.Boards
 					}
 				});
 			}
-
-			//UpdateMeshes4();	// 居然还需调用一次！
-
-			UpdateMeshColors();
 		}
-		void UpdateMeshes6()
+		void UpdateMeshes7()
 		{
 			UpdateAllStepBlocks();
 
@@ -571,21 +573,6 @@ namespace x01.Weiqi.Boards
 					}
 				}
 			}
-		}
-
-		void UpdateMeshColors()
-		{
-			m_BlackMeshes.ForEach(p => {
-				if (m_EmptyMeshes.Contains(p)) m_EmptyMeshes.Remove(p);
-				p.PosColor = StoneColor.Black;
-			});
-			m_WhiteMeshes.ForEach(p => {
-				if (m_EmptyMeshes.Contains(p)) m_EmptyMeshes.Remove(p);
-				p.PosColor = StoneColor.White;
-			});
-			m_EmptyMeshes.ForEach(p => {
-				p.PosColor = StoneColor.Empty;
-			});
 		}
 
 		#endregion

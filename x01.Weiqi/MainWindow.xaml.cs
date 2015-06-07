@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using x01.Weiqi.Boards;
@@ -18,7 +19,7 @@ namespace x01.Weiqi
 		Board m_Board;
 		GameBoard m_GameBoard = new GameBoard();
 		StepBoard m_StepBoard = new StepBoard();
-		AiBoard m_AiBoard = new AiBoard();
+		AiBoard m_AiBoard =  new AiBoard();
 
 		public MainWindow()
 		{
@@ -87,6 +88,12 @@ namespace x01.Weiqi
 
 		void InitBoard(Board board)
 		{
+			if (board != m_AiBoard) {
+				m_AiBoard.AiTimer.Stop();
+			} else {
+				m_AiBoard.AiTimer.Start();
+			}
+
 			ClearAll();
 			if (m_Grid.Children.Contains(m_Board))
 				m_Grid.Children.Remove(m_Board);

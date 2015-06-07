@@ -37,7 +37,6 @@ namespace x01.Weiqi.Boards
 		public bool IsShowCurrent { get; set; }		// 显示当前标志
 		public bool IsShowMesh { get; set; }		// 点目
 		public bool IsPlaySound { get; set; }		// 播放声音
-
 		// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
 		public int StoneSize
@@ -244,6 +243,8 @@ namespace x01.Weiqi.Boards
 		}
 
 		#region Init
+
+		
 
 		SoundPlayer m_Player = new SoundPlayer();
 

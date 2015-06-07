@@ -69,13 +69,13 @@ namespace x01.Weiqi.Boards
 	{
 		public int Row;
 		public int Col;
-		public StoneColor PosColor;
+		public int Worth;
 
-		public Pos(int row, int col, StoneColor posColor = StoneColor.Empty)
+		public Pos(int row, int col, int worth = -1)
 		{
 			Row = row;
 			Col = col;
-			PosColor = posColor;
+			Worth = worth;
 		}
 
 		public override bool Equals(object obj)
@@ -91,7 +91,7 @@ namespace x01.Weiqi.Boards
 
 		public override int GetHashCode()
 		{
-			return Col ^ Row;
+			return Col.GetHashCode() ^ Row.GetHashCode() * 83;
 		}
 
 		public static bool operator ==(Pos p1, Pos p2)

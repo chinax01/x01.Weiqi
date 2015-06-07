@@ -1,0 +1,11 @@
+﻿<Window x:Class="x01.Weiqi.Windows.WaitWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" WindowStartupLocation="CenterScreen"
+        Title="WaitWindow" Height="40" Width="135" WindowStyle="None">
+	<Grid>
+		<TextBlock Name="m_WaitText" FontSize="16" Foreground="Green"
+				   HorizontalAlignment="Center" VerticalAlignment="Center">
+			Thinking ...
+		</TextBlock>
+	</Grid>
+</Window>
