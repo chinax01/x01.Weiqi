@@ -138,6 +138,13 @@ namespace x01.Weiqi.Boards
 					Pos p = GetPos(w_block, empties);
 					var p1 = GetPos(empties[0]);
 					var p2 = GetPos(empties[1]);
+					if (LineTwo.Contains(p) && LineTwo.Contains(p1)
+						&& LinkPoses(p1).Intersect(EmptyPoses).Count() > 2) {
+						return p1;
+					} else if (LineTwo.Contains(p) && LineTwo.Contains(p2)
+						&& LinkPoses(p2).Intersect(EmptyPoses).Count() > 2) {
+						return p2;
+					}
 					if (FourSharp.Contains(p1) || FourSharp.Contains(p2)) continue;
 					if (LinkPoses(p1).Intersect(BlackPoses).Count() >= 1 && CanLevy(p1, p2, p, false)) { // 有黑子帮忙
 						if (LinkPoses(p2).Intersect(WhitePoses).Count() >= 3) continue;// 虎口
@@ -223,18 +230,53 @@ namespace x01.Weiqi.Boards
 					//if (m_WhiteMeshes.Contains(p1) || m_WhiteMeshes.Contains(p2)) continue;
 
 					// 双叫吃
+					//var p1_links = LinkPoses(p1).Intersect(BlackPoses).ToList();
+					//var p2_links = LinkPoses(p2).Intersect(BlackPoses).ToList();
+					//foreach (var p1_l in p1_links) {
+					//	if (IsCusp(p1_l, p) && LinkPoses(p1_l).Intersect(EmptyPoses).Count() == 2) {
+					//		if (LinkPoses(p1).Intersect(BlackPoses).Count() >= 3) continue;
+					//		return p1;
+					//	}
+					//}
+					//foreach (var p2_l in p2_links) {
+					//	if (IsCusp(p2_l, p) && LinkPoses(p2_l).Intersect(EmptyPoses).Count() == 2) {
+					//		if (LinkPoses(p2).Intersect(BlackPoses).Count() >= 3) continue;
+					//		return p2;
+					//	}
+					//}
 					var p1_links = LinkPoses(p1).Intersect(BlackPoses).ToList();
 					var p2_links = LinkPoses(p2).Intersect(BlackPoses).ToList();
 					foreach (var p1_l in p1_links) {
-						if (IsCusp(p1_l, p) && LinkPoses(p1_l).Intersect(EmptyPoses).Count() == 2) {
+						if (IsCusp(p1_l, p) && GetStep(p1_l).EmptyCount == 2) {
 							if (LinkPoses(p1).Intersect(BlackPoses).Count() >= 3) continue;
 							return p1;
+						} else if (LineOne.Contains(p) && IsCusp(p1_l, p)
+								   && GetStep(p1_l).EmptyCount > 2) {
+							foreach (var e in EmptyPoses) {
+								if (IsCusp(e, p) && LinkPoses(e).Intersect(EmptyPoses).Count() == 5)
+									return e;
+								else if (IsCusp(e, p) && LineOne.Contains(e) &&
+										 LinkPoses(e).Intersect(EmptyPoses).Count() == 4) {
+									return e;
+								}
+							}
 						}
 					}
 					foreach (var p2_l in p2_links) {
-						if (IsCusp(p2_l, p) && LinkPoses(p2_l).Intersect(EmptyPoses).Count() == 2) {
+						if (IsCusp(p2_l, p) && GetStep(p2_l).EmptyCount == 2) {
 							if (LinkPoses(p2).Intersect(BlackPoses).Count() >= 3) continue;
 							return p2;
+						} else if (LineOne.Contains(p) && IsCusp(p2_l, p)
+								   && GetStep(p2_l).EmptyCount > 2) {
+							foreach (var e in EmptyPoses) {
+								if (IsCusp(e, p)
+									&& LinkPoses(e).Intersect(EmptyPoses).Count() == 5)
+									return e;
+								else if (IsCusp(e, p) && LineOne.Contains(e) &&
+										 LinkPoses(e).Intersect(EmptyPoses).Count() == 4) {
+									return e;
+								}
+							}
 						}
 					}
 				}
@@ -348,7 +390,7 @@ namespace x01.Weiqi.Boards
 
 		Pos RandDown()
 		{
-			if (StepCount > m_EndCount) {
+			if (StepCount > EndCount) {
 				int index = m_Rand.Next(0, m_BlackMeshes.Count);
 				var black = m_BlackMeshes[index];
 				if (LinkPoses(black).Intersect(m_WhiteMeshes).Any()) {
@@ -405,7 +447,7 @@ namespace x01.Weiqi.Boards
 				return result;
 
 			poses = poses.Distinct().OrderBy(p => p.Worth).ToList();
-			int skipCount = poses.Count > 8 ? poses.Count - 8 : 0;
+			int skipCount = poses.Count > 10 ? poses.Count - 10 : 0;
 			poses = poses.Skip(skipCount).ToList();
 
 			bool oldIsPlay = IsPlaySound;
@@ -413,6 +455,9 @@ namespace x01.Weiqi.Boards
 			IsPlaySound = false;
 			int max = int.MinValue;
 			foreach (var p in poses) {
+				var links = LinkPoses(p).Intersect(BlackPoses).ToList();
+				if (links.Count != 0 && GetStep(links[0]).EmptyCount == 1)	// 防自杀
+					continue;
 				if (!NextOne(p.Row, p.Col))
 					continue;
 				UpdateMeshes();
@@ -424,6 +469,20 @@ namespace x01.Weiqi.Boards
 			}
 			m_BanOnce = oldBanOnce;
 			IsPlaySound = oldIsPlay;
+
+
+			//poses = poses.OrderBy(p => p.Worth).Distinct().ToList();
+			//int skipCount = poses.Count > 10 ? poses.Count - 10 : 0;
+			//poses = poses.Skip(skipCount).ToList();
+			//int count = poses.Count;
+			//result = poses[m_Rand.Next(0, count)];
+			//for (int i = 0; i < 100; i++) {
+			//	if (RoundOnePoses(result).Intersect(EmptyPoses).Count() != 3 * 3)
+			//		result = poses[m_Rand.Next(0, count)];
+			//	else
+			//		break;
+			//}
+			
 
 			return result;
 		}
