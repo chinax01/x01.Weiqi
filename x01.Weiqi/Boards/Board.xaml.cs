@@ -544,10 +544,11 @@ namespace x01.Weiqi.Boards
 						var step = block.Steps[0];
 						var otherColor = step.StoneColor == StoneColor.Black ? StoneColor.White : StoneColor.Black;
 						var links = LinkSteps(step,otherColor);
-						bool isBanOnce = false;
+						bool isBanOnce = true;
 						foreach (var link in links) {
-							if (link.EmptyCount == 1 && LinkSteps(link, link.StoneColor).Count == 1)
-								isBanOnce = true;
+							if (link.EmptyCount == 1  && LinkSteps(link, link.StoneColor).Count > 1) {
+								isBanOnce = false;
+							}
 						}
 						if (isBanOnce) { // 为倒扑
 							m_BanOnce.Row = block.Steps[0].Row;

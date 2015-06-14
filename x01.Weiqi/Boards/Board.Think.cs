@@ -31,7 +31,7 @@ namespace x01.Weiqi.Boards
 			// 下棋是一种由不确定到确定的过程，没有人能证明这步棋不好，那么就可以抢先确定这一步。
 			if (StepCount == 0)
 				return new Pos(3, 15);
-			
+
 			m_ThinkPoses.Clear();
 			Pos pos = FindPos();
 
@@ -45,9 +45,22 @@ namespace x01.Weiqi.Boards
 			Pos pos = OneEmpty();
 			if (pos != m_InvalidPos) return pos;
 			pos = TwoEmpty();
+			pos = CheckBlackEmpty(pos);
 			if (pos != m_InvalidPos) return pos;
 			return m_InvalidPos;
-			
+
+		}
+
+		private Pos CheckBlackEmpty(Pos pos)
+		{
+			var bs = LinkPoses(pos).Intersect(BlackPoses).ToList();
+			int max = int.MinValue;
+			foreach (var b in bs) {
+				if (max < GetStep(b).EmptyCount)
+					max = GetStep(b).EmptyCount;
+			}
+			if (max <= 2) return m_InvalidPos;
+			return pos;
 		}
 		List<Pos> m_LevyPoses = new List<Pos>();
 		Pos OneEmpty()	// 一口气
@@ -65,26 +78,6 @@ namespace x01.Weiqi.Boards
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
 					if (new Pos(m_BanOnce.Row, m_BanOnce.Col) == pos)
 						continue;
-					if (LinkPoses(pos).Intersect(EmptyPoses).Count() == 2) {
-						List<Pos> ps = new List<Pos>();
-						foreach (var s in block.Steps) {
-							var p = GetPos(s);
-							if (!ps.Contains(p)) ps.Add(p);
-						}
-						foreach (var p in ps) {
-							var links = LinkPoses(p);
-							List<Pos> temp = new List<Pos>();
-							foreach (var l in links) {
-								if (BlackPoses.Contains(l) && !temp.Contains(l))
-									temp.Add(l);
-							}
-							foreach (var t in temp) {
-								if (GetStep(t).EmptyCount == 1)
-									return pos;
-							}
-						}
-						continue;
-					}
 					return pos;
 				}
 			}
@@ -92,8 +85,17 @@ namespace x01.Weiqi.Boards
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
-					if (LinkPoses(pos).Intersect(BlackPoses).Count() >= 2) //有子接应
-						return pos;
+					var blinks = LinkPoses(pos).Intersect(BlackPoses).ToList();
+					if (blinks.Count >= 2) {  //有子接应
+						bool ok = false;
+						foreach (var b in blinks) {
+							if (GetStep(b).EmptyCount >= 2) {
+								ok = true;
+								break;
+							}
+						}
+						if (ok) return pos;
+					}
 					var links = LinkPoses(pos).Intersect(EmptyPoses).ToList();
 					links.Remove(pos);
 					if (links.Count <= 1) continue;
@@ -227,23 +229,7 @@ namespace x01.Weiqi.Boards
 					Pos p = GetPos(b_block, empties);
 					var p1 = GetPos(empties[0]);
 					var p2 = GetPos(empties[1]);
-					//if (m_WhiteMeshes.Contains(p1) || m_WhiteMeshes.Contains(p2)) continue;
 
-					// 双叫吃
-					//var p1_links = LinkPoses(p1).Intersect(BlackPoses).ToList();
-					//var p2_links = LinkPoses(p2).Intersect(BlackPoses).ToList();
-					//foreach (var p1_l in p1_links) {
-					//	if (IsCusp(p1_l, p) && LinkPoses(p1_l).Intersect(EmptyPoses).Count() == 2) {
-					//		if (LinkPoses(p1).Intersect(BlackPoses).Count() >= 3) continue;
-					//		return p1;
-					//	}
-					//}
-					//foreach (var p2_l in p2_links) {
-					//	if (IsCusp(p2_l, p) && LinkPoses(p2_l).Intersect(EmptyPoses).Count() == 2) {
-					//		if (LinkPoses(p2).Intersect(BlackPoses).Count() >= 3) continue;
-					//		return p2;
-					//	}
-					//}
 					var p1_links = LinkPoses(p1).Intersect(BlackPoses).ToList();
 					var p2_links = LinkPoses(p2).Intersect(BlackPoses).ToList();
 					foreach (var p1_l in p1_links) {
@@ -352,10 +338,10 @@ namespace x01.Weiqi.Boards
 			// 征而被叫，岂不大笑？
 			var p1_links = LinkPoses(p1).Intersect(otherPoses).ToList();
 			if (p1_links.Count == 1 && LinkPoses(p1_links[0]).Intersect(EmptyPoses).Count() == 2)
-				return false;
+				return isBlack ? false : true; ;
 			var p2_links = LinkPoses(p2).Intersect(otherPoses).ToList();
 			if (p2_links.Count == 1 && LinkPoses(p2_links[0]).Intersect(EmptyPoses).Count() == 2)
-				return false;
+				return isBlack ? false : true;
 
 			int count = 0;
 			while (true) {
@@ -418,7 +404,7 @@ namespace x01.Weiqi.Boards
 						return pos;
 				} else if (StepCount < 400) {
 					return pos;
-				} 
+				}
 			}
 
 			return m_InvalidPos;
@@ -427,8 +413,14 @@ namespace x01.Weiqi.Boards
 		private Pos FindPos()
 		{
 			Pos result = m_InvalidPos;
+			result = TwoStar();
+			if (result != m_InvalidPos)
+				return result;
+			result = P_GetPos();
+			if (result != m_InvalidPos)
+				return result;
 			result = CompareEmpty();
-			if (result != m_InvalidPos) 
+			if (result != m_InvalidPos)
 				return result;
 			result = Attack();
 			if (result != m_InvalidPos)
@@ -436,53 +428,27 @@ namespace x01.Weiqi.Boards
 			result = Defend();
 			if (result != m_InvalidPos)
 				return result;
-			
+
 			m_ThinkPoses.Clear();
 			Positive1();
 			Positive2();
-			Positive3();
-			
+
 			List<Pos> poses = m_ThinkPoses.Intersect(EmptyPoses).ToList();
 			if (poses.Count == 0)
 				return result;
 
 			poses = poses.Distinct().OrderBy(p => p.Worth).ToList();
-			int skipCount = poses.Count > 10 ? poses.Count - 10 : 0;
-			poses = poses.Skip(skipCount).ToList();
+			//int skipCount = poses.Count > 20 ? poses.Count - 20 : 0;
+			//poses = poses.Skip(skipCount).ToList();
 
-			bool oldIsPlay = IsPlaySound;
-			Step oldBanOnce = m_BanOnce;
-			IsPlaySound = false;
 			int max = int.MinValue;
 			foreach (var p in poses) {
-				var links = LinkPoses(p).Intersect(BlackPoses).ToList();
-				if (links.Count != 0 && GetStep(links[0]).EmptyCount == 1)	// 防自杀
-					continue;
-				if (!NextOne(p.Row, p.Col))
-					continue;
-				UpdateMeshes();
+				UpdateMeshes(p);
 				if (max < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
 					max = m_BlackMeshes.Count - m_WhiteMeshes.Count;
 					result = p;
 				}
-				BackOne();
 			}
-			m_BanOnce = oldBanOnce;
-			IsPlaySound = oldIsPlay;
-
-
-			//poses = poses.OrderBy(p => p.Worth).Distinct().ToList();
-			//int skipCount = poses.Count > 10 ? poses.Count - 10 : 0;
-			//poses = poses.Skip(skipCount).ToList();
-			//int count = poses.Count;
-			//result = poses[m_Rand.Next(0, count)];
-			//for (int i = 0; i < 100; i++) {
-			//	if (RoundOnePoses(result).Intersect(EmptyPoses).Count() != 3 * 3)
-			//		result = poses[m_Rand.Next(0, count)];
-			//	else
-			//		break;
-			//}
-			
 
 			return result;
 		}
@@ -530,7 +496,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_BlackPoses.Clear();
 				foreach (var step in m_BlackSteps) {
-					m_BlackPoses.Add(new Pos(step.Row, step.Col));
+					m_BlackPoses.Add(new Pos(step.Row, step.Col, color:StoneColor.Black));
 				}
 				return m_BlackPoses;
 			}
@@ -542,7 +508,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_WhitePoses.Clear();
 				foreach (var step in m_WhiteSteps) {
-					m_WhitePoses.Add(new Pos(step.Row, step.Col));
+					m_WhitePoses.Add(new Pos(step.Row, step.Col,color:StoneColor.White));
 				}
 				return m_WhitePoses;
 			}
@@ -554,7 +520,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_EmptyPoses.Clear();
 				foreach (var step in m_EmptySteps) {
-					m_EmptyPoses.Add(new Pos(step.Row, step.Col));
+					m_EmptyPoses.Add(new Pos(step.Row, step.Col,color:StoneColor.Empty));
 				}
 				return m_EmptyPoses;
 			}
@@ -836,29 +802,11 @@ namespace x01.Weiqi.Boards
 			{
 				if (m_GoldHorn != null) return m_GoldHorn;
 
-				m_GoldHorn = new List<Pos>();
-				List<Pos> goldHorn = m_GoldHorn;
-				Pos pos;
-				for (int i = -1; i < 2; i++) {
-					for (int j = -1; j < 2; j++) {
-						if ((i + 3 == 4 && (j + 3 == 4 || j + 15 == 14))
-							|| (i + 15 == 14 && (j + 3 == 4 || j + 15 == 14))) {
-							continue; // remove 5.5
-						}
-
-						pos = new Pos(3 + i, 3 + j);
-						goldHorn.Add(pos);
-						pos = new Pos(15 + i, 15 + j);
-						goldHorn.Add(pos);
-						pos = new Pos(3 + i, 15 + j);
-						goldHorn.Add(pos);
-						pos = new Pos(15 + i, 3 + j);
-						goldHorn.Add(pos);
-					}
-				}
-				return goldHorn;
+				m_GoldHorn = StarFourHorn.Union(ThreeThrees).Union(AllEyes).ToList();
+				return m_GoldHorn;
 			}
 		}
+
 		List<Pos> m_AreaLeftTop = null;
 		List<Pos> AreaLeftTop
 		{
@@ -868,9 +816,9 @@ namespace x01.Weiqi.Boards
 
 				m_AreaLeftTop = new List<Pos>();
 				List<Pos> area = m_AreaLeftTop;
-				for (int i = 0; i < 10; i++) {
-					for (int j = 0; j < 10; j++) {
-						area.Add(new Pos(i, j));
+				for (int row = 0; row < 10; row++) {
+					for (int col = 0; col < 10; col++) {
+						area.Add(new Pos(row, col));
 					}
 				}
 				return area;
@@ -885,9 +833,9 @@ namespace x01.Weiqi.Boards
 
 				m_AreaRightTop = new List<Pos>();
 				List<Pos> area = m_AreaRightTop;
-				for (int i = 10; i < 19; i++) {
-					for (int j = 0; j < 10; j++) {
-						area.Add(new Pos(i, j));
+				for (int row = 0; row < 10; row++) {
+					for (int col = 10; col < 19; col++) {
+						area.Add(new Pos(row, col));
 					}
 				}
 				return area;
@@ -902,9 +850,9 @@ namespace x01.Weiqi.Boards
 
 				m_AreaLeftBottom = new List<Pos>();
 				List<Pos> area = m_AreaLeftBottom;
-				for (int i = 0; i < 10; i++) {
-					for (int j = 10; j < 19; j++) {
-						area.Add(new Pos(i, j));
+				for (int row = 10; row < 19; row++) {
+					for (int col = 0; col < 10; col++) {
+						area.Add(new Pos(row, col));
 					}
 				}
 				return area;
@@ -919,9 +867,9 @@ namespace x01.Weiqi.Boards
 
 				m_AreaRightBottom = new List<Pos>();
 				List<Pos> area = m_AreaRightBottom;
-				for (int i = 10; i < 19; i++) {
-					for (int j = 10; j < 19; j++) {
-						area.Add(new Pos(i, j));
+				for (int row = 10; row < 19; row++) {
+					for (int col = 10; col < 19; col++) {
+						area.Add(new Pos(row, col));
 					}
 				}
 				return area;
@@ -1146,11 +1094,7 @@ namespace x01.Weiqi.Boards
 		}
 		bool IsJumpX(Pos p1, Pos p2, int x)
 		{
-			return new Vector(p1.Row - p2.Row, p2.Col - p2.Col).Length == new Vector(0, x + 1).Length;
-		}
-		bool IsJumpThree(Pos p1, Pos p2)
-		{
-			return new Vector(p1.Row - p2.Row, p2.Col - p2.Col).Length == new Vector(0, 4).Length;
+			return new Vector(p1.Row - p2.Row, p1.Col - p2.Col).Length == new Vector(0, x + 1).Length;
 		}
 		bool IsElephantOne(Pos p1, Pos p2)
 		{

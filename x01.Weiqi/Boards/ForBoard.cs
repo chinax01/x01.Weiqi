@@ -5,7 +5,7 @@ namespace x01.Weiqi.Boards
 {
 	public enum StoneColor
 	{
-		Black, White, Empty, All
+		Empty, Black, White, All
 	}
 
 	public enum Directions
@@ -70,12 +70,14 @@ namespace x01.Weiqi.Boards
 		public int Row;
 		public int Col;
 		public int Worth;
+		public StoneColor StoneColor;
 
-		public Pos(int row, int col, int worth = -1)
+		public Pos(int row, int col, StoneColor color = Boards.StoneColor.Empty, int worth = -1)
 		{
 			Row = row;
 			Col = col;
 			Worth = worth;
+			StoneColor = color;
 		}
 
 		public override bool Equals(object obj)

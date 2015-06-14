@@ -117,9 +117,9 @@ namespace x01.Weiqi.Boards
 			UpdateEmptyMeshBlocks();
 		}
 
-		private void UpdateMeshes()
+		private void UpdateMeshes(Pos next = default(Pos))
 		{
-			UpdateMeshes1();
+			UpdateMeshes1(next);
 			UpdateMeshes2();
 
 			UpdateMeshes3();
@@ -141,10 +141,11 @@ namespace x01.Weiqi.Boards
 			UpdateMeshes7(); // 修正 UpdateMeshes2 的错误，之所以不直接修改，因为涉及到共气，死活等复杂问题。
 		}
 
-		void UpdateMeshes1()	// 基本目添加
+		void UpdateMeshes1(Pos next = default(Pos))	// 基本目添加
 		{
 			m_BlackMeshes.Clear();
 			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
+			if (next != default(Pos)) m_BlackMeshes.Add(next);
 			AddBlackMeshes();
 
 			m_WhiteMeshes.Clear();
@@ -182,16 +183,17 @@ namespace x01.Weiqi.Boards
 		// 三四线为实地向下，五六七线为势力向上。
 		private void AddLinkPoses(List<Pos> poses, Pos pos)
 		{
+			var empties = EmptyPoses.ToList();
 			if (LineThree.Contains(pos) || LineFour.Contains(pos)) {
-				List<Pos> links = LinkPoses(pos);
+				List<Pos> links = LinkPoses(pos).Intersect(empties).ToList();;
 				foreach (var link in links) {	// 2,3 line
 					if (LineTwo.Contains(link) || LineThree.Contains(link)) {
 						if (!poses.Contains(link)) poses.Add(link);
-						var lines = LinkPoses(link);
+						var lines = LinkPoses(link).Intersect(empties).ToList();
 						foreach (var l in lines) {	// l,2 line
 							if (LineOne.Contains(l) || LineTwo.Contains(l)) {
 								if (!poses.Contains(l)) poses.Add(l);
-								var ones = LinkPoses(l);
+								var ones = LinkPoses(l).Intersect(empties).ToList(); ;
 								foreach (var one in ones) {	// 1 line
 									if (LineOne.Contains(one))
 										if (!poses.Contains(one)) poses.Add(one);
@@ -202,15 +204,15 @@ namespace x01.Weiqi.Boards
 				}
 			}
 			if (LineFive.Contains(pos) || LineSix.Contains(pos) || LineSeven.Contains(pos)) {
-				List<Pos> links = LinkPoses(pos);
+				List<Pos> links = LinkPoses(pos).Intersect(empties).ToList();
 				foreach (var link in links) {	// 6,7,8 line
 					if (LineSix.Contains(link) || LineSeven.Contains(link) || LineEight.Contains(link)) {
 						if (!poses.Contains(link)) poses.Add(link);
-						var lines = LinkPoses(link);
+						var lines = LinkPoses(link).Intersect(empties).ToList();
 						foreach (var l in lines) {	// 7,8,9 line
 							if (LineSeven.Contains(l) || LineEight.Contains(l) || LineNine.Contains(l)) {
 								if (!poses.Contains(l)) poses.Add(l);
-								var nines = LinkPoses(l);
+								var nines = LinkPoses(l).Intersect(empties).ToList();
 								foreach (var nine in nines) {	// 8,9 line
 									if (LineEight.Contains(nine) || LineNine.Contains(nine))
 										if (!poses.Contains(nine)) poses.Add(nine);
@@ -516,7 +518,7 @@ namespace x01.Weiqi.Boards
 										BlackPosBlocks.ForEach(bp_block => {
 											if (bp_block.Poses.Contains(pos)) {
 												block.EmptyCount = bp_block.EmptyCount;
-											}
+												}
 											WhitePosBlocks.ForEach(wp_block => {
 												if (wp_block.Poses.Intersect(w_block.Poses).Count() > 0) {
 													w_block.EmptyCount = wp_block.EmptyCount;

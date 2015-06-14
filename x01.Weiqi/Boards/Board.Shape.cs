@@ -21,111 +21,8 @@ namespace x01.Weiqi.Boards
 			var empties = EmptyPoses;
 			var all = AllPoses.Intersect(blacks.Union(whites)).ToList();
 
-			#region 封口
-
-			foreach (var b in blacks) {
-				if (StepCount < EndCount / 3) continue;
-
-				if (LineFour.Contains(b)) {
-					if (GetBlackMeshBlockCount(b) > 10) {
-						var rs = RoundOnePoses(b);
-						var ws = rs.Intersect(whites).ToList();
-						foreach (var w in ws) {
-							if (LineThree.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
-									if (IsTouch(e, b) && IsTouch(e, w) && LineThree.Contains(e))
-										AddIncreaseThinkPos(e);
-								}
-							} else if (LineThree.Contains(w) && IsFlyOne(w, b)) {
-								foreach (var e in empties) {
-									if (IsFlyOne(e, b) && IsCusp(e, w) && LineTwo.Contains(e))
-										AddIncreaseThinkPos(e);
-								}
-							} else if (LineFour.Contains(w) && IsJumpOne(w, b)) {
-								foreach (var e in empties) {
-									if (IsCusp(e, b) && IsCusp(e, w) && LineThree.Contains(e))
-										AddIncreaseThinkPos(e);
-								}
-							} else if (LineFour.Contains(w) && IsTouch(w, b)) {
-								foreach (var e in empties) {
-									if (IsJumpOne(e, b) && IsFlyOne(e, w) && LineTwo.Contains(e)
-										&& RoundOnePoses(e).Intersect(empties).Count() == 3 * 3)
-										AddIncreaseThinkPos(e);
-								}
-							}
-						}
-					}
-				} else if (LineThree.Contains(b)) {
-					if (GetBlackMeshBlockCount(b) > 10) {
-						var rs = RoundOnePoses(b);
-						var ws = rs.Intersect(whites).ToList();
-						foreach (var w in ws) {
-							//  0 +			line 3
-							//	0 *
-							//
-							if (LineTwo.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
-									if (IsTouch(e, b) && IsTouch(e, w) && LineTwo.Contains(e))
-										AddIncreaseThinkPos(e);
-								}
-							}
-								//  0			
-								//       +		line 3
-								//  *
-								//
-							else if (LineFour.Contains(w) && IsFlyOne(w, b)) {
-								foreach (var e in empties) {
-									if (IsFlyOne(e, b) && IsJumpOne(e, w) && LineTwo.Contains(e)
-										&& RoundOnePoses(e).Intersect(empties).Count() == 3 * 3)
-										AddIncreaseThinkPos(e);
-								}
-							}
-								//  0   +		line 3
-								//    *
-								//
-							else if (LineThree.Contains(w) && IsJumpOne(w, b)) {
-								foreach (var e in empties) {
-									if (IsCusp(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
-										&& LinkPoses(e).Intersect(empties).Count() == 5)
-										AddIncreaseThinkPos(e);
-								}
-							}
-								//  0 +			line 3
-								//  * *			两种可能
-								//
-							else if (LineThree.Contains(w) && IsTouch(w, b)) {
-								foreach (var e in empties) {
-									if (IsCusp(e, b) && IsTouch(e, w) && LineTwo.Contains(e)
-										&& LinkPoses(e).Intersect(empties).Count() == 4) {
-										AddIncreaseThinkPos(e);
-									} else if (IsTouch(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
-										 && LinkPoses(e).Intersect(empties).Count() == 3) {
-										AddIncreaseThinkPos(e);
-									}
-								}
-							}
-						}
-					}
-				} else if (LineTwo.Contains(b)) {
-					if (GetBlackMeshBlockCount(b) > 10) {
-						var rs = RoundOnePoses(b);
-						var ws = rs.Intersect(whites).ToList();
-						foreach (var w in ws) {
-							if (LineOne.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
-									if (IsTouch(e, b) && IsTouch(e, w) && LineOne.Contains(e))
-										AddIncreaseThinkPos(e);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			#endregion
-
-			if (StepCount > EndCount / 3)		// 布局阶段控制
-				return;
+			//if (StepCount > EndCount / 3)		// 布局阶段控制
+			//	return;
 
 			foreach (var e in empties) {
 				var r4 = RoundFourPoses(e);		// 大场
@@ -375,7 +272,7 @@ namespace x01.Weiqi.Boards
 										AddDecreaseThinkPos(r);
 									else if (IsFlyX(r, a, 3))	// 超大飞拆
 										AddDecreaseThinkPos(r, 3);
-									else if (IsJumpThree(r, a))	// 拆三
+									else if (IsJumpX(r, a, 3))	// 拆三
 										AddDecreaseThinkPos(r, -1);
 								}
 							}
@@ -393,7 +290,7 @@ namespace x01.Weiqi.Boards
 										AddDecreaseThinkPos(r);
 									else if (IsFlyX(r, a, 3))	// 超大飞拆
 										AddDecreaseThinkPos(r, 3);
-									else if (IsJumpThree(r, a))	// 拆三
+									else if (IsJumpX(r, a, 3))	// 拆三
 										AddDecreaseThinkPos(r, -1);
 								}
 							}
@@ -411,7 +308,7 @@ namespace x01.Weiqi.Boards
 										AddDecreaseThinkPos(r);
 									else if (IsFlyX(r, a, 3))	// 超大飞拆
 										AddDecreaseThinkPos(r, 3);
-									else if (IsJumpThree(r, a))	// 拆三
+									else if (IsJumpX(r, a, 3))	// 拆三
 										AddDecreaseThinkPos(r, -1);
 								}
 							}
@@ -429,7 +326,7 @@ namespace x01.Weiqi.Boards
 										AddDecreaseThinkPos(r);
 									else if (IsFlyX(r, a, 3))	// 超大飞拆
 										AddDecreaseThinkPos(r, 3);
-									else if (IsJumpThree(r, a))	// 拆三
+									else if (IsJumpX(r, a, 3))	// 拆三
 										AddDecreaseThinkPos(r, -1);
 								}
 							}
@@ -642,8 +539,6 @@ namespace x01.Weiqi.Boards
 
 				#endregion
 
-			
-
 			}
 		}
 		void Positive2()
@@ -663,28 +558,22 @@ namespace x01.Weiqi.Boards
 				AddDecreaseThinkPos(b);
 			}
 		}
-		void Positive3()
-		{
-			UpdateAllMeshBlocks();
 
-			var w_blocks = m_WhiteMeshBlocks.OrderByDescending(b => b.Poses.Count).ToList();
-			var b_blocks = m_BlackMeshBlocks.OrderByDescending(b => b.Poses.Count).ToList();
-			foreach (var b in b_blocks) {
-				if (b.IsDead) {
-					AddThinkPos(b.KeyPos);
+		Pos TwoStar()
+		{
+			var blacks = BlackPoses;
+			var whites = WhitePoses;
+			if (blacks.Count == 1 && whites.Count == 1) { // 二连星
+				var b = blacks[0];
+				var w = whites[0];
+				if (GetLength(b, w) > 5) {
+					foreach (var star in StarFourHorn) {
+						if (IsJumpX(star, b, 11) && GetLength(star, w) > 5)
+							return star;
+					}
 				}
 			}
-			foreach (var w in w_blocks) {
-				if (w.IsDead) {
-					AddThinkPos(w.KeyPos);
-				}
-			}
-			foreach (var s in NineStars) {
-				if (StarFourHorn.Contains(s))
-					AddDecreaseThinkPos(s, 5);
-				else
-					AddDecreaseThinkPos(s);
-			}
+			return m_InvalidPos;
 		}
 
 		Pos Attack()
@@ -725,6 +614,43 @@ namespace x01.Weiqi.Boards
 								}
 							}
 						}
+							//   0 + 
+							//   0 +
+							// 0 +
+							//   *
+						else if (StarFourHorn.Contains(b) && LineThree.Contains(br)) {
+							var rs = RoundTwoPoses(b);
+							var bs = rs.Intersect(blacks).ToList();
+							var ws = rs.Intersect(whites).ToList();
+							var es = rs.Intersect(copy_empties).ToList();
+							if (bs.Count == 3 && ws.Count == 3) {
+								Pos w3 = m_InvalidPos;
+								Pos w2 = m_InvalidPos;
+								Pos w1 = m_InvalidPos;
+								foreach (var w in ws) {
+									if (IsCusp(b, w) && ThreeThrees.Contains(w))
+										w3 = w;
+									else if (IsTouch(b, w) && AllEyes.Contains(w))
+										w2 = w;
+									else if (IsFlyOne(b, w) && LineTwo.Contains(w))
+										w1 = w;
+								}
+								if (w1 != m_InvalidPos && w2 != m_InvalidPos && w3 != m_InvalidPos) {
+									if (IsTouch(w1, br) && IsCusp(w1, w2)) {
+										Pos b3 = m_InvalidPos;
+										foreach (var temp in bs) {
+											if (IsTouch(temp, b))
+												b3 = temp;
+										}
+										foreach (var e in es) {
+											if (IsFlyTwo(e, b3) && IsTouch(e, br))
+												return e;
+										}
+									}
+								}
+							}
+						}
+
 						//    0				 w0
 						//	+ 0   0	  ==   b wr   w1
 						//    + *			 br *	
@@ -787,7 +713,7 @@ namespace x01.Weiqi.Boards
 							var w3 = new Pos(w.Row + 2 * r_off, w.Col + c_off * 2);
 							if (IsCusp(w3, w2) && IsFlyOne(w3, b)) {
 								foreach (var e in copy_empties) {
-									if (IsTouch(e, w) && IsJumpOne(e, b) 
+									if (IsTouch(e, w) && IsJumpOne(e, b)
 										&& LinkPoses(e).Intersect(copy_empties).Count() > 2)
 										return e;
 								}
@@ -816,6 +742,20 @@ namespace x01.Weiqi.Boards
 						// Touch
 					 else if (IsTouch(b, br)) {
 						if (IsTouch(b, br)) {	// 加个包装，防止局部变量冲突
+							//  + 0
+							//  + 0
+							//    *
+							if (RoundOnePoses(b).Intersect(whites).Count() == 2) {
+								var ws = RoundOnePoses(b).Intersect(whites).ToList();
+								var w0 = IsTouch(b, ws[0]) ? ws[0] : ws[1];
+								var w1 = w0 == ws[0] ? ws[1] : ws[0];
+								if (IsTouch(w0, w1) && IsCusp(w0, br) && GetStep(b).EmptyCount >= GetStep(w0).EmptyCount) {
+									foreach (var e in e_rounds) {
+										if (IsTouch(e, w0) && IsCusp(b, e) && LinkPoses(e).Intersect(copy_empties).Count() == 3)
+											return e;
+									}
+								}
+							}
 							//    0
 							//  0 +    *
 							//    +
@@ -927,7 +867,15 @@ namespace x01.Weiqi.Boards
 						var es = rs.Intersect(e_rounds).ToList();
 						if (ws.Count == 1 && IsTouch(ws[0], b)) {
 							foreach (var e in es) {
-								if (IsCusp(e, b) && IsTouch(ws[0], e)) {
+								if (IsCusp(e, b) && IsCusp(e, br) && IsTouch(ws[0], e)) {
+									return e;
+								}
+									//      0
+									//
+									//  +   + 0
+									//        *
+								else if (IsCusp(e, b) && IsFlyTwo(e, br)
+									&& RoundOnePoses(e).Intersect(whites).Count() == 1) {
 									return e;
 								}
 							}
@@ -963,7 +911,7 @@ namespace x01.Weiqi.Boards
 							var w = IsTouch(b, ws[0]) ? ws[0] : ws[1];
 							if (IsJumpTwo(br, w)) {
 								foreach (var e in es) {
-									if (IsCusp(e, w) && IsFlyOne(e, br) 
+									if (IsCusp(e, w) && IsFlyOne(e, br)
 										&& LinkPoses(e).Intersect(e_rounds).Count() == 4) {
 										return e;
 									}
@@ -1007,9 +955,19 @@ namespace x01.Weiqi.Boards
 					if (GetLength(b, br) > 8 && StepCount > 30) {		// 相连
 						foreach (var e in empties) {
 							if (GetLength(b, e) < 5 && GetLength(br, e) < 5
-								&& RoundTwoPoses(e).Intersect(empties).Count() > 23
-								&& RoundOnePoses(e).Intersect(empties).Count() == 9) {
+								&& RoundTwoPoses(e).Intersect(copy_empties).Count() > 23
+								&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
 								return e;
+							}
+						}
+					} else if (GetLength(b, br) > 5) {
+						var area = GetArea(b, br);
+						var es = area.Intersect(copy_empties).ToList();
+						if (es.Count == area.Count - 2) {
+							foreach (var e in es) {
+								if (IsFlyTwo(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+									return e;
+								}
 							}
 						}
 					}
@@ -1046,6 +1004,17 @@ namespace x01.Weiqi.Boards
 							return e;
 						}
 					}
+				} else if (LineThreeFour.Contains(b) && StepCount > 30 
+					&& RoundOnePoses(b).Intersect(copy_empties).Count() == 8) {
+					foreach (var e in e_rounds) {
+						if (LineFour.Contains(b) && IsFlyTwo(e, b) && LineThree.Contains(e) 
+							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+							return e;
+						} else if (LineThree.Contains(b) && IsJumpTwo(e,b) && LineThree.Contains(e)
+							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+								return e;
+						}
+					}
 				}
 			}
 
@@ -1056,20 +1025,25 @@ namespace x01.Weiqi.Boards
 				var w_rounds = rounds.Intersect(whites).ToList();
 				var e_rounds = rounds.Intersect(empties).ToList();
 
-				if (GoldHorn.Contains(w) && StepCount < 10) {
+				if (GoldHorn.Contains(w)) {  // 挂白角
 					foreach (var e in e_rounds) {
-						if (IsFlyOne(e, w) && LineThreeFour.Contains(e)
-							&& RoundOnePoses(e).Intersect(e_rounds).Count() == 9
+						if (StarFourHorn.Contains(w) && IsFlyOne(e, w) && LineThreeFour.Contains(e)
+							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9
 							&& RoundThreePoses(w).Intersect(w_rounds).Count() == 1) {
+							return e;
+						} else if (AllEyes.Contains(w) && IsJumpOne(e, w) && AllEyes.Contains(e)
+								   && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+							return e;
+						} else if (ThreeThrees.Contains(w) && StarFourHorn.Contains(e) && IsCusp(e, w)
+								   && LinkPoses(e).Intersect(empties).Count() == 5) {
 							return e;
 						}
 					}
 				}
 
-				//    0 0 
-				//  +  
-				//    0 * +
+				
 				foreach (var wr in w_rounds) {
+					// 碰形
 					if (IsTouch(w, wr)) {
 						var rs = RoundTwoPoses(w);
 						var ws = rs.Intersect(w_rounds).ToList();
@@ -1077,6 +1051,9 @@ namespace x01.Weiqi.Boards
 						var es = rs.Intersect(e_rounds).ToList();
 						foreach (var w3 in ws) {
 							if (IsJumpOne(w3, w) && IsFlyOne(w3, wr)) {
+								//    0 0 
+								//  +  
+								//    0 * +
 								if (bs.Count == 2) {
 									var b = IsCusp(w, bs[0]) ? bs[0] : bs[1];
 									var b2 = IsJumpOne(w3, bs[0]) ? bs[0] : bs[1];
@@ -1089,7 +1066,53 @@ namespace x01.Weiqi.Boards
 								}
 							}
 						}
-					}
+
+						if (ThreeThrees.Contains(w)) {
+							//  0
+							//  0 +
+							//    *
+							var rbs = RoundTwoPoses(w).Intersect(blacks).ToList();
+							if (rbs.Count == 1 && StarFourHorn.Contains(rbs[0])) {
+								if (IsTouch(rbs[0], wr)) {
+									foreach (var e in e_rounds) {
+										if (IsFlyOne(e, w) && IsCusp(e, wr) && IsTouch(e, rbs[0]))
+											return e;
+									}
+								}
+							}
+						}
+					} 
+					// 飞形
+					else if (IsFlyOne(w,wr) && AllEyes.Contains(w)) {
+                        //  * 0             line 3
+                        //         0
+                        //    +
+                        var bs = RoundTwoPoses(w).Intersect(blacks).ToList();
+                        if (bs.Count == 1 && AllEyes.Contains(bs[0])) {
+                            foreach (var e in empties) {
+                                if (IsTouch(e,w) && IsFlyOne(e,bs[0]) && IsFlyTwo(e,wr))
+                                    return e;
+                            }            
+                        }
+                    } 
+					// 尖形
+					else if (IsCusp(w,wr) && AllEyes.Contains(w)) {
+                        //    0   +
+                        //  0 + *
+                        //
+                        var bs = RoundTwoPoses(w).Intersect(blacks).ToList();
+                        if (bs.Count == 2 && IsFlyOne(bs[0],bs[1])) {
+                            var b0 = IsTouch(w,bs[0]) ? bs[0] : bs[1];
+                            var b1 = b0 == bs[0] ? bs[1] : bs[0];
+                            if (IsFlyTwo(wr,b1)){
+                                foreach (var e in e_rounds) {
+                                    if (IsTouch(e,b0) && IsCusp(e,w))
+                                        return e;
+                                }
+                            }
+                        }
+                    } 
+                
 						//小飞挂星后二路进角
 					else if (IsFlyOne(w, wr) && StarFourHorn.Contains(w) && LineThree.Contains(wr)) {
 						foreach (var b in b_rounds) {
@@ -1114,7 +1137,22 @@ namespace x01.Weiqi.Boards
 							}
 						}
 					}
-
+						//  0 * 0
+						//      +   0		line 3
+						//
+					else if (LineFour.Contains(w) && LineThree.Contains(wr) && IsFlyX(w, wr, 3)) {
+						var bs = GetArea(w, wr).Intersect(blacks).ToList();
+						if (bs.Count == 1 && IsFlyOne(w, bs[0]) && IsJumpOne(bs[0], wr)) {
+							var ws = LinkPoses(bs[0]).Intersect(whites).ToList();
+							if (ws.Count == 1 && IsJumpOne(ws[0], w) && IsFlyOne(ws[0], wr)) {
+								foreach (var e in empties) {
+									if (IsCusp(e, bs[0]) && IsTouch(e, w) && IsTouch(e, ws[0])) {
+										return e;
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 
@@ -1147,24 +1185,24 @@ namespace x01.Weiqi.Boards
 						var ws = rs.Intersect(whites).ToList();
 						foreach (var w in ws) {
 							if (LineThree.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineThree.Contains(e))
 										return e;
 								}
 							} else if (LineThree.Contains(w) && IsFlyOne(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsFlyOne(e, b) && IsCusp(e, w) && LineTwo.Contains(e))
 										return e;
 								}
 							} else if (LineFour.Contains(w) && IsJumpOne(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsCusp(e, w) && LineThree.Contains(e))
 										return e;
 								}
 							} else if (LineFour.Contains(w) && IsTouch(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsJumpOne(e, b) && IsFlyOne(e, w) && LineTwo.Contains(e)
-										&& RoundOnePoses(e).Intersect(empties).Count() == 3 * 3)
+										&& RoundOnePoses(e).Intersect(copy_empties).Count() == 3 * 3)
 										return e;
 								}
 							}
@@ -1179,7 +1217,7 @@ namespace x01.Weiqi.Boards
 							//	0 *
 							//
 							if (LineTwo.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineTwo.Contains(e))
 										return e;
 								}
@@ -1189,9 +1227,9 @@ namespace x01.Weiqi.Boards
 								//  *
 								//
 							else if (LineFour.Contains(w) && IsFlyOne(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsFlyOne(e, b) && IsJumpOne(e, w) && LineTwo.Contains(e)
-										&& RoundOnePoses(e).Intersect(empties).Count() == 3 * 3)
+										&& RoundOnePoses(e).Intersect(copy_empties).Count() == 3 * 3)
 										return e;
 								}
 							}
@@ -1199,9 +1237,9 @@ namespace x01.Weiqi.Boards
 								//    *
 								//
 							else if (LineThree.Contains(w) && IsJumpOne(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
-										&& LinkPoses(e).Intersect(empties).Count() == 5)
+										&& LinkPoses(e).Intersect(copy_empties).Count() == 5)
 										return e;
 								}
 							}
@@ -1209,12 +1247,12 @@ namespace x01.Weiqi.Boards
 								//  * *			两种可能
 								//
 							else if (LineThree.Contains(w) && IsTouch(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsTouch(e, w) && LineTwo.Contains(e)
-										&& LinkPoses(e).Intersect(empties).Count() == 4) {
+										&& LinkPoses(e).Intersect(copy_empties).Count() == 4) {
 										return e;
 									} else if (IsTouch(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
-										 && LinkPoses(e).Intersect(empties).Count() == 3) {
+										 && LinkPoses(e).Intersect(copy_empties).Count() == 3) {
 										return e;
 									}
 								}
@@ -1227,7 +1265,7 @@ namespace x01.Weiqi.Boards
 						var ws = rs.Intersect(whites).ToList();
 						foreach (var w in ws) {
 							if (LineOne.Contains(w) && IsCusp(w, b)) {
-								foreach (var e in empties) {
+								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineOne.Contains(e))
 										return e;
 								}
@@ -1298,11 +1336,7 @@ namespace x01.Weiqi.Boards
 							foreach (var e in empties) {
 								if (IsCusp(e, r) && IsTouch(e, pos) && IsJumpTwo(e, item)
 									&& LinkPoses(e).Intersect(empties).Count() == 4) {
-									//int r_off = e.Row - pos.Row;
-									//int c_off = e.Col - pos.Col;
-									//var p = new Pos(e.Row + 2 * r_off, e.Col + 2 * c_off);
-									//if (!RoundOnePoses(p).Intersect(whites).Any())
-										return e;
+									return e;
 								}
 							}
 						} else if (IsJumpOne(item, r) && IsFlyOne(item, pos) && whites.Contains(item)
@@ -1496,6 +1530,29 @@ namespace x01.Weiqi.Boards
 			}
 			return -1;
 		}
+		List<Pos> GetArea(Pos p1, Pos p2)
+		{
+			List<Pos> poses = new List<Pos>();
+			int r1 = Math.Min(p1.Row, p2.Row);
+			int r2 = Math.Max(p1.Row, p2.Row);
+			int c1 = Math.Min(p1.Col, p2.Col);
+			int c2 = Math.Max(p1.Col, p2.Col);
+			for (int r = r1; r <= r2; r++) {
+				for (int c = c1; c <= c2; c++) {
+					var pos = new Pos(r, c);
+					poses.Add(pos);
+				}
+			}
+			return poses;
+		}
+		int GetMeshCount(Pos p)
+		{
+			if (!EmptyPoses.Contains(p))
+				throw new Exception("p need be empty.");
+			var poses = new List<Pos>();
+			AddLinkPoses(poses, p);
+			return poses.Intersect(EmptyPoses).Count();
+		}
 		List<Pos> RemoveEmpties(List<Pos> empties, List<Pos> blacks)
 		{
 			var copyEmpties = empties.ToList();
@@ -1546,8 +1603,9 @@ namespace x01.Weiqi.Boards
 			}
 			return copyEmpties;
 		}
-		int HasStoneCount(Pos pos, Directions direction)   // 多少步有子
+		int HasStoneCount(Pos pos, Directions direction, out Pos p)   // 多少步有子
 		{
+			p = m_InvalidPos;
 			int count = 0;
 			var stones = BlackPoses.Union(WhitePoses).ToList();
 			switch (direction) {
@@ -1560,7 +1618,10 @@ namespace x01.Weiqi.Boards
 							count--;
 							break;
 						}
-						if (stones.Contains(new Pos(row, col))) break;
+						if (stones.Contains(new Pos(row, col))) {
+							p = new Pos(row, col);
+							break;
+						}
 					}
 					break;
 				case Directions.Down:
@@ -1572,7 +1633,10 @@ namespace x01.Weiqi.Boards
 							count--;
 							break;
 						}
-						if (stones.Contains(new Pos(row, col))) break;
+						if (stones.Contains(new Pos(row, col))) {
+							p = new Pos(row, col);
+							break;
+						}
 					}
 					break;
 				case Directions.Left:
@@ -1584,7 +1648,10 @@ namespace x01.Weiqi.Boards
 							count--;
 							break;
 						}
-						if (stones.Contains(new Pos(row, col))) break;
+						if (stones.Contains(new Pos(row, col))) {
+							p = new Pos(row, col);
+							break;
+						}
 					}
 					break;
 				case Directions.Right:
@@ -1596,13 +1663,21 @@ namespace x01.Weiqi.Boards
 							count--;
 							break;
 						}
-						if (stones.Contains(new Pos(row, col))) break;
+						if (stones.Contains(new Pos(row, col))) {
+							p = new Pos(row, col);
+							break;
+						}
 					}
 					break;
 				default:
 					break;
 			}
 			return count;
+		}
+		int HasStoneCount(Pos pos, Directions direction)
+		{
+			Pos p;
+			return HasStoneCount(pos, direction, out p);
 		}
 	}
 }
