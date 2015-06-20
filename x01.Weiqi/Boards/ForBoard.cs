@@ -69,14 +69,14 @@ namespace x01.Weiqi.Boards
 	{
 		public int Row;
 		public int Col;
-		public int Worth;
+		public int StepCount;
 		public StoneColor StoneColor;
 
-		public Pos(int row, int col, StoneColor color = Boards.StoneColor.Empty, int worth = -1)
+		public Pos(int row, int col, StoneColor color = Boards.StoneColor.Empty, int stepCount = -1)
 		{
 			Row = row;
 			Col = col;
-			Worth = worth;
+			StepCount = stepCount;
 			StoneColor = color;
 		}
 

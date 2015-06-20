@@ -212,6 +212,14 @@ namespace x01.Weiqi.Boards
 			}
 
 			UpdateAllStepBlocks();
+			bool isBlack = m_StepCount % 2 == 0 ? true : false;
+			if (isBlack) {
+				if (!UpdateDeadBlocks(m_WhiteStepBlocks))
+					UpdateDeadBlocks(m_BlackStepBlocks);
+			} else {
+				if (!UpdateDeadBlocks(m_BlackStepBlocks))
+					UpdateDeadBlocks(m_WhiteStepBlocks);
+			}
 
 			string s = m_StepString.ToString();
 			s = m_Regex.Replace(s, "");
@@ -233,6 +241,7 @@ namespace x01.Weiqi.Boards
 					White = dlg.WhiteName,
 					Result = dlg.Result,
 					Description = dlg.Description,
+					Type = dlg.Type,
 					SaveDate = DateTime.Now,
 					Steps = steps
 				};
@@ -244,7 +253,7 @@ namespace x01.Weiqi.Boards
 
 		#region Init
 
-		
+
 
 		SoundPlayer m_Player = new SoundPlayer();
 
@@ -530,6 +539,8 @@ namespace x01.Weiqi.Boards
 
 		bool UpdateDeadBlocks(List<StepBlock> selfBlocks)
 		{
+			bool result = false;
+
 			List<StepBlock> blocks = new List<StepBlock>();
 			foreach (var item in selfBlocks) {
 				blocks.Add(item);	//copy
@@ -543,10 +554,11 @@ namespace x01.Weiqi.Boards
 					if (block.Steps.Count == 1) {
 						var step = block.Steps[0];
 						var otherColor = step.StoneColor == StoneColor.Black ? StoneColor.White : StoneColor.Black;
-						var links = LinkSteps(step,otherColor);
+						var links = LinkSteps(step, otherColor);
 						bool isBanOnce = true;
 						foreach (var link in links) {
-							if (link.EmptyCount == 1  && LinkSteps(link, link.StoneColor).Count > 1) {
+							// 0：为吃对方时的气数，多子时可以倒扑。
+							if (link.EmptyCount == 0 && LinkSteps(link, link.StoneColor).Count > 1) {
 								isBanOnce = false;
 							}
 						}
@@ -570,13 +582,19 @@ namespace x01.Weiqi.Boards
 						m_EmptySteps.Add(dead);
 						HideStep(dead);
 					}
-					m_DeadBlocks[m_StepCount] = deadInfo;
-
+					if (m_DeadBlocks.Keys.Contains(m_StepCount)) {
+						foreach (var item in deadInfo.Steps) {
+							if (!m_DeadBlocks[m_StepCount].Steps.Contains(item))
+								m_DeadBlocks[m_StepCount].Steps.Add(item);
+						}
+					} else {
+						m_DeadBlocks[m_StepCount] = deadInfo;
+					}
 					selfBlocks.Remove(block);
-					return true;
+					result = true;
 				}
 			}
-			return false;
+			return result;
 		}
 		Step CloneStep(Step step)
 		{

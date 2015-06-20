@@ -50,6 +50,7 @@ namespace x01.Weiqi.Boards
 				patterns.Add(P_LuStar_UpClip3);
 				patterns.Add(P_LuStar_UpClip3_2);
 				patterns.Add(P_LuStar_UpClip3_3);
+				patterns.Add(P_LuStar_UpClip3_4);
 				patterns.Add(P_LuStar_UpClip3L);
 
 				patterns.Add(P_LuEye_UpJumpOne);
@@ -77,23 +78,27 @@ namespace x01.Weiqi.Boards
 					.Union(LeftDownPatterns(patterns))
 					.Union(RightDownPatterns(patterns)).ToList();
 
-				var old = m_IsChangePatternColor;
-				m_IsChangePatternColor = false;
+				var old = m_IsChangeStoneColor;
+				m_IsChangeStoneColor = false;
 				patterns.Clear();
+				patterns.Add(P_LuStar_UpFlyOne_B13);
+				patterns.Add(P_LuStar_UpFlyOne_B25);
+				patterns.Add(P_LuStar_UpFlyOne_B35);
+				patterns.Add(P_LuStar_UpFlyOne_B46);
 				patterns.Add(P_LuStar_UpFlyOne_B92);
 				patterns.Add(P_LuStar_UpFlyOne_B52);
-				patterns.Add(P_LuStar_UpFlyOne_B13);
 				patterns.Add(P_LuStar_UpThree3_B23);
-				patterns.Add(P_LuEye_Clip2_B15);
+
 				patterns.Add(P_LuEye_UpJumpOne_B26);
 				patterns.Add(P_LuEye_UpJumpOne_B11);
+				patterns.Add(P_LuEye_Clip2_B15);
 
 				m_Patterns = m_Patterns.Union(LeftUpPatterns(patterns))
 					.Union(RightUpPatterns(patterns))
 					.Union(LeftDownPatterns(patterns))
 					.Union(RightDownPatterns(patterns)).ToList();
 
-				m_IsChangePatternColor = old;
+				m_IsChangeStoneColor = old;
 
 				return m_Patterns;
 			}
@@ -358,6 +363,37 @@ namespace x01.Weiqi.Boards
 				temp.Add(new Pos(2, 2));
 				temp.Add(new Pos(1, 2));
 				temp.Add(new Pos(1, 1));
+				return temp;
+			}
+		}
+		//     
+		//   0 +    0       
+		//   0 +              +
+		// 0 + +
+		//   0 + +
+		// 0   0 +
+		//     0
+		List<Pos> P_LuStar_UpClip3_4        // 三间高夹
+		{
+			get
+			{
+				var temp = new List<Pos>();
+				temp.Add(new Pos(3, 3));    // 第一步：左上星
+				temp.Add(new Pos(2, 5));    // 第二步：小飞挂
+				temp.Add(new Pos(3, 9));    // 第三步：三间高夹
+				temp.Add(new Pos(5, 2));    // 第四步：双飞燕
+				temp.Add(new Pos(5, 3));
+				temp.Add(new Pos(6, 3));
+				temp.Add(new Pos(5, 4));
+				temp.Add(new Pos(2, 2));
+				temp.Add(new Pos(2, 3));
+				temp.Add(new Pos(3, 2));
+				temp.Add(new Pos(4, 2));
+				temp.Add(new Pos(4, 1));
+				temp.Add(new Pos(4, 3));
+				temp.Add(new Pos(6, 1));
+				temp.Add(new Pos(6, 4));
+				temp.Add(new Pos(7, 3));
 				return temp;
 			}
 		}
@@ -840,6 +876,79 @@ namespace x01.Weiqi.Boards
 
 		#region m_isChangePatternColor == false
 
+		//       +
+		//     + 0 0       0
+		// +   +   + 0
+		// 0 +     +
+		// 0 0 +      +
+		//     0   0
+		//
+		//
+		List<Pos> P_LuStar_UpFlyOne_B35		// 双飞燕
+		{
+			get
+			{
+				var temp = new List<Pos>();
+				temp.Add(new Pos(3, 3, StoneColor.Black));    // 第一步：左上星
+				temp.Add(new Pos(2, 5, StoneColor.White));    // 第二步：小飞挂
+				temp.Add(new Pos(5, 2, StoneColor.White));    
+				temp.Add(new Pos(3, 5, StoneColor.Black));
+				temp.Add(new Pos(3, 6, StoneColor.White));
+				temp.Add(new Pos(4, 5, StoneColor.Black));
+				temp.Add(new Pos(2, 4, StoneColor.White));
+				temp.Add(new Pos(2, 3, StoneColor.Black));
+				temp.Add(new Pos(6, 3, StoneColor.White));
+				temp.Add(new Pos(4, 2, StoneColor.Black));
+				temp.Add(new Pos(4, 1, StoneColor.White));
+				temp.Add(new Pos(5, 3, StoneColor.Black));
+				temp.Add(new Pos(5, 1, StoneColor.White));
+				temp.Add(new Pos(3, 1, StoneColor.Black));
+				temp.Add(new Pos(6, 5, StoneColor.White));
+				temp.Add(new Pos(5, 6, StoneColor.Black));
+				temp.Add(new Pos(2, 8, StoneColor.White));
+				temp.Add(new Pos(1, 4, StoneColor.Black));
+				return temp;
+			}
+		}
+		//       + 0
+		//     +
+		//
+		//   +
+		List<Pos> P_LuStar_UpFlyOne_B13		// 尖顶
+		{
+			get
+			{
+				var temp = new List<Pos>();
+				temp.Add(new Pos(3, 3, StoneColor.Black));    // 第一步：左上星
+				temp.Add(new Pos(2, 5, StoneColor.White));    // 第二步：小飞挂
+				temp.Add(new Pos(5, 2, StoneColor.Black));    // 第三步：小飞守
+				temp.Add(new Pos(2, 4, StoneColor.Black));    // 第四步：二路守角
+				return temp;
+			}
+		}
+		//   0
+		// 0   0 0 + +
+		// + 0 + +
+		//   +
+		List<Pos> P_LuStar_UpFlyOne_B25
+		{
+			get
+			{
+				var temp = new List<Pos>();
+				temp.Add(new Pos(3, 3, StoneColor.Black));
+				temp.Add(new Pos(2, 5, StoneColor.Black));
+				temp.Add(new Pos(2, 2, StoneColor.White));
+				temp.Add(new Pos(3, 2, StoneColor.Black));
+				temp.Add(new Pos(2, 3, StoneColor.White));
+				temp.Add(new Pos(2, 4, StoneColor.Black));
+				temp.Add(new Pos(3, 1, StoneColor.White));
+				temp.Add(new Pos(4, 1, StoneColor.Black));
+				temp.Add(new Pos(1, 1, StoneColor.White));
+				temp.Add(new Pos(3, 0, StoneColor.Black));
+				temp.Add(new Pos(2, 0, StoneColor.White));
+				return temp;
+			}
+		}
 		//          +
 		//     +
 		List<Pos> P_LuStar_UpFlyOne_B92
@@ -869,7 +978,27 @@ namespace x01.Weiqi.Boards
 				return temp;
 			}
 		}
-
+		//      +
+		//    +      +
+		//      0               +
+		//           +
+		//    0
+		//
+		List<Pos> P_LuStar_UpFlyOne_B46
+		{
+			get
+			{
+				var temp = new List<Pos>();
+				temp.Add(new Pos(3, 3, StoneColor.White));
+				temp.Add(new Pos(2, 5, StoneColor.Black));
+				temp.Add(new Pos(5, 2, StoneColor.White));
+				temp.Add(new Pos(3, 9, StoneColor.Black));
+				temp.Add(new Pos(4, 6, StoneColor.Black));
+				temp.Add(new Pos(1, 3, StoneColor.Black));
+				temp.Add(new Pos(2, 2, StoneColor.Black));
+				return temp;
+			}
+		}
 		// + 0
 		//   + 0 0     
 		//     +   0       
@@ -880,9 +1009,9 @@ namespace x01.Weiqi.Boards
 			get
 			{
 				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 4, StoneColor.White));  
+				temp.Add(new Pos(3, 4, StoneColor.White));
 				temp.Add(new Pos(3, 2, StoneColor.Black));
-				temp.Add(new Pos(2, 2, StoneColor.White));   
+				temp.Add(new Pos(2, 2, StoneColor.White));
 				temp.Add(new Pos(2, 1, StoneColor.Black));
 				temp.Add(new Pos(2, 3, StoneColor.White));
 				temp.Add(new Pos(1, 2, StoneColor.White));
@@ -932,23 +1061,7 @@ namespace x01.Weiqi.Boards
 				return temp;
 			}
 		}
-		//     
-		//       + 0
-		//     +
-		//
-		//   +
-		List<Pos> P_LuStar_UpFlyOne_B13		// 尖顶
-		{
-			get
-			{
-				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 3, StoneColor.Black));    // 第一步：左上星
-				temp.Add(new Pos(2, 5, StoneColor.White));    // 第二步：小飞挂
-				temp.Add(new Pos(5, 2, StoneColor.Black));    // 第三步：小飞守
-				temp.Add(new Pos(2, 4, StoneColor.Black));    // 第四步：二路守角
-				return temp;
-			}
-		}
+
 		//    +
 		//    + 0   
 		//
@@ -968,7 +1081,7 @@ namespace x01.Weiqi.Boards
 
 		#region 四角八变换
 
-		bool m_IsChangePatternColor = true;
+		bool m_IsChangeStoneColor = true;
 		List<Pos> Lu_Up(List<Pos> poses, bool firstIsBlack = true)	// lu：左上； Up: 上挂
 		{
 			return GetPattern(poses, firstIsBlack);
@@ -1038,9 +1151,9 @@ namespace x01.Weiqi.Boards
 		}
 		private List<Pos> GetPattern(List<Pos> poses, bool firstIsBlack = true)
 		{
-			if (!m_IsChangePatternColor && firstIsBlack) {
+			if (!m_IsChangeStoneColor && firstIsBlack) {
 				return poses;
-			} else if (!m_IsChangePatternColor && !firstIsBlack) {
+			} else if (!m_IsChangeStoneColor && !firstIsBlack) {
 				var t = new List<Pos>();
 				foreach (var p in poses) {
 					var pos = new Pos(p.Row, p.Col, p.StoneColor == StoneColor.Black ? StoneColor.White : StoneColor.Black);
@@ -1116,7 +1229,7 @@ namespace x01.Weiqi.Boards
 				var poses = all.Intersect(GetArea(ltpos, rdpos)).OrderBy(p => GetStep(p).StepCount).ToList();
 				int posCount = poses.Count;
 				int count = pattern.Count;
-				if (count > posCount && posCount > 0) {
+				if (count >= posCount && posCount > 0) {
 					var firstColor = GetStep(poses[0]).StoneColor;
 					var otherColor = firstColor == StoneColor.Black ? StoneColor.White : StoneColor.Black;
 					for (int i = 0; i < count; i++) {

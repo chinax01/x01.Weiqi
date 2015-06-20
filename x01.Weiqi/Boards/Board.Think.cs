@@ -30,7 +30,7 @@ namespace x01.Weiqi.Boards
 		{
 			// 下棋是一种由不确定到确定的过程，没有人能证明这步棋不好，那么就可以抢先确定这一步。
 			if (StepCount == 0)
-				return new Pos(3, 15);
+				return new Pos(3, 3);
 
 			m_ThinkPoses.Clear();
 			Pos pos = FindPos();
@@ -416,6 +416,9 @@ namespace x01.Weiqi.Boards
 			result = TwoStar();
 			if (result != m_InvalidPos)
 				return result;
+			result = L_GetPos();
+			if (result != m_InvalidPos)
+				return result;
 			result = P_GetPos();
 			if (result != m_InvalidPos)
 				return result;
@@ -437,7 +440,7 @@ namespace x01.Weiqi.Boards
 			if (poses.Count == 0)
 				return result;
 
-			poses = poses.Distinct().OrderBy(p => p.Worth).ToList();
+			poses = poses.Distinct().OrderBy(p => p.StepCount).ToList();
 			//int skipCount = poses.Count > 20 ? poses.Count - 20 : 0;
 			//poses = poses.Skip(skipCount).ToList();
 
@@ -485,7 +488,7 @@ namespace x01.Weiqi.Boards
 		}
 		Pos GetPos(Step step)
 		{
-			return new Pos(step.Row, step.Col);
+			return new Pos(step.Row, step.Col,step.StoneColor,step.StepCount);
 		}
 
 		// 使用属性而不是字段
@@ -496,7 +499,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_BlackPoses.Clear();
 				foreach (var step in m_BlackSteps) {
-					m_BlackPoses.Add(new Pos(step.Row, step.Col, color:StoneColor.Black));
+					m_BlackPoses.Add(new Pos(step.Row, step.Col, step.StoneColor, step.StepCount));
 				}
 				return m_BlackPoses;
 			}
@@ -508,7 +511,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_WhitePoses.Clear();
 				foreach (var step in m_WhiteSteps) {
-					m_WhitePoses.Add(new Pos(step.Row, step.Col,color:StoneColor.White));
+					m_WhitePoses.Add(new Pos(step.Row, step.Col,step.StoneColor, step.StepCount));
 				}
 				return m_WhitePoses;
 			}
@@ -520,7 +523,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_EmptyPoses.Clear();
 				foreach (var step in m_EmptySteps) {
-					m_EmptyPoses.Add(new Pos(step.Row, step.Col,color:StoneColor.Empty));
+					m_EmptyPoses.Add(new Pos(step.Row, step.Col,step.StoneColor, step.StepCount));
 				}
 				return m_EmptyPoses;
 			}

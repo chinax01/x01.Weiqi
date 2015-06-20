@@ -970,6 +970,16 @@ namespace x01.Weiqi.Boards
 								}
 							}
 						}
+					} else if (GetLength(b, br) > 4) {
+						foreach (var e in copy_empties) {
+							if (IsFlyOne(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+								return e;
+							} else if (IsJumpOne(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+								return e;
+							} else if (IsJumpTwo(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
+								return e;
+							}
+						}
 					}
 				}
 
@@ -1479,17 +1489,17 @@ namespace x01.Weiqi.Boards
 		private void AddThinkPos(Pos e, int worth = 20)
 		{
 			Pos p = e;
-			p.Worth = worth;
+			p.StepCount = worth;
 			m_ThinkPoses.Add(p);
 		}
 		void AddIncreaseThinkPos(Pos e, int worth = 0)
 		{
-			e.Worth = IncreaseWorth() + worth;
+			e.StepCount = IncreaseWorth() + worth;
 			m_ThinkPoses.Add(e);
 		}
 		private void AddDecreaseThinkPos(Pos e, int worth = 0)
 		{
-			e.Worth = DecreaseWorth() + worth;
+			e.StepCount = DecreaseWorth() + worth;
 			m_ThinkPoses.Add(e);
 		}
 		int DecreaseWorth()
@@ -1601,6 +1611,51 @@ namespace x01.Weiqi.Boards
 					if (e == p) empties.Remove(e);
 				}
 			}
+			return copyEmpties;
+		}
+		List<Pos> RemoveEmpties(List<Pos> empties)
+		{
+			UpdateMeshes();
+			var w_boundary = new List<Pos>();
+			foreach (var w in m_WhiteMeshes) {
+				if (!w_boundary.Contains(w) &&
+					(LinkPoses(w).Intersect(m_BlackMeshes).Any()
+						 || LinkPoses(w).Intersect(m_EmptyMeshes).Any())) {
+					w_boundary.Add(w);
+				}
+			}
+
+			var copyEmpties = empties.ToList();
+
+			foreach (var e in empties) {
+				if (LinkPoses(e).Intersect(WhitePoses).Count() >= 3
+						&& LinkPoses(e).Intersect(empties).Count() <= 2) {
+					copyEmpties.Remove(e);    // 虎口和禁入
+				}
+
+				// 排除白占领
+				if (m_WhiteMeshes.Contains(e)) {
+					foreach (var w in w_boundary) {
+						if (GetLength(w, e) > 2)
+							copyEmpties.Remove(e);
+					}
+				}
+
+				// 排除死子
+				var deads = new List<Step>();
+				foreach (var block in m_DeadBlocks) {
+					StepBlock stepBlock = block.Value;
+					foreach (var item in stepBlock.Steps) {
+						if (!deads.Contains(item))
+							deads.Add(item);
+					}
+				}
+				foreach (var item in deads) {
+					var p = GetPos(item);
+					if (e == p) copyEmpties.Remove(e);
+				}
+			}
+
 			return copyEmpties;
 		}
 		int HasStoneCount(Pos pos, Directions direction, out Pos p)   // 多少步有子
