@@ -142,6 +142,8 @@ namespace x01.Weiqi
 				ClearAll();
 			} else if (e.Key == Key.A && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
 				m_MenuAbout_Click(null, null);
+			} else if (e.Key == Key.P) {	// Pass
+				m_Board.StepCount++;
 			}
 		}
 

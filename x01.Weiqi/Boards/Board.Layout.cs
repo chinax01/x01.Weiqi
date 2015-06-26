@@ -6,7 +6,7 @@
  * 2.暂只考虑二连星。任他多路来，我只一路去，这相当合理。
  * 3.将数据库中保存的棋谱导出添加到 Layouts 中，对局足够多足够好时，
  *   棋力大进是可以预期的。
- * 4.本只准备保存布局的几步棋，但忽然发现保存整盘棋是有意义的，尤其对付
+ * 4.本只准备保存布局开头的几步棋，但忽然发现保存整盘棋是有意义的，尤其对付
  *   gnu-go 时，因为 gnu-go 对相同棋形的反应也相同，这就为战胜它提供了
  *   可能。以二连星对二连星为例，保存 200 到 2000 黑先胜 gnu-go 的棋谱
  *   到数据库中，然后以此来对付 gnu-go，当有取胜的可能。此猜想并没验证，
@@ -44,14 +44,6 @@ namespace x01.Weiqi.Boards
 				// 重新开始，方可生效。
 				var layouts = GetRecord(2);
 
-				// 定式布局采取读取数据库的方式，但最初的手写仍予以保留，取消注释即可使用。
-				//var layouts = new List<List<Pos>>();
-				//layouts.Add(L_Lts_WTwoStar);
-				//layouts.Add(L_Lts_WStarEye);
-				//layouts.Add(L_Lts_WStarEye_2);
-				//layouts.Add(L_Lts_WStarEye_3);
-				//layouts.Add(L_Lts_WStarEye_4);
-
 				m_Layouts = m_Layouts.Union(LeftLayouts(layouts))
 					.Union(UpLayouts(layouts)).ToList();
 
@@ -74,7 +66,6 @@ namespace x01.Weiqi.Boards
 			}
 			return record;
 		}
-
 		List<Pos> GetPoses(string s)
 		{
 			List<Pos> result = new List<Pos>();
@@ -96,158 +87,6 @@ namespace x01.Weiqi.Boards
 
 			return result;
 		}
-
-		#region 白二连星
-		
-		List<Pos> L_Lts_WTwoStar		// Lts: left two star;  W: white;
-		{
-			get
-			{
-				List<Pos> temp = new List<Pos>();
-				temp.Add(new Pos(3, 3));
-				temp.Add(new Pos(3, 15));
-				temp.Add(new Pos(15, 3));
-				temp.Add(new Pos(15, 15));
-				temp.Add(new Pos(2, 13));
-				temp.Add(new Pos(5, 16));
-				temp.Add(new Pos(3, 9));
-				temp.Add(new Pos(5, 2));
-				temp.Add(new Pos(3, 5));
-				temp.Add(new Pos(3, 1));
-				temp.Add(new Pos(2, 2));
-				temp.Add(new Pos(8, 2));
-				temp.Add(new Pos(16, 13));
-				temp.Add(new Pos(13, 15));
-				temp.Add(new Pos(15, 9));
-				temp.Add(new Pos(13, 2));
-				temp.Add(new Pos(15, 5));
-				temp.Add(new Pos(15, 1));
-				temp.Add(new Pos(16, 2));
-				temp.Add(new Pos(11, 3));
-				temp.Add(new Pos(11, 16));
-				temp.Add(new Pos(9, 16));
-				temp.Add(new Pos(11, 14));
-				return temp;
-			}
-		}
-		
-		#endregion
-
-		#region 白星小目
-
-		List<Pos> L_Lts_WStarEye	// 高挂外靠
-		{
-			get
-			{
-				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 3));
-				temp.Add(new Pos(3, 15));
-				temp.Add(new Pos(15, 3));
-				temp.Add(new Pos(16, 15));
-				temp.Add(new Pos(14, 15));
-				temp.Add(new Pos(11, 15));
-				temp.Add(new Pos(16, 14));
-				temp.Add(new Pos(17, 14));
-				temp.Add(new Pos(15, 14));
-				temp.Add(new Pos(16, 13));
-				temp.Add(new Pos(17, 15));  // 此子被提
-				temp.Add(new Pos(17, 16));
-				temp.Add(new Pos(17, 13));
-				temp.Add(new Pos(18, 15));
-				temp.Add(new Pos(16, 12));
-				temp.Add(new Pos(5, 2));
-				temp.Add(new Pos(15, 13));
-				temp.Add(new Pos(2, 5));
-				return temp;
-			}
-		}
-		List<Pos> L_Lts_WStarEye_2	// 高挂外靠
-		{
-			get
-			{
-				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 3));
-				temp.Add(new Pos(3, 15));
-				temp.Add(new Pos(15, 3));
-				temp.Add(new Pos(16, 15));
-				temp.Add(new Pos(14, 15));
-				temp.Add(new Pos(12, 16));
-				temp.Add(new Pos(16,16));
-				temp.Add(new Pos(15,16));
-				temp.Add(new Pos(15, 15));
-				temp.Add(new Pos(14, 16));
-				temp.Add(new Pos(13, 16)); 
-				temp.Add(new Pos(16, 17));
-				temp.Add(new Pos(17, 16));
-				temp.Add(new Pos(13, 15));
-				temp.Add(new Pos(13, 17));
-				temp.Add(new Pos(14, 17));
-				temp.Add(new Pos(16, 14));
-				temp.Add(new Pos(12, 17));
-				temp.Add(new Pos(13, 14));
-				temp.Add(new Pos(12, 15));
-				temp.Add(new Pos(14, 13));
-				return temp;
-			}
-		}
-		List<Pos> L_Lts_WStarEye_3	// 高挂外靠
-		{
-			get
-			{
-				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 3));
-				temp.Add(new Pos(3, 15));
-				temp.Add(new Pos(15, 3));
-				temp.Add(new Pos(16, 15));
-				temp.Add(new Pos(14, 15));
-				temp.Add(new Pos(12, 16));
-				temp.Add(new Pos(16, 16));
-				temp.Add(new Pos(17, 16));  // 扳
-				temp.Add(new Pos(15, 16));
-				temp.Add(new Pos(17, 14));
-				temp.Add(new Pos(13, 14));
-				temp.Add(new Pos(15, 13));
-				temp.Add(new Pos(11,15));
-				temp.Add(new Pos(10,16));
-				temp.Add(new Pos(11,16));
-				temp.Add(new Pos(11, 17));
-				temp.Add(new Pos(12,15));
-				temp.Add(new Pos(10,17));
-				temp.Add(new Pos(12,17));
-				return temp;
-			}
-		}
-		List<Pos> L_Lts_WStarEye_4	// 高挂外靠
-		{
-			get
-			{
-				var temp = new List<Pos>();
-				temp.Add(new Pos(3, 3));
-				temp.Add(new Pos(3, 15));
-				temp.Add(new Pos(15, 3));
-				temp.Add(new Pos(16, 15));
-				temp.Add(new Pos(14, 15));
-				temp.Add(new Pos(12, 16));
-				temp.Add(new Pos(16, 16));
-				temp.Add(new Pos(17, 16));  // 扳
-				temp.Add(new Pos(15, 16));
-				temp.Add(new Pos(16, 12));
-				temp.Add(new Pos(17, 14));
-				temp.Add(new Pos(17, 15));
-				temp.Add(new Pos(16, 14));
-				temp.Add(new Pos(15, 14));
-				temp.Add(new Pos(15, 15));
-				temp.Add(new Pos(16, 13));
-				temp.Add(new Pos(14, 14));
-				temp.Add(new Pos(15, 13));
-				temp.Add(new Pos(17, 17));
-				temp.Add(new Pos(17, 13));
-				temp.Add(new Pos(18, 16));
-				temp.Add(new Pos(18, 14));
-				return temp;
-			}
-		}
-		#endregion
 
 		#region Layout Helper
 

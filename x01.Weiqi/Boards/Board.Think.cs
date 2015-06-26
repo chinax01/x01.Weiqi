@@ -432,27 +432,6 @@ namespace x01.Weiqi.Boards
 			if (result != m_InvalidPos)
 				return result;
 
-			m_ThinkPoses.Clear();
-			Positive1();
-			Positive2();
-
-			List<Pos> poses = m_ThinkPoses.Intersect(EmptyPoses).ToList();
-			if (poses.Count == 0)
-				return result;
-
-			poses = poses.Distinct().OrderBy(p => p.StepCount).ToList();
-			//int skipCount = poses.Count > 20 ? poses.Count - 20 : 0;
-			//poses = poses.Skip(skipCount).ToList();
-
-			int max = int.MinValue;
-			foreach (var p in poses) {
-				UpdateMeshes(p);
-				if (max < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
-					max = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-					result = p;
-				}
-			}
-
 			return result;
 		}
 

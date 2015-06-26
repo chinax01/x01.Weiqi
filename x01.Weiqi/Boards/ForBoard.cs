@@ -70,13 +70,17 @@ namespace x01.Weiqi.Boards
 		public int Row;
 		public int Col;
 		public int StepCount;
+		// 当有多个点可供选择时，其价值：Worth 是选择的依据。
+		// 保存棋谱当添加每步棋的价值：Worth，似乎又到了重构的时候了。
+		public int Worth;
 		public StoneColor StoneColor;
 
-		public Pos(int row, int col, StoneColor color = Boards.StoneColor.Empty, int stepCount = -1)
+		public Pos(int row, int col, StoneColor color = Boards.StoneColor.Empty, int stepCount = -1, int worth = -1)
 		{
 			Row = row;
 			Col = col;
 			StepCount = stepCount;
+			Worth = worth;
 			StoneColor = color;
 		}
 

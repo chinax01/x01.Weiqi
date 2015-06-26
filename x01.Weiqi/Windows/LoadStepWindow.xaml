@@ -16,6 +16,7 @@
 			</DataGrid.ColumnHeaderStyle>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Id"  Binding="{Binding Path=Id}" />
+				<DataGridTextColumn Header="Type" Binding="{Binding Path=Type}" />
 				<DataGridTextColumn Header="黑方" Binding="{Binding Path=Black}" />
 				<DataGridTextColumn Header="白方" Binding="{Binding Path=White}" />
 				<DataGridTextColumn Header="胜负" Binding="{Binding Path=Result}" />
