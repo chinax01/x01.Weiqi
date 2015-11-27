@@ -27,7 +27,6 @@ namespace x01.Weiqi.Windows
 			InitializeComponent();
 
 			//Record = new Models.Record();
-
 			Loaded += (s, e) => {
 				try {
 					m_RecordGrid.DataContext = GetRecords();
