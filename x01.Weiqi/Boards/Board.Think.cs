@@ -22,7 +22,6 @@ namespace x01.Weiqi.Boards
 	partial class Board
 	{
 		Random m_Rand = new Random();
-		List<Pos> m_ThinkPoses = new List<Pos>();
 		protected readonly Pos m_InvalidPos = new Pos(-1, -1);
 		protected List<Pos> AllPoses { get; set; }
 
@@ -32,7 +31,6 @@ namespace x01.Weiqi.Boards
 			if (StepCount == 0)
 				return new Pos(3, 3);
 
-			m_ThinkPoses.Clear();
 			Pos pos = FindPos();
 
 			return pos != m_InvalidPos ? pos : RandDown();
@@ -412,7 +410,7 @@ namespace x01.Weiqi.Boards
 
 		Pos FindBestPos()
 		{
-			if (m_StepCount > 40) return m_InvalidPos;
+			if (m_StepCount > 32) return m_InvalidPos;
 
 			var poses = GetBestPoses();
 			int index = m_Rand.Next(0, poses.Count - 1);

@@ -33,7 +33,7 @@ namespace x01.Weiqi.Boards
 				if (m_Patterns != null) return m_Patterns;
 				m_Patterns = new List<List<Pos>>();
 
-				var patterns = GetRecord(RecordType.Pattern);
+				var patterns = GetRecord(R.Pattern);
 
 				m_Patterns = m_Patterns.Union(LeftUpPatterns(patterns))
 					.Union(RightUpPatterns(patterns))

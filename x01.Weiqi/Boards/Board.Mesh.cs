@@ -54,7 +54,7 @@ namespace x01.Weiqi.Boards
 			m_BestPoses.Clear();
 			var empties = EmptyPoses.ToList();
 			foreach (var e in empties) {
-				UpdateMeshes1(e);
+				UpdateMeshes_Base(e);
 				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
 				m_BestPoses.Add(new Tuple<int, Pos>(count, e));
 			}
@@ -138,29 +138,28 @@ namespace x01.Weiqi.Boards
 
 		private void UpdateMeshes(Pos next = default(Pos))
 		{
-			UpdateMeshes1(next);
-			//UpdateMeshes2();
+			UpdateMeshes_Base(next);
 
-			UpdateMeshes3();
-			UpdateMeshes3();
+			UpdateMeshes_SmallEmpty();
+			UpdateMeshes_SmallEmpty();
 
-			UpdateMeshes4(2);
-			UpdateMeshes4(3);
-			UpdateMeshes4(4);
-			UpdateMeshes4(5);
-			UpdateMeshes4(6);
-			UpdateMeshes4(7);
-			UpdateMeshes4(8); // 多次扫描有必要
+			UpdateMeshe_DeleteDead(2);
+			UpdateMeshe_DeleteDead(3);
+			UpdateMeshe_DeleteDead(4);
+			UpdateMeshe_DeleteDead(5);
+			UpdateMeshe_DeleteDead(6);
+			UpdateMeshe_DeleteDead(7);
+			UpdateMeshe_DeleteDead(8); // 多次扫描有必要
 
-			UpdateMeshes5();
+			UpdateMeshes_BigEmpty();
 
-			UpdateMeshes6();  // 第一次涉及到比气
-			UpdateMeshes6(false);
+			UpdateMeshes_DeadLife();  // 第一次涉及到比气
+			UpdateMeshes_DeadLife(false);
 
-			UpdateMeshes7(); // 修正 UpdateMeshes2 的错误，之所以不直接修改，因为涉及到共气，死活等复杂问题。
+			UpdateMeshes_End(); // 修正
 		}
 
-		void UpdateMeshes1(Pos next = default(Pos))	// 基本目添加
+		void UpdateMeshes_Base(Pos next = default(Pos))	// 基本目添加
 		{
 			m_BlackMeshes.Clear();
 			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
@@ -226,97 +225,7 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-		// Dispose! 三四线为实地向下，五六七线为势力向上。
-		private void AddPoses2(List<Pos> poses, Pos pos)
-		{
-			var empties = EmptyPoses.ToList();
-			if (LineThree.Contains(pos) || LineFour.Contains(pos)) {
-				List<Pos> links = LinkPoses(pos).Intersect(empties).ToList();;
-				foreach (var link in links) {	// 2,3 line
-					if (LineTwo.Contains(link) || LineThree.Contains(link)) {
-						if (!poses.Contains(link)) poses.Add(link);
-						var lines = LinkPoses(link).Intersect(empties).ToList();
-						foreach (var l in lines) {	// l,2 line
-							if (LineOne.Contains(l) || LineTwo.Contains(l)) {
-								if (!poses.Contains(l)) poses.Add(l);
-								var ones = LinkPoses(l).Intersect(empties).ToList(); ;
-								foreach (var one in ones) {	// 1 line
-									if (LineOne.Contains(one))
-										if (!poses.Contains(one)) poses.Add(one);
-								}
-							}
-						}
-					}
-				}
-			}
-			if (LineFive.Contains(pos) || LineSix.Contains(pos) || LineSeven.Contains(pos)) {
-				List<Pos> links = LinkPoses(pos).Intersect(empties).ToList();
-				foreach (var link in links) {	// 6,7,8 line
-					if (LineSix.Contains(link) || LineSeven.Contains(link) || LineEight.Contains(link)) {
-						if (!poses.Contains(link)) poses.Add(link);
-						var lines = LinkPoses(link).Intersect(empties).ToList();
-						foreach (var l in lines) {	// 7,8,9 line
-							if (LineSeven.Contains(l) || LineEight.Contains(l) || LineNine.Contains(l)) {
-								if (!poses.Contains(l)) poses.Add(l);
-								var nines = LinkPoses(l).Intersect(empties).ToList();
-								foreach (var nine in nines) {	// 8,9 line
-									if (LineEight.Contains(nine) || LineNine.Contains(nine))
-										if (!poses.Contains(nine)) poses.Add(nine);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		private void UpdateMeshes2()	// 添加1、2线及同色之连接点
-		{
-			var two_empties = LineTwo.Intersect(m_EmptyMeshes).ToList();
-			foreach (var e in two_empties) {
-				var links = LinkPoses(e);
-				foreach (var l in links) {
-					if (LineThree.Contains(l) && IsTouch(l, e)) {
-						if (m_BlackMeshes.Contains(l)) {
-							m_EmptyMeshes.Remove(e);
-							m_BlackMeshes.Add(e);
-						} else if (m_WhiteMeshes.Contains(l)) {
-							m_EmptyMeshes.Remove(e);
-							m_WhiteMeshes.Add(e);
-						}
-					}
-				}
-			}
-			var one_empties = LineOne.Intersect(m_EmptyMeshes).ToList();
-			foreach (var e in one_empties) {
-				var links = LinkPoses(e);
-				foreach (var l in links) {
-					if (LineTwo.Contains(l) && IsTouch(l, e)) {
-						if (m_BlackMeshes.Contains(l)) {
-							m_EmptyMeshes.Remove(e);
-							m_BlackMeshes.Add(e);
-						} else if (m_WhiteMeshes.Contains(l)) {
-							m_EmptyMeshes.Remove(e);
-							m_WhiteMeshes.Add(e);
-						}
-					}
-				}
-			}
-			var empties = m_EmptyMeshes.ToList();
-			foreach (var e in empties) {
-				var links = LinkPoses(e);
-				var bs = links.Intersect(BlackPoses).ToList();
-				var ws = links.Intersect(WhitePoses).ToList();
-				if (bs.Count >= ws.Count && bs.Count >= 2) {
-					m_EmptyMeshes.Remove(e);
-					m_BlackMeshes.Add(e);
-				} else if (ws.Count >= bs.Count && ws.Count >= 2) {
-					m_EmptyMeshes.Remove(e);
-					m_WhiteMeshes.Add(e);
-				}
-			}
-		}
-		void UpdateMeshes3()	// 添加小的空块，暂不考虑死活
+		void UpdateMeshes_SmallEmpty()	// 添加小的空块，暂不考虑死活
 		{
 			UpdateAllMeshBlocks();
 
@@ -356,7 +265,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void UpdateMeshes4(int count)	// 逐步剔除死子
+		void UpdateMeshe_DeleteDead(int count)	// 逐步剔除死子
 		{
 			UpdateAllMeshBlocks();
 			foreach (var block in m_BlackMeshBlocks) {
@@ -375,9 +284,8 @@ namespace x01.Weiqi.Boards
 					});
 				}
 			}
-			//UpdateMeshColors();
 		}
-		void UpdateMeshes5()	// 添加大的空块
+		void UpdateMeshes_BigEmpty()	// 添加大的空块
 		{
 			UpdateAllMeshBlocks();
 
@@ -402,7 +310,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void UpdateMeshes6(bool isFirst = true)
+		void UpdateMeshes_DeadLife(bool isFirst = true) // 死活
 		{
 			UpdateAllMeshBlocks();
 
@@ -586,7 +494,7 @@ namespace x01.Weiqi.Boards
 				});
 			}
 		}
-		void UpdateMeshes7()
+		void UpdateMeshes_End()
 		{
 			UpdateAllStepBlocks();
 

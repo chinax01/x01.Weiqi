@@ -9,6 +9,5 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("d.mp3")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("models/dbo.records.data.sql")]
 
 

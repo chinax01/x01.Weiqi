@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 namespace x01.Weiqi.Boards
 {
+	public static class R
+	{
+		// 棋谱类型
+		public const string Game = "对局";
+		public const string Layout = "布局";
+		public const string Pattern = "定式";
+		public const string Shape = "棋型";
+	}
+
 	public enum StoneColor
 	{
 		Empty, Black, White, All

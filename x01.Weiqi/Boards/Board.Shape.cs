@@ -2,7 +2,7 @@
  * Board.Shape.cs (c) 2015 by x01
  * -----------------------------
  *  1.虽说没有全局观念是不可能下出好棋的，但还是决定先解决基本的棋形处理。
- *  2.全局扫描，根据相互位置进行处理，谓之 Positive().
+ *  2.全局扫描，根据相互位置进行处理.
  */
 
 using System;
@@ -941,46 +941,6 @@ namespace x01.Weiqi.Boards
 			return m_InvalidPos;
 		}
 
-		private void AddThinkPos(Pos e, int worth = 20)
-		{
-			Pos p = e;
-			p.StepCount = worth;
-			m_ThinkPoses.Add(p);
-		}
-		void AddIncreaseThinkPos(Pos e, int worth = 0)
-		{
-			e.StepCount = IncreaseWorth() + worth;
-			m_ThinkPoses.Add(e);
-		}
-		private void AddDecreaseThinkPos(Pos e, int worth = 0)
-		{
-			e.StepCount = DecreaseWorth() + worth;
-			m_ThinkPoses.Add(e);
-		}
-		int DecreaseWorth()
-		{
-			if (StepCount < 30) {
-				return 10;
-			} else if (StepCount < 100) {
-				return 5;
-			} else if (StepCount < 150) {
-				return 2;
-			} else {
-				return 1;
-			}
-		}
-		int IncreaseWorth()
-		{
-			if (StepCount < 30) {
-				return 1;
-			} else if (StepCount < 50) {
-				return 2;
-			} else if (StepCount < 120) {
-				return 5;
-			} else {
-				return 10;
-			}
-		}
 		int GetLength(Pos p1, Pos p2)
 		{
 			return (int)new Vector(p1.Row - p2.Row, p1.Col - p2.Col).Length;
@@ -1010,14 +970,6 @@ namespace x01.Weiqi.Boards
 			}
 			return poses;
 		}
-		int GetMeshCount(Pos p)
-		{
-			if (!EmptyPoses.Contains(p))
-				throw new Exception("p need be empty.");
-			var poses = new List<Pos>();
-			AddPoses(poses, p);
-			return poses.Intersect(EmptyPoses).Count();
-		}
 		List<Pos> RemoveEmpties(List<Pos> empties, List<Pos> blacks)
 		{
 			var copyEmpties = empties.ToList();
@@ -1030,7 +982,7 @@ namespace x01.Weiqi.Boards
 			foreach (var e in copyEmpties) {
 				if (LinkPoses(e).Intersect(BlackPoses).Count() >= 3
 					|| LinkPoses(e).Intersect(WhitePoses).Count() >= 3 || LineOneTwo.Contains(e)) {
-					empties.Remove(e);	// 虎口和禁入
+					empties.Remove(e);  // 虎口和禁入
 				}
 
 				// 排除双
@@ -1112,82 +1064,6 @@ namespace x01.Weiqi.Boards
 			}
 
 			return copyEmpties;
-		}
-		int HasStoneCount(Pos pos, Directions direction, out Pos p)   // 多少步有子
-		{
-			p = m_InvalidPos;
-			int count = 0;
-			var stones = BlackPoses.Union(WhitePoses).ToList();
-			switch (direction) {
-				case Directions.Up:
-					while (true) {
-						count++;
-						int row = pos.Row - count;
-						int col = pos.Col;
-						if (!InRange(row, col)) {
-							count--;
-							break;
-						}
-						if (stones.Contains(new Pos(row, col))) {
-							p = new Pos(row, col);
-							break;
-						}
-					}
-					break;
-				case Directions.Down:
-					while (true) {
-						count++;
-						int row = pos.Row + count;
-						int col = pos.Col;
-						if (!InRange(row, col)) {
-							count--;
-							break;
-						}
-						if (stones.Contains(new Pos(row, col))) {
-							p = new Pos(row, col);
-							break;
-						}
-					}
-					break;
-				case Directions.Left:
-					while (true) {
-						count++;
-						int row = pos.Row;
-						int col = pos.Col - count;
-						if (!InRange(row, col)) {
-							count--;
-							break;
-						}
-						if (stones.Contains(new Pos(row, col))) {
-							p = new Pos(row, col);
-							break;
-						}
-					}
-					break;
-				case Directions.Right:
-					while (true) {
-						count++;
-						int row = pos.Row;
-						int col = pos.Col + count;
-						if (!InRange(row, col)) {
-							count--;
-							break;
-						}
-						if (stones.Contains(new Pos(row, col))) {
-							p = new Pos(row, col);
-							break;
-						}
-					}
-					break;
-				default:
-					break;
-			}
-			return count;
-		}
-		int HasStoneCount(Pos pos, Directions direction)
-		{
-			Pos p;
-			return HasStoneCount(pos, direction, out p);
 		}
 	}
 }
