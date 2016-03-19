@@ -47,9 +47,28 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
+
+		List<Tuple<int, Pos>> m_BestPoses = new List<Tuple<int, Pos>>();
+		List<Pos> GetBestPoses()
+		{
+			m_BestPoses.Clear();
+			var empties = EmptyPoses.ToList();
+			foreach (var e in empties) {
+				UpdateMeshes1(e);
+				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+				m_BestPoses.Add(new Tuple<int, Pos>(count, e));
+			}
+
+			var key = m_BestPoses.OrderByDescending(b => b.Item1).First().Item1;
+			var result = from e in m_BestPoses
+						 where e.Item1 == key
+						 select e.Item2;
+			return result.ToList();
+		}
+
 		#region Mesh Helper
 		
-		const int EndCount = 120;
+		const int EndCount = 0;
 
 		// Mesh: 目，与 Empty 区分
 		List<Pos> m_BlackMeshes = new List<Pos>();
@@ -120,7 +139,7 @@ namespace x01.Weiqi.Boards
 		private void UpdateMeshes(Pos next = default(Pos))
 		{
 			UpdateMeshes1(next);
-			UpdateMeshes2();
+			//UpdateMeshes2();
 
 			UpdateMeshes3();
 			UpdateMeshes3();
@@ -168,7 +187,8 @@ namespace x01.Weiqi.Boards
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_BlackMeshes) {
-				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
+				//LinkPoses(pos).ForEach(l => { poses.Add(l); AddPoses(poses, l); });
+				AddPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
 		}
@@ -176,12 +196,38 @@ namespace x01.Weiqi.Boards
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_WhiteMeshes) {
-				LinkPoses(pos).ForEach(l => { poses.Add(l); AddLinkPoses(poses, l); });
+				//LinkPoses(pos).ForEach(l => { poses.Add(l); AddPoses(poses, l); });
+				AddPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
 		}
-		// 三四线为实地向下，五六七线为势力向上。
-		private void AddLinkPoses(List<Pos> poses, Pos pos)
+
+		void AddPoses(List<Pos> poses, Pos pos)
+		{
+			var rounds = RoundOnePoses(pos).Intersect(EmptyPoses).ToList();
+			foreach (var r in rounds) {
+				if (!poses.Contains(r)) poses.Add(r);
+			}
+
+			var threeline = rounds.Intersect(LineThree).ToList();
+			foreach (var t in threeline) {
+				var links = LinkPoses(t).Intersect(LineTwo).ToList();
+				foreach (var l in links) {
+					if (!poses.Contains(l)) poses.Add(l);
+				}
+			}
+
+			var twoline = poses.Intersect(LineTwo).ToList();
+			foreach (var t in twoline) {
+				var links = LinkPoses(t).Intersect(LineOne).ToList();
+				foreach (var l in links) {
+					if (!poses.Contains(l)) poses.Add(l);
+				}
+			}
+		}
+
+		// Dispose! 三四线为实地向下，五六七线为势力向上。
+		private void AddPoses2(List<Pos> poses, Pos pos)
 		{
 			var empties = EmptyPoses.ToList();
 			if (LineThree.Contains(pos) || LineFour.Contains(pos)) {

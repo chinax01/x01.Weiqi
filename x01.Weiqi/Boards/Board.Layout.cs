@@ -25,6 +25,14 @@ using x01.Weiqi.Models;
 
 namespace x01.Weiqi.Boards
 {
+	public static class RecordType
+	{
+		public const string Game = "对局";
+		public const string Layout = "布局";
+		public const string Pattern = "布局";
+		public const string Shape = "布局";
+	}
+
 	public partial class Board
 	{
 		Pos L_GetPos()
@@ -42,7 +50,7 @@ namespace x01.Weiqi.Boards
 				m_Layouts = new List<List<Pos>>();
 
 				// 重新开始，方可生效。
-				var layouts = GetRecord(2);
+				var layouts = GetRecord(RecordType.Layout);
 
 				m_Layouts = m_Layouts.Union(LeftLayouts(layouts))
 					.Union(UpLayouts(layouts)).ToList();
@@ -51,7 +59,7 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-		List<List<Pos>> GetRecord(int type) // type => 0：普通，1：定式，2：布局
+		List<List<Pos>> GetRecord(string type) // type => 0：对局，1：布局，2：定式，3：棋型
 		{
 			var record = new List<List<Pos>>();
 			using (var db = new WeiqiContext()) {

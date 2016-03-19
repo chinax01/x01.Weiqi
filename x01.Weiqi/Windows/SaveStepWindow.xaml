@@ -20,9 +20,13 @@
 		<StackPanel>
 			<Label Content="类型："/>
 			<ComboBox x:Name="m_Type" Width="120" SelectedIndex="0" >
-				<System:Int32>0</System:Int32>
+				<!--<System:Int32>0</System:Int32>
 				<System:Int32>1</System:Int32>
-				<System:Int32>2</System:Int32>
+				<System:Int32>2</System:Int32>-->
+				<System:String>对局</System:String>
+				<System:String>布局</System:String>
+				<System:String>定式</System:String>
+				<System:String>棋型</System:String>
 			</ComboBox>
 		</StackPanel>
 		<StackPanel>

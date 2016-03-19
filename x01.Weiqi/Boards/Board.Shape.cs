@@ -687,10 +687,10 @@ namespace x01.Weiqi.Boards
 										return e;
 								}
 							}
-								//  0			
-								//       +		line 3
-								//  *
-								//
+							//  0			
+							//       +		line 3
+							//  *
+							//
 							else if (LineFour.Contains(w) && IsFlyOne(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsFlyOne(e, b) && IsJumpOne(e, w) && LineTwo.Contains(e)
@@ -698,9 +698,9 @@ namespace x01.Weiqi.Boards
 										return e;
 								}
 							}
-								//  0   +		line 3
-								//    *
-								//
+							//  0   +		line 3
+							//    *
+							//
 							else if (LineThree.Contains(w) && IsJumpOne(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
@@ -708,9 +708,9 @@ namespace x01.Weiqi.Boards
 										return e;
 								}
 							}
-								//  0 +			line 3
-								//  * *			两种可能
-								//
+							//  0 +			line 3
+							//  * *			两种可能
+							//
 							else if (LineThree.Contains(w) && IsTouch(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsTouch(e, w) && LineTwo.Contains(e)
@@ -1015,7 +1015,7 @@ namespace x01.Weiqi.Boards
 			if (!EmptyPoses.Contains(p))
 				throw new Exception("p need be empty.");
 			var poses = new List<Pos>();
-			AddLinkPoses(poses, p);
+			AddPoses(poses, p);
 			return poses.Intersect(EmptyPoses).Count();
 		}
 		List<Pos> RemoveEmpties(List<Pos> empties, List<Pos> blacks)

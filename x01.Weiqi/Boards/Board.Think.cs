@@ -377,7 +377,7 @@ namespace x01.Weiqi.Boards
 		Pos RandDown()
 		{
 			if (StepCount > EndCount) {
-				int index = m_Rand.Next(0, m_BlackMeshes.Count);
+				int index = m_Rand.Next(0, m_BlackMeshes.Count - 1);
 				var black = m_BlackMeshes[index];
 				if (LinkPoses(black).Intersect(m_WhiteMeshes).Any()) {
 					if (EmptyPoses.Contains(black))
@@ -410,6 +410,15 @@ namespace x01.Weiqi.Boards
 			return m_InvalidPos;
 		}
 
+		Pos FindBestPos()
+		{
+			if (m_StepCount > 40) return m_InvalidPos;
+
+			var poses = GetBestPoses();
+			int index = m_Rand.Next(0, poses.Count - 1);
+			return poses[index];
+		}
+
 		private Pos FindPos()
 		{
 			Pos result = m_InvalidPos;
@@ -425,12 +434,18 @@ namespace x01.Weiqi.Boards
 			result = CompareEmpty();
 			if (result != m_InvalidPos)
 				return result;
+
+			result = FindBestPos();
+			if (result != m_InvalidPos)
+				return result;
+
 			result = Attack();
 			if (result != m_InvalidPos)
 				return result;
 			result = Defend();
 			if (result != m_InvalidPos)
 				return result;
+			
 
 			return result;
 		}

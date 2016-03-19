@@ -22,7 +22,7 @@ namespace x01.Weiqi.Windows
 		public string BlackName { get; set; }
 		public string WhiteName { get; set; }
 		public string Result { get; set; }
-		public int Type { get; set; }
+		public string Type { get; set; }
 
 		public SaveStepWindow()
 		{
@@ -35,7 +35,7 @@ namespace x01.Weiqi.Windows
 			BlackName = m_BlackName.Text;
 			WhiteName = m_WhiteName.Text;
 			Result = m_Result.Text;
-			Type = (int)m_Type.SelectedValue;
+			Type = m_Type.SelectedValue.ToString();
 			Close();
 		}
 
