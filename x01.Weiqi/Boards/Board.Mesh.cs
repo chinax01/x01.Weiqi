@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Windows.Media;
+using x01.Weiqi.Core;
 
 namespace x01.Weiqi.Boards
 {
@@ -52,11 +53,30 @@ namespace x01.Weiqi.Boards
 		List<Pos> GetBestPoses()
 		{
 			m_BestPoses.Clear();
-			var empties = EmptyPoses.ToList();
+			var thinkPoses = L_Think().Union(P_Think()).ToList();
+			var empties = EmptyPoses.Intersect(thinkPoses).ToList();
 			foreach (var e in empties) {
 				UpdateMeshes_Base(e);
 				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
 				m_BestPoses.Add(new Tuple<int, Pos>(count, e));
+			}
+
+			if (m_BestPoses.Count == 0) {
+				empties = EmptyPoses.Intersect(m_AiShape.Think().Union(Attack())).ToList();
+				foreach (var e in empties) {
+					UpdateMeshes_Base(e);
+					int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+					m_BestPoses.Add(new Tuple<int, Pos>(count, e));
+				}
+			}
+
+			if (m_BestPoses.Count == 0) {
+				if (m_StepCount > 64) return null;
+				foreach (var e in EmptyPoses) {
+					UpdateMeshes_Base(e);
+					int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+					m_BestPoses.Add(new Tuple<int, Pos>(count, e));
+				}
 			}
 
 			var key = m_BestPoses.OrderByDescending(b => b.Item1).First().Item1;
@@ -67,7 +87,7 @@ namespace x01.Weiqi.Boards
 		}
 
 		#region Mesh Helper
-		
+
 		const int EndCount = 0;
 
 		// Mesh: 目，与 Empty 区分
@@ -95,7 +115,7 @@ namespace x01.Weiqi.Boards
 					});
 				}
 			}
-			for (int i = 0; i < 6; i++) {	// 确保不遗漏到疯狂程度
+			for (int i = 0; i < 6; i++) {   // 确保不遗漏到疯狂程度
 				foreach (var pos in copyPoses) {
 					var links = LinkPoses(pos);
 					if (tmp.Intersect(links).Any()) {
@@ -140,8 +160,8 @@ namespace x01.Weiqi.Boards
 		{
 			UpdateMeshes_Base(next);
 
-			UpdateMeshes_SmallEmpty();
-			UpdateMeshes_SmallEmpty();
+			//UpdateMeshes_SmallEmpty();
+			//UpdateMeshes_SmallEmpty();
 
 			UpdateMeshe_DeleteDead(2);
 			UpdateMeshe_DeleteDead(3);
@@ -159,7 +179,7 @@ namespace x01.Weiqi.Boards
 			UpdateMeshes_End(); // 修正
 		}
 
-		void UpdateMeshes_Base(Pos next = default(Pos))	// 基本目添加
+		void UpdateMeshes_Base(Pos next = default(Pos)) // 基本目添加
 		{
 			m_BlackMeshes.Clear();
 			BlackPoses.ForEach(p => m_BlackMeshes.Add(p));
@@ -181,12 +201,57 @@ namespace x01.Weiqi.Boards
 			AllPoses.ForEach(p => {
 				if (!(m_BlackMeshes.Contains(p) || m_WhiteMeshes.Contains(p))) m_EmptyMeshes.Add(p);
 			});
+
+			// Add empty meshes to black or white meshes.
+			List<Pos> empties;
+			List<Pos> blackMeshes;
+			List<Pos> whiteMeshes;
+			for (int i = 0; i < 6; i++) {
+				empties = m_EmptyMeshes.ToList();
+				blackMeshes = m_BlackMeshes.ToList();
+				whiteMeshes = m_WhiteMeshes.ToList();
+				foreach (var e in empties) {
+					var links = LinkPoses(e);
+					var black = links.Intersect(blackMeshes).ToList();
+					var white = links.Intersect(whiteMeshes).ToList();
+					if ((black.Count >= 2 && black.Count > white.Count)) {
+						m_BlackMeshes.Add(e);
+						m_EmptyMeshes.Remove(e);
+					} else if ((white.Count >= 2 && white.Count > black.Count)) {
+						m_WhiteMeshes.Add(e);
+						m_EmptyMeshes.Remove(e);
+					}
+				}
+			}
+
+			empties = m_EmptyMeshes.ToList();
+			blackMeshes = m_BlackMeshes.ToList();
+			whiteMeshes = m_WhiteMeshes.ToList();
+			foreach (var p in FourSharp) {
+				if (p.StoneColor == StoneColor.Empty) {
+					var rounds = RoundOnePoses(p);
+					var black = rounds.Intersect(blackMeshes).ToList();
+					var white = rounds.Intersect(whiteMeshes).ToList();
+					if (black.Count > white.Count) {
+						var re = rounds.Intersect(empties).ToList();
+						foreach (var r in re) {
+							m_BlackMeshes.Add(r);
+							m_EmptyMeshes.Remove(r);
+						}
+					} else if (white.Count > black.Count) {
+						var re = rounds.Intersect(empties).ToList();
+						foreach (var r in re) {
+							m_WhiteMeshes.Add(r);
+							m_EmptyMeshes.Remove(r);
+						}
+					}
+				}
+			}
 		}
 		void AddBlackMeshes()
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_BlackMeshes) {
-				//LinkPoses(pos).ForEach(l => { poses.Add(l); AddPoses(poses, l); });
 				AddPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_BlackMeshes.Contains(p)) m_BlackMeshes.Add(p); });
@@ -195,7 +260,6 @@ namespace x01.Weiqi.Boards
 		{
 			List<Pos> poses = new List<Pos>();
 			foreach (var pos in m_WhiteMeshes) {
-				//LinkPoses(pos).ForEach(l => { poses.Add(l); AddPoses(poses, l); });
 				AddPoses(poses, pos);
 			}
 			poses.ForEach(p => { if (!m_WhiteMeshes.Contains(p)) m_WhiteMeshes.Add(p); });
@@ -204,6 +268,7 @@ namespace x01.Weiqi.Boards
 		void AddPoses(List<Pos> poses, Pos pos)
 		{
 			var rounds = RoundOnePoses(pos).Intersect(EmptyPoses).ToList();
+			var area = rounds.ToList();
 			foreach (var r in rounds) {
 				if (!poses.Contains(r)) poses.Add(r);
 			}
@@ -213,6 +278,7 @@ namespace x01.Weiqi.Boards
 				var links = LinkPoses(t).Intersect(LineTwo).ToList();
 				foreach (var l in links) {
 					if (!poses.Contains(l)) poses.Add(l);
+					if (!area.Contains(l)) area.Add(l);
 				}
 			}
 
@@ -221,11 +287,12 @@ namespace x01.Weiqi.Boards
 				var links = LinkPoses(t).Intersect(LineOne).ToList();
 				foreach (var l in links) {
 					if (!poses.Contains(l)) poses.Add(l);
+					if (!area.Contains(l)) area.Add(l);
 				}
 			}
 		}
 
-		void UpdateMeshes_SmallEmpty()	// 添加小的空块，暂不考虑死活
+		void UpdateMeshes_SmallEmpty()  // 添加小的空块，暂不考虑死活
 		{
 			UpdateAllMeshBlocks();
 
@@ -257,7 +324,7 @@ namespace x01.Weiqi.Boards
 					int c = 0;
 					foreach (var bw in bws) {
 						m_EmptyMeshes.Remove(bw);
-						if (c++ % 2  == 1)
+						if (c++ % 2 == 1)
 							m_BlackMeshes.Add(bw);
 						else
 							m_WhiteMeshes.Add(bw);
@@ -265,7 +332,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void UpdateMeshe_DeleteDead(int count)	// 逐步剔除死子
+		void UpdateMeshe_DeleteDead(int count)  // 逐步剔除死子
 		{
 			UpdateAllMeshBlocks();
 			foreach (var block in m_BlackMeshBlocks) {
@@ -285,7 +352,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void UpdateMeshes_BigEmpty()	// 添加大的空块
+		void UpdateMeshes_BigEmpty()    // 添加大的空块
 		{
 			UpdateAllMeshBlocks();
 
@@ -328,7 +395,7 @@ namespace x01.Weiqi.Boards
 				if (poses.Count == 6) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 5) {	// 梅花六
+						if (links.Intersect(poses).Count() == 5) {  // 梅花六
 							var tmp = poses.Except(links).ToList();
 							if (IsCusp(tmp[0], p)) {
 								block.IsDead = true;
@@ -339,7 +406,7 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 5) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 4) {	// 刀把五
+						if (links.Intersect(poses).Count() == 4) {  // 刀把五
 							var tmp = poses.Except(links).ToList();
 							if (IsCusp(tmp[0], p)) {
 								block.IsDead = true;
@@ -350,13 +417,13 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 4) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 4) {	// 斗笠四
+						if (links.Intersect(poses).Count() == 4) {  // 斗笠四
 							block.IsDead = true;
 							block.KeyPos = p;
-						} else if (links.Intersect(poses).Count() == 3	// 盘角曲四
+						} else if (links.Intersect(poses).Count() == 3  // 盘角曲四
 								   && (p == new Pos(0, 0) || p == new Pos(0, 18) || p == new Pos(18, 0) || p == new Pos(18, 18))) {
 							block.IsDead = true;
-							if (StepCount > 150)	// 劫尽棋亡
+							if (StepCount > 150)    // 劫尽棋亡
 								foreach (var key in links) {
 									if (key != p && LinkPoses(key).Intersect(poses).Count() == 3)
 										block.KeyPos = key;
@@ -366,7 +433,7 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 3) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 3) {	// 直三、曲三
+						if (links.Intersect(poses).Count() == 3) {  // 直三、曲三
 							block.IsDead = true;
 							block.KeyPos = p;
 						}
@@ -401,7 +468,7 @@ namespace x01.Weiqi.Boards
 				if (poses.Count == 6) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 5) {	// 梅花六
+						if (links.Intersect(poses).Count() == 5) {  // 梅花六
 							var tmp = poses.Except(links).ToList();
 							if (IsCusp(tmp[0], p)) {
 								block.IsDead = true;
@@ -412,7 +479,7 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 5) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 4) {	// 刀把五
+						if (links.Intersect(poses).Count() == 4) {  // 刀把五
 							var tmp = poses.Except(links).ToList();
 							if (IsCusp(tmp[0], p)) {
 								block.IsDead = true;
@@ -423,10 +490,10 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 4) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 4) {	// 斗笠四
+						if (links.Intersect(poses).Count() == 4) {  // 斗笠四
 							block.IsDead = true;
 							block.KeyPos = p;
-						} else if (links.Intersect(poses).Count() == 3	// 盘角曲四
+						} else if (links.Intersect(poses).Count() == 3  // 盘角曲四
 							&& (p == new Pos(0, 0) || p == new Pos(0, 18) || p == new Pos(18, 0) || p == new Pos(18, 18))) {
 							block.IsDead = true;
 							if (StepCount > 150)
@@ -439,7 +506,7 @@ namespace x01.Weiqi.Boards
 				} else if (poses.Count == 3) {
 					poses.ForEach(p => {
 						var links = LinkPoses(p);
-						if (links.Intersect(poses).Count() == 3) {	// 直三、曲三
+						if (links.Intersect(poses).Count() == 3) {  // 直三、曲三
 							block.IsDead = true;
 							block.KeyPos = p;
 						}
@@ -472,7 +539,7 @@ namespace x01.Weiqi.Boards
 										BlackPosBlocks.ForEach(bp_block => {
 											if (bp_block.Poses.Contains(pos)) {
 												block.EmptyCount = bp_block.EmptyCount;
-												}
+											}
 											WhitePosBlocks.ForEach(wp_block => {
 												if (wp_block.Poses.Intersect(w_block.Poses).Count() > 0) {
 													w_block.EmptyCount = wp_block.EmptyCount;

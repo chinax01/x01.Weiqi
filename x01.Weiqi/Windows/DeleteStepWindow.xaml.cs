@@ -46,6 +46,7 @@ namespace x01.Weiqi.Windows
 				m_WhiteName.Text = result.White;
 				m_Result.Text = result.Result;
 				m_Description.Text = result.Description;
+				m_Type.Text = result.Type;
 			}
 		}
 

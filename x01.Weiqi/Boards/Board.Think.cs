@@ -11,11 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
-using x01.Weiqi.Windows;
+using x01.Weiqi.Core;
 
 namespace x01.Weiqi.Boards
 {
@@ -343,7 +339,7 @@ namespace x01.Weiqi.Boards
 
 			int count = 0;
 			while (true) {
-				if (!InRange(p2.Row, p2.Col))
+				if (!Helper.InRange(p2.Row, p2.Col))
 					break;
 				bool isRow = p2.Row - p.Row == 0 ? true : false;
 				int rowOffset = isRow ? (count == 0 ? p1.Row - p2.Row : p2.Row - p1.Row) : 0;
@@ -410,9 +406,9 @@ namespace x01.Weiqi.Boards
 
 		Pos FindBestPos()
 		{
-			if (m_StepCount > 32) return m_InvalidPos;
-
 			var poses = GetBestPoses();
+			if (poses == null) return Helper.InvalidPos;
+
 			int index = m_Rand.Next(0, poses.Count - 1);
 			return poses[index];
 		}
@@ -423,12 +419,7 @@ namespace x01.Weiqi.Boards
 			result = TwoStar();
 			if (result != m_InvalidPos)
 				return result;
-			result = L_GetPos();
-			if (result != m_InvalidPos)
-				return result;
-			result = P_GetPos();
-			if (result != m_InvalidPos)
-				return result;
+		
 			result = CompareEmpty();
 			if (result != m_InvalidPos)
 				return result;
@@ -437,9 +428,9 @@ namespace x01.Weiqi.Boards
 			if (result != m_InvalidPos)
 				return result;
 
-			result = Attack();
-			if (result != m_InvalidPos)
-				return result;
+			//result = Attack();
+			//if (result != m_InvalidPos)
+			//	return result;
 			result = Defend();
 			if (result != m_InvalidPos)
 				return result;
@@ -577,7 +568,7 @@ namespace x01.Weiqi.Boards
 					if (i == j || i == -j) {
 						continue;
 					}
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						links.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -594,7 +585,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -1; i < 2; i++) {
 				for (int j = -1; j < 2; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -606,7 +597,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -2; i < 3; i++) {
 				for (int j = -2; j < 3; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -618,7 +609,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -3; i < 4; i++) {
 				for (int j = -3; j < 4; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -630,7 +621,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -4; i < 5; i++) {
 				for (int j = -4; j < 5; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -642,7 +633,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -5; i < 6; i++) {
 				for (int j = -5; j < 6; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}
@@ -654,7 +645,7 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -6; i < 7; i++) {
 				for (int j = -6; j < 7; j++) {
-					if (InRange(pos.Row + i, pos.Col + j)) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}
 				}

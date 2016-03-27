@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using x01.Weiqi.Core;
 using x01.Weiqi.Windows;
 
 namespace x01.Weiqi.Boards
@@ -15,9 +16,11 @@ namespace x01.Weiqi.Boards
 		bool m_CanDown = false;
 		WaitWindow m_WaitWindow = new WaitWindow();
 
+		//AiShape m_aiShape;
 		public AiBoard()
 		{
 			IsShowCurrent = false;
+			//m_aiShape = new AiShape(this);
 
 			m_AiTimer.Interval = 100;
 			m_AiTimer.Tick += m_Timer_Tick;
@@ -30,8 +33,11 @@ namespace x01.Weiqi.Boards
 			if (m_CanDown) return;
 
 			Pos pos = m_InvalidPos;
-			pos = Think();
-		
+			//pos = m_aiShape.GetPos();
+
+			if (pos == m_InvalidPos)
+				pos = Think();
+
 			if (pos == m_InvalidPos) 
 				return;
 

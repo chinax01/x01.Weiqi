@@ -20,6 +20,7 @@
 				<DataGridTextColumn Header="胜负" Binding="{Binding Path=Result}" />
 				<DataGridTextColumn Header="说明" Binding="{Binding Path=Description}" />
 				<DataGridTextColumn Header="保存时间" Binding="{Binding Path=SaveDate}" />
+				<DataGridTextColumn Header="棋谱" Binding="{Binding Path=Steps}" />
 			</DataGrid.Columns>
 		</DataGrid>
 	</ScrollViewer>

@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using x01.Weiqi.Core;
 
 namespace x01.Weiqi.Boards
 {
@@ -19,10 +20,12 @@ namespace x01.Weiqi.Boards
 	/// </summary>
 	public partial class Board
 	{
-		Pos P_GetPos()
+		List<Pos> m_patternPoses = new List<Pos>();
+
+		List<Pos> P_Think()
 		{
 			// 全局配合仍然缺乏！
-			return GetPos_FromPatterns(Patterns);
+			return P_GetPoses(Patterns);
 		}
 
 		List<List<Pos>> m_Patterns = null;
@@ -33,7 +36,7 @@ namespace x01.Weiqi.Boards
 				if (m_Patterns != null) return m_Patterns;
 				m_Patterns = new List<List<Pos>>();
 
-				var patterns = GetRecord(R.Pattern);
+				var patterns = Helper.GetRecord(R.Pattern);
 
 				m_Patterns = m_Patterns.Union(LeftUpPatterns(patterns))
 					.Union(RightUpPatterns(patterns))
@@ -184,8 +187,10 @@ namespace x01.Weiqi.Boards
 			return result;
 		}
 
-		Pos GetPos_FromPatterns(List<List<Pos>> patterns)
+		List<Pos> P_GetPoses(List<List<Pos>> patterns)
 		{
+			m_patternPoses.Clear();
+
 			var deads = new List<Pos>();
 			foreach (var block in m_DeadBlocks) {
 				List<Step> steps = block.Value.Steps;
@@ -207,7 +212,7 @@ namespace x01.Weiqi.Boards
 			foreach (List<Pos> pattern in patterns) {
 				ltpos = GetLeftTopPos(pattern);
 				rdpos = GetRightDownPos(pattern);
-				var poses = all.Intersect(GetArea(ltpos, rdpos)).OrderBy(p => p.StepCount).ToList();
+				var poses = all.Intersect(Helper.GetArea(ltpos, rdpos)).OrderBy(p => p.StepCount).ToList();
 				int posCount = poses.Count;
 				int count = pattern.Count;
 				if (count >= posCount && posCount > 0) {
@@ -216,7 +221,7 @@ namespace x01.Weiqi.Boards
 					for (int i = 0; i < count; i++) {
 						if (i > posCount - 1) {
 							if (pattern[i].StoneColor == StoneColor.Black)
-								return pattern[i];
+								m_patternPoses.Add(pattern[i]);
 							break;
 						}
 						if (poses[i] == pattern[i] && poses[i].StoneColor == pattern[i].StoneColor) {
@@ -228,7 +233,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
-			return m_InvalidPos;
+			return m_patternPoses;
 		}
 
 		Pos GetLeftTopPos(List<Pos> poses)

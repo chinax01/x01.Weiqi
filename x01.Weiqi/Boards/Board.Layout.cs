@@ -21,17 +21,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using x01.Weiqi.Core;
 using x01.Weiqi.Models;
 
 namespace x01.Weiqi.Boards
 {
 	public partial class Board
 	{
-		Pos L_GetPos()
+		List<Pos> L_Think()
 		{
 			// 不能不说这是从全局考虑了。
-			return GetPos_FromLayouts(Layouts);
+			return L_GetPoses(Layouts);
 		}
+
+		List<Pos> m_LayoutPoses = new List<Pos>();
 
 		List<List<Pos>> m_Layouts = null;
 		List<List<Pos>> Layouts
@@ -42,7 +45,7 @@ namespace x01.Weiqi.Boards
 				m_Layouts = new List<List<Pos>>();
 
 				// 重新开始，方可生效。
-				var layouts = GetRecord(R.Layout);
+				var layouts = Helper.GetRecord(R.Layout);
 
 				m_Layouts = m_Layouts.Union(LeftLayouts(layouts))
 					.Union(UpLayouts(layouts)).ToList();
@@ -51,42 +54,23 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-		List<List<Pos>> GetRecord(string type) // type => 0：对局，1：布局，2：定式，3：棋型
-		{
-			var record = new List<List<Pos>>();
-			using (var db = new WeiqiContext()) {
-				var result = from r in db.Records
-							 where r.Type == type
-							 select r.Steps;
-				foreach (string s in result) {
-					var poses = GetPoses(s);
-					if (!record.Contains(poses))
-						record.Add(poses);
-				}
-			}
-			return record;
-		}
-		List<Pos> GetPoses(string s)
-		{
-			List<Pos> result = new List<Pos>();
+		//public List<List<Pos>> GetRecord(string type) // type => 0：对局，1：布局，2：定式，3：棋型
+		//{
+		//	var record = new List<List<Pos>>();
+		//	using (var db = new WeiqiContext()) {
+		//		var result = from r in db.Records
+		//					 where r.Type == type
+		//					 select r.Steps;
+		//		foreach (string s in result) {
+		//			var poses = GetPoses(s);
+		//			if (!record.Contains(poses))
+		//				record.Add(poses);
+		//		}
+		//	}
+		//	return record;
+		//}
 
-			s = s.Substring(0, s.Length - 1);
-			string[] steps = s.Split(',');
-			int count = steps.Count();
-			int row = -1, col = -1, step_count;
-			for (int i = 0; i < count; i++) {
-				if (i % 3 == 0 && int.TryParse(steps[i], out row)) {
-				} else if (i % 3 == 1 && int.TryParse(steps[i], out col)) {
-				} else if (i % 3 == 2 && int.TryParse(steps[i], out step_count)) {
-					if (InRange(row, col)) {
-						var pos = new Pos(row, col, step_count % 2 == 0 ? StoneColor.Black : StoneColor.White, step_count);
-							result.Add(pos);
-					}
-				}
-			}
 
-			return result;
-		}
 
 		#region Layout Helper
 
@@ -130,8 +114,10 @@ namespace x01.Weiqi.Boards
 			return result;
 		}
 
-		Pos GetPos_FromLayouts(List<List<Pos>> layouts)
+		List<Pos> L_GetPoses(List<List<Pos>> layouts)
 		{
+			m_LayoutPoses.Clear();
+
 			var deads = new List<Pos>();
 			foreach (var block in m_DeadBlocks) {
 				List<Step> steps = block.Value.Steps;
@@ -157,7 +143,8 @@ namespace x01.Weiqi.Boards
 					for (int i = 0; i < count; i++) {
 						if (i > posCount - 1) {
 							if (layout[i].StoneColor == StoneColor.Black)
-								return layout[i];
+								//return layout[i];
+								m_LayoutPoses.Add(layout[i]);
 							break;
 						}
 						if (poses[i] == layout[i] && poses[i].StoneColor == layout[i].StoneColor) {
@@ -169,7 +156,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
-			return m_InvalidPos;
+			return m_LayoutPoses;
 		}
 
 		#endregion

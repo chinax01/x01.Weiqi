@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using x01.Weiqi.Core;
 using x01.Weiqi.Models;
 using x01.Weiqi.Windows;
 
@@ -31,7 +32,10 @@ namespace x01.Weiqi.Boards
 			AllPoses = new List<Pos>();
 
 			Init();
+
+			m_AiShape = new AiShape(this);
 		}
+		AiShape m_AiShape;
 
 		public bool IsShowNumber { get; set; }		// 是否显示步数
 		public bool IsShowCurrent { get; set; }		// 显示当前标志
@@ -619,7 +623,7 @@ namespace x01.Weiqi.Boards
 					if (i == j || i == -j) {
 						continue;
 					}
-					if (InRange(step.Row + i, step.Col + j)) {
+					if (Helper.InRange(step.Row + i, step.Col + j)) {
 						links.Add(m_Steps[step.Row + i, step.Col + j]);
 					}
 				}
@@ -632,13 +636,13 @@ namespace x01.Weiqi.Boards
 				return links;
 			}
 		}
-		bool InRange(int row, int col)
-		{
-			if (row >= 0 && row < 19 && col >= 0 && col < 19) {
-				return true;
-			}
-			return false;
-		}
+		//bool InRange(int row, int col)
+		//{
+		//	if (row >= 0 && row < 19 && col >= 0 && col < 19) {
+		//		return true;
+		//	}
+		//	return false;
+		//}
 
 		// + + +
 		// + + +	与 step 相围的棋子，包含自身
@@ -648,7 +652,7 @@ namespace x01.Weiqi.Boards
 			List<Step> links = new List<Step>();
 			for (int i = -1; i < 2; i++) {
 				for (int j = -1; j < 2; j++) {
-					if (InRange(step.Row + i, step.Col + j)) {
+					if (Helper.InRange(step.Row + i, step.Col + j)) {
 						links.Add(m_Steps[step.Row + i, step.Col + j]);
 					}
 				}

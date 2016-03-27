@@ -23,7 +23,8 @@ namespace x01.Weiqi
 
 		public MainWindow()
 		{
-			Database.SetInitializer(new DropCreateDatabaseIfModelChanges<WeiqiContext>());
+			// 警告：取消注释，数据库表结构改变时，将删除所有数据！
+			//Database.SetInitializer(new DropCreateDatabaseIfModelChanges<WeiqiContext>());
 
 			InitializeComponent();
 
@@ -153,6 +154,13 @@ namespace x01.Weiqi
 			for (int i = 0; i < count; i++) {
 				m_Board.BackOne();
 			}
+		}
+
+		protected override void OnClosed(EventArgs e)
+		{
+			base.OnClosed(e);
+			var board = m_Board as AiBoard;
+			if (board != null) board.AiTimer.Stop();
 		}
 	}
 }
