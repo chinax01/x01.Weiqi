@@ -407,10 +407,10 @@ namespace x01.Weiqi.Boards
 		Pos FindBestPos()
 		{
 			var poses = GetBestPoses();
-			if (poses == null) return Helper.InvalidPos;
-
-			int index = m_Rand.Next(0, poses.Count - 1);
-			return poses[index];
+			if (poses == null || poses.Count == 0) return Helper.InvalidPos;
+			
+			int i = m_Rand.Next(0, poses.Count - 1);
+			return poses[i];
 		}
 
 		private Pos FindPos()
@@ -419,22 +419,23 @@ namespace x01.Weiqi.Boards
 			result = TwoStar();
 			if (result != m_InvalidPos)
 				return result;
-		
+
 			result = CompareEmpty();
 			if (result != m_InvalidPos)
+				return result;
+
+			result = m_AiThink.Think(R.Pattern);
+			if (result != Helper.InvalidPos)
 				return result;
 
 			result = FindBestPos();
 			if (result != m_InvalidPos)
 				return result;
 
-			//result = Attack();
-			//if (result != m_InvalidPos)
-			//	return result;
 			result = Defend();
 			if (result != m_InvalidPos)
 				return result;
-			
+
 
 			return result;
 		}
@@ -443,7 +444,7 @@ namespace x01.Weiqi.Boards
 
 		#region Pos Helper
 
-		Pos CurrentPos { get { return new Pos(m_CurrentStep.Row, m_CurrentStep.Col); } }
+		public Pos CurrentPos { get { return new Pos(m_CurrentStep.Row, m_CurrentStep.Col); } }
 		List<Pos> CurrentEffectEmptyPoses { get { return RoundFivePoses(CurrentPos).Intersect(EmptyPoses).ToList(); } }
 		List<Pos> CurrentEffectBlackPoses { get { return RoundFivePoses(CurrentPos).Intersect(BlackPoses).ToList(); } }
 		List<Pos> CurrentEffectWhitePoses { get { return RoundFivePoses(CurrentPos).Intersect(WhitePoses).ToList(); } }
@@ -509,6 +510,22 @@ namespace x01.Weiqi.Boards
 					m_EmptyPoses.Add(new Pos(step.Row, step.Col,step.StoneColor, step.StepCount));
 				}
 				return m_EmptyPoses;
+			}
+		}
+		List<Pos> m_DeadPoses = new List<Pos>();
+		public List<Pos> DeadPoses
+		{
+			get
+			{
+				m_DeadPoses.Clear();
+				foreach (var block in m_DeadBlocks) {
+					var steps = block.Value.Steps;
+					foreach (var step in steps) {
+						var pos = GetPos(step);
+						m_DeadPoses.Add(pos);
+					}
+				}
+				return m_DeadPoses;
 			}
 		}
 

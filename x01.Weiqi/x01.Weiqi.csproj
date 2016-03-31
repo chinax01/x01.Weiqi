@@ -104,9 +104,10 @@
     <Compile Include="Boards\ForBoard.cs" />
     <Compile Include="Boards\GameBoard.cs" />
     <Compile Include="Boards\StepBoard.cs" />
-    <Compile Include="Core\AiLayout.cs" />
+    <Compile Include="Core\AiThink.cs" />
     <Compile Include="Core\Helper.cs" />
     <Compile Include="Core\AiShape.cs" />
+    <Compile Include="Core\IThink.cs" />
     <Compile Include="Models\Record.cs" />
     <Compile Include="Models\WeiqiContext.cs" />
     <Compile Include="Windows\AboutPage.xaml.cs">

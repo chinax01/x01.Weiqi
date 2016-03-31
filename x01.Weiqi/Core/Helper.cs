@@ -11,6 +11,112 @@ namespace x01.Weiqi.Core
 	{
 		public readonly static Pos InvalidPos = new Pos(-1, -1);
 
+		public static int AdjustWorth(Pos current, Pos next)
+		{
+			//if (RoundPoses(current).Contains(next))
+			//	return 25;
+			//if (RoundPoses(current, 2).Contains(next))
+			//	return 20;
+			//if (RoundPoses(current, 3).Contains(next))
+			//	return 15;
+			//if (RoundPoses(current, 4).Contains(next))
+			//	return 10;
+			if (RoundPoses(current, 5).Contains(next))
+				return 15;
+
+			return 0;
+		}
+
+		public static List<Pos> LinkPoses(Pos pos, int number = 1)
+		{
+			var links = new List<Pos>();
+			for (int i = -number; i < number + 1; i++) {
+				if (i == 0) continue;
+				if (InRange(pos.Row, pos.Col + i)) {
+					links.Add(new Pos(pos.Row, pos.Col + i));
+				}
+				if (InRange(pos.Row + i, pos.Col)) {
+					links.Add(new Pos(pos.Row + i, pos.Col));
+				}
+			}
+			links.Add(pos);
+
+			return links;
+		}
+		public static List<Pos> RoundPoses(Pos pos, int number = 1)
+		{
+			var rounds = new List<Pos>();
+			for (int i = -number; i < number + 1; i++) {
+				for (int j = -number; j < number + 1; j++) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
+						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
+					}
+				}
+			}
+			return rounds;
+		}
+
+		public static List<List<Pos>> ExchangeAll(List<Pos> poses)
+		{
+			// 四角八变换
+			var result = new List<List<Pos>>();
+			result.Add(poses);
+			var lr = ExchangeLeftRight(poses);
+			result.Add(lr);
+			var ud = ExchangeUpDown(poses);
+			result.Add(ud);
+			var lr_ud = ExchangeUpDown(lr);
+
+			result.Add(ExchangeRowCol(poses));
+			result.Add(ExchangeRowCol(lr));
+			result.Add(ExchangeRowCol(ud));
+			result.Add(ExchangeRowCol(lr_ud));
+
+			// 变色
+			int count = result.Count;
+			for (int i = 0; i < count; i++) {
+				var r = result[i];
+				result.Add(ExchangeColor(r));
+			}
+
+			return result;
+		}
+		public static List<Pos> ExchangeColor(List<Pos> poses)
+		{
+			var result = new List<Pos>();
+			foreach (var p in poses) {
+				var color = p.StoneColor == StoneColor.Black ? StoneColor.White
+					: p.StoneColor == StoneColor.White ? StoneColor.Black
+					: StoneColor.Empty;
+				result.Add(new Pos(p.Row, p.Col, color, p.StepCount));
+			}
+			return result;
+		}
+		public static List<Pos> ExchangeRowCol(List<Pos> poses)
+		{
+			var result = new List<Pos>();
+			foreach (var p in poses) {
+				result.Add(new Pos(p.Col, p.Row, p.StoneColor, p.StepCount));
+			}
+			return result;
+		}
+		public static List<Pos> ExchangeLeftRight(List<Pos> poses)
+		{
+			var result = new List<Pos>();
+			foreach (var p in poses) {
+				result.Add(new Pos(p.Row, 18 - p.Col, p.StoneColor, p.StepCount));
+			}
+			return result;
+		}
+		public static List<Pos> ExchangeUpDown(List<Pos> poses)
+		{
+			var result = new List<Pos>();
+			foreach (var p in poses) {
+				result.Add(new Pos(18 - p.Row, p.Col, p.StoneColor, p.StepCount));
+			}
+			return result;
+		}
+
 		public static List<Pos> GetArea(Pos p1, Pos p2)
 		{
 			List<Pos> poses = new List<Pos>();
@@ -70,7 +176,6 @@ namespace x01.Weiqi.Core
 			}
 			return record;
 		}
-
 		public static List<Pos> GetPoses(string s)
 		{
 			List<Pos> result = new List<Pos>();

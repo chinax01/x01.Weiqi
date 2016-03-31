@@ -22,9 +22,9 @@ namespace x01.Weiqi.Boards
 			if (blacks.Count == 1 && whites.Count == 1) { // 二连星
 				var b = blacks[0];
 				var w = whites[0];
-				if (GetLength(b, w) > 5) {
+				if (GetLength(b, w) > 7) {
 					foreach (var star in StarFourHorn) {
-						if (IsJumpX(star, b, 11) && GetLength(star, w) > 5)
+						if (IsJumpX(star, b, 11) && GetLength(star, w) > 7)
 							return star;
 					}
 				}

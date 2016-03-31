@@ -16,11 +16,9 @@ namespace x01.Weiqi.Boards
 		bool m_CanDown = false;
 		WaitWindow m_WaitWindow = new WaitWindow();
 
-		//AiShape m_aiShape;
 		public AiBoard()
 		{
 			IsShowCurrent = false;
-			//m_aiShape = new AiShape(this);
 
 			m_AiTimer.Interval = 100;
 			m_AiTimer.Tick += m_Timer_Tick;
@@ -32,11 +30,7 @@ namespace x01.Weiqi.Boards
 			if (StepCount == 0) m_CanDown = false;
 			if (m_CanDown) return;
 
-			Pos pos = m_InvalidPos;
-			//pos = m_aiShape.GetPos();
-
-			if (pos == m_InvalidPos)
-				pos = Think();
+			Pos pos = Think();
 
 			if (pos == m_InvalidPos) 
 				return;

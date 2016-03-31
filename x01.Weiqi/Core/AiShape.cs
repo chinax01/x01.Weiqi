@@ -22,13 +22,14 @@ namespace x01.Weiqi.Core
 			var back = all.ToList();
 			var temp = new List<Pos>();
 			m_ThinkPoses.Clear();
-			if (all.Count > 64) return m_ThinkPoses;
+			//if (all.Count > 64) return m_ThinkPoses;
 
 			foreach (var a in all) {
 				temp.Clear();
 				int r = 9 - a.Row;
 				int c = 9 - a.Col;
 				foreach (var b in back) {
+					if (!Helper.InRange(b.Row + r, b.Col + c)) continue;
 					var pos = new Pos(b.Row + r, b.Col + c, b.StoneColor, b.StepCount);
 					if (!temp.Contains(pos)) temp.Add(pos);
 				}

@@ -53,13 +53,14 @@ namespace x01.Weiqi.Boards
 		List<Pos> GetBestPoses()
 		{
 			m_BestPoses.Clear();
-			var thinkPoses = L_Think().Union(P_Think()).ToList();
-			var empties = EmptyPoses.Intersect(thinkPoses).ToList();
-			foreach (var e in empties) {
-				UpdateMeshes_Base(e);
-				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-				m_BestPoses.Add(new Tuple<int, Pos>(count, e));
-			}
+
+			//var thinkPoses = m_AiThink.Think(R.Pattern);
+			var empties = EmptyPoses; //.Intersect(thinkPoses).ToList();
+			//foreach (var e in empties) {
+			//	UpdateMeshes_Base(e);
+			//	int count = m_BlackMeshes.Count - m_WhiteMeshes.Count + Helper.AdjustWorth(CurrentPos, e);
+			//	m_BestPoses.Add(new Tuple<int, Pos>(count, e));
+			//}
 
 			if (m_BestPoses.Count == 0) {
 				empties = EmptyPoses.Intersect(m_AiShape.Think().Union(Attack())).ToList();
@@ -71,7 +72,7 @@ namespace x01.Weiqi.Boards
 			}
 
 			if (m_BestPoses.Count == 0) {
-				if (m_StepCount > 64) return null;
+				if (m_StepCount > 128) return null;
 				foreach (var e in EmptyPoses) {
 					UpdateMeshes_Base(e);
 					int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
@@ -79,10 +80,13 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
+			if (m_BestPoses.Count == 0) return null;
+
 			var key = m_BestPoses.OrderByDescending(b => b.Item1).First().Item1;
 			var result = from e in m_BestPoses
-						 where e.Item1 == key
+						 where e.Item1 == key && m_EmptyMeshes.Contains(e.Item2)
 						 select e.Item2;
+
 			return result.ToList();
 		}
 
@@ -160,16 +164,9 @@ namespace x01.Weiqi.Boards
 		{
 			UpdateMeshes_Base(next);
 
-			//UpdateMeshes_SmallEmpty();
-			//UpdateMeshes_SmallEmpty();
-
-			UpdateMeshe_DeleteDead(2);
-			UpdateMeshe_DeleteDead(3);
-			UpdateMeshe_DeleteDead(4);
-			UpdateMeshe_DeleteDead(5);
-			UpdateMeshe_DeleteDead(6);
-			UpdateMeshe_DeleteDead(7);
-			UpdateMeshe_DeleteDead(8); // 多次扫描有必要
+			for (int i = 2; i < 9; i++) {
+				UpdateMeshes_DeleteDead(i);
+			}
 
 			UpdateMeshes_BigEmpty();
 
@@ -206,7 +203,7 @@ namespace x01.Weiqi.Boards
 			List<Pos> empties;
 			List<Pos> blackMeshes;
 			List<Pos> whiteMeshes;
-			for (int i = 0; i < 6; i++) {
+			for (int i = 0; i < 3; i++) {
 				empties = m_EmptyMeshes.ToList();
 				blackMeshes = m_BlackMeshes.ToList();
 				whiteMeshes = m_WhiteMeshes.ToList();
@@ -332,7 +329,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void UpdateMeshe_DeleteDead(int count)  // 逐步剔除死子
+		void UpdateMeshes_DeleteDead(int count)  // 逐步剔除死子
 		{
 			UpdateAllMeshBlocks();
 			foreach (var block in m_BlackMeshBlocks) {

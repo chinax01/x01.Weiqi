@@ -34,8 +34,10 @@ namespace x01.Weiqi.Boards
 			Init();
 
 			m_AiShape = new AiShape(this);
+			m_AiThink = new AiThink(this);
 		}
 		AiShape m_AiShape;
+		AiThink m_AiThink;
 
 		public bool IsShowNumber { get; set; }		// 是否显示步数
 		public bool IsShowCurrent { get; set; }		// 显示当前标志
