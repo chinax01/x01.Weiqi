@@ -33,17 +33,19 @@ namespace x01.Weiqi.Boards
 
 			Init();
 
-			m_AiShape = new AiShape(this);
-			m_AiThink = new AiThink(this);
+			m_GameThink = new AiThink(this);
+			m_LayoutThink = new AiThink(this);
+			m_PatternThink = new AiThink(this);
+			m_ShapeThink = new ShapeThink(this);
 		}
-		AiShape m_AiShape;
-		AiThink m_AiThink;
+		AiThink m_GameThink, m_LayoutThink, m_PatternThink;
+		ShapeThink m_ShapeThink;
 
-		public bool IsShowNumber { get; set; }		// 是否显示步数
-		public bool IsShowCurrent { get; set; }		// 显示当前标志
-		public bool IsShowMesh { get; set; }		// 点目
-		public bool IsPlaySound { get; set; }		// 播放声音
-		// 控制棋盘和棋子大小
+		public bool IsShowNumber { get; set; }      // 是否显示步数
+		public bool IsShowCurrent { get; set; }     // 显示当前标志
+		public bool IsShowMesh { get; set; }        // 点目
+		public bool IsPlaySound { get; set; }       // 播放声音
+													// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
 		public int StoneSize
 		{
@@ -263,17 +265,17 @@ namespace x01.Weiqi.Boards
 
 		SoundPlayer m_Player = new SoundPlayer();
 
-		StringBuilder m_StepString = new StringBuilder(2000);	// 保存棋谱
-		Regex m_Regex = new Regex(@"(\d+,){3}$");				// 悔棋匹配
+		StringBuilder m_StepString = new StringBuilder(2000);   // 保存棋谱
+		Regex m_Regex = new Regex(@"(\d+,){3}$");               // 悔棋匹配
 
-		Rectangle m_CurrentRect = new Rectangle();			// 当前标志
-		Rectangle[,] m_MeshRects = new Rectangle[19, 19];	// 点目标志
+		Rectangle m_CurrentRect = new Rectangle();          // 当前标志
+		Rectangle[,] m_MeshRects = new Rectangle[19, 19];   // 点目标志
 
-		Step[,] m_Steps = new Step[19, 19];					// 棋步，逻辑棋子
+		Step[,] m_Steps = new Step[19, 19];                 // 棋步，逻辑棋子
 		Step m_CurrentStep = null;
 
-		Ellipse[,] m_Stones = new Ellipse[19, 19];			// 棋子，仅为显示
-		TextBlock[,] m_Numbers = new TextBlock[19, 19];		// 步数
+		Ellipse[,] m_Stones = new Ellipse[19, 19];          // 棋子，仅为显示
+		TextBlock[,] m_Numbers = new TextBlock[19, 19];     // 步数
 
 		// 棋盘纵横线和星
 		Line[] m_LinesH = new Line[19];
@@ -284,10 +286,10 @@ namespace x01.Weiqi.Boards
 		Brush BlackBrush { get { return (Brush)Resources["BlackBrushKey"]; } }
 		Brush WhiteBrush { get { return (Brush)Resources["WhiteBrushKey"]; } }
 
-		List<Step> m_AllSteps = new List<Step>();		// 所有逻辑棋子
-		List<Step> m_BlackSteps = new List<Step>();		// 所有黑棋
-		List<Step> m_WhiteSteps = new List<Step>();		// 所有白棋
-		List<Step> m_EmptySteps = new List<Step>();		// 所有空棋
+		List<Step> m_AllSteps = new List<Step>();       // 所有逻辑棋子
+		List<Step> m_BlackSteps = new List<Step>();     // 所有黑棋
+		List<Step> m_WhiteSteps = new List<Step>();     // 所有白棋
+		List<Step> m_EmptySteps = new List<Step>();     // 所有空棋
 
 		// key: StepCount, value: Steps 死子块的集合
 		Dictionary<int, StepBlock> m_DeadBlocks = new Dictionary<int, StepBlock>();
@@ -296,7 +298,7 @@ namespace x01.Weiqi.Boards
 		List<StepBlock> m_WhiteStepBlocks = new List<StepBlock>();
 		List<StepBlock> m_EmptyStepBlocks = new List<StepBlock>();
 
-		Step m_BanOnce = new Step();	// 劫争
+		Step m_BanOnce = new Step();    // 劫争
 
 		void Init()
 		{
@@ -526,7 +528,7 @@ namespace x01.Weiqi.Boards
 
 			}
 			for (int i = 0; i < 6; i++) {
-				foreach (var step in copySteps) {	// 防止遗漏
+				foreach (var step in copySteps) {   // 防止遗漏
 					var sameLinks = LinkSteps(step, step.StoneColor);
 					if (tmp.Intersect(sameLinks).Count() != 0)
 						sameLinks.ForEach(s => { if (!tmp.Contains(s)) tmp.Add(s); });
@@ -539,8 +541,8 @@ namespace x01.Weiqi.Boards
 			block.UpdateBlockId();
 			blocks.Add(block);
 
-			copySteps.RemoveAll(s => tmp.Contains(s));	// next block
-			UpdateStepBlocks(copySteps, blocks);	// 递归
+			copySteps.RemoveAll(s => tmp.Contains(s));  // next block
+			UpdateStepBlocks(copySteps, blocks);    // 递归
 		}
 
 		bool UpdateDeadBlocks(List<StepBlock> selfBlocks)
@@ -549,7 +551,7 @@ namespace x01.Weiqi.Boards
 
 			List<StepBlock> blocks = new List<StepBlock>();
 			foreach (var item in selfBlocks) {
-				blocks.Add(item);	//copy
+				blocks.Add(item);   //copy
 			}
 
 			foreach (var block in blocks) {

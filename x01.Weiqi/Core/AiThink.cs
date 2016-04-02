@@ -8,7 +8,7 @@ namespace x01.Weiqi.Core
 {
 	public class AiThink : IThink
 	{
-		Board m_Board;
+		protected Board m_Board;
 		public AiThink(Board board)
 		{
 			m_Board = board;
@@ -27,7 +27,7 @@ namespace x01.Weiqi.Core
 			return m_Shapes;
 		}
 
-		public Pos Think(string type)
+		public virtual Pos Think(string type)
 		{
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses);
@@ -40,8 +40,10 @@ namespace x01.Weiqi.Core
 				if (shapeCound >= areaCount && areaCount > 0) {
 					for (int i = 0; i < shapeCound; i++) {
 						if (i > areaCount - 1) {
-							if (shape[i].StoneColor == StoneColor.Black)
-								return shape[i];
+							if (shape[i].StoneColor == StoneColor.Black) {
+								if (m_Board.EmptyPoses.Contains(shape[i]))
+									return shape[i];
+							}
 							break;
 						}
 
@@ -55,14 +57,16 @@ namespace x01.Weiqi.Core
 			}
 
 			foreach (var shape in shapes) {
-				var area = all.Intersect(Helper.GetArea(shape)).OrderBy(p=>p.StepCount).ToList();
+				var area = all.Intersect(Helper.GetArea(shape)).OrderBy(p => p.StepCount).ToList();
 				int areaCount = area.Count;
 				int shapeCound = shape.Count;
 				if (shapeCound >= areaCount && areaCount > 0) {
 					for (int i = 0; i < shapeCound; i++) {
 						if (i > areaCount - 1) {
-							if (shape[i].StoneColor == StoneColor.Black) 
-								return shape[i];
+							if (shape[i].StoneColor == StoneColor.Black) {
+								if (m_Board.EmptyPoses.Contains(shape[i]))
+									return shape[i];
+							}
 							break;
 						}
 

@@ -57,7 +57,7 @@ namespace x01.Weiqi.Boards
 			return pos;
 		}
 		List<Pos> m_LevyPoses = new List<Pos>();
-		Pos OneEmpty()	// 一口气
+		Pos OneEmpty()  // 一口气
 		{
 			UpdateEmptyCount();
 
@@ -66,7 +66,7 @@ namespace x01.Weiqi.Boards
 			var w_blocks = m_WhiteStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 			var b_blocks = m_BlackStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 
-			foreach (var block in w_blocks) {	// Eat white
+			foreach (var block in w_blocks) {   // Eat white
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
@@ -75,7 +75,7 @@ namespace x01.Weiqi.Boards
 					return pos;
 				}
 			}
-			foreach (var block in b_blocks) {	// Feel black
+			foreach (var block in b_blocks) {   // Feel black
 				if (block.EmptyCount == 1) {
 					List<Step> empties = GetLinkEmptySteps(block);
 					Pos pos = new Pos(empties[0].Row, empties[0].Col);
@@ -114,7 +114,7 @@ namespace x01.Weiqi.Boards
 						}
 					}
 					if ((LinkPoses(pos).Intersect(BlackPoses).Count() < 2) &&
-						(LineOne.Contains(pos) || new Pos(m_BanOnce.Row, m_BanOnce.Col) == pos))	// 暂不考虑征子有利
+						(LineOne.Contains(pos) || new Pos(m_BanOnce.Row, m_BanOnce.Col) == pos))    // 暂不考虑征子有利
 						continue;
 					return pos;
 				}
@@ -128,7 +128,7 @@ namespace x01.Weiqi.Boards
 			var w_blocks = m_WhiteStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 			var b_blocks = m_BlackStepBlocks.OrderByDescending(b => b.Steps.Count).ToList();
 
-			foreach (var w_block in w_blocks) {		// 吃白
+			foreach (var w_block in w_blocks) {     // 吃白
 				if (w_block.EmptyCount == 2) {
 					var empties = GetLinkEmptySteps(w_block);
 					Pos p = GetPos(w_block, empties);
@@ -217,7 +217,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 
-			foreach (var b_block in b_blocks) {		// 逃黑
+			foreach (var b_block in b_blocks) {     // 逃黑
 				if (b_block.EmptyCount == 2) {
 					var empties = GetLinkEmptySteps(b_block);
 					Pos p = GetPos(b_block, empties);
@@ -304,7 +304,7 @@ namespace x01.Weiqi.Boards
 			m_WhiteStepBlocks.ForEach(b => GetLinkEmptySteps(b));
 		}
 
-		private Pos GetPos(StepBlock block, List<Step> empties)	// For CanLevy()
+		private Pos GetPos(StepBlock block, List<Step> empties) // For CanLevy()
 		{
 			Pos p = m_InvalidPos;
 
@@ -349,7 +349,7 @@ namespace x01.Weiqi.Boards
 				var c_rounds = rounds.ToList();
 				foreach (var c in c_rounds) {
 					if (IsElephantOne(c, pos))
-						rounds.Remove(c);		// 去角
+						rounds.Remove(c);       // 去角
 				}
 				foreach (var r in rounds) {
 					if (selfPoses.Contains(r))
@@ -368,49 +368,25 @@ namespace x01.Weiqi.Boards
 			return true;
 		}
 
+		List<Tuple<int, Pos>> m_RandPoses = new List<Tuple<int, Pos>>();
 		Pos RandDown()
 		{
-			if (StepCount > EndCount) {
-				int index = m_Rand.Next(0, m_BlackMeshes.Count - 1);
-				var black = m_BlackMeshes[index];
-				if (LinkPoses(black).Intersect(m_WhiteMeshes).Any()) {
-					if (EmptyPoses.Contains(black))
-						return black;
-				}
-
+			m_RandPoses.Clear();
+			var empties = EmptyPoses.ToList();
+			foreach (var e in empties) {
+				UpdateMeshes_Base(e);
+				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+				m_RandPoses.Add(new Tuple<int, Pos>(count, e));
 			}
 
-			for (int i = 0; i < 1000; i++) {
-				int row = m_Rand.Next(0, 19);
-				int col = m_Rand.Next(0, 19);
-				var pos = new Pos(row, col);
-				if (!EmptyPoses.Contains(pos) || LinkPoses(pos).Intersect(BlackPoses).Any())
-					continue;
-
-				if (StepCount < 4) {
-					if (GoldHorn.Contains(pos) && !m_WhiteMeshes.Contains(pos))
-						return pos;
-				} else if (StepCount < 40) {
-					if ((LineThree.Contains(pos) || LineFour.Contains(pos)) && !m_WhiteMeshes.Contains(pos))
-						return pos;
-				} else if (StepCount < 100) {
-					if (LineCenter.Contains(pos))
-						return pos;
-				} else if (StepCount < 400) {
-					return pos;
-				}
+			if (m_RandPoses.Count == 0 || m_StepCount > 260) {
+				ShowMeshes();
 			}
 
-			return m_InvalidPos;
-		}
-
-		Pos FindBestPos()
-		{
-			var poses = GetBestPoses();
-			if (poses == null || poses.Count == 0) return Helper.InvalidPos;
-			
-			int i = m_Rand.Next(0, poses.Count - 1);
-			return poses[i];
+			var key = m_RandPoses.OrderByDescending(b => b.Item1).First().Item1;
+			var result = m_RandPoses.Where(r => r.Item1 == key).Select(r => r.Item2).ToList();
+			int i = m_Rand.Next(0, result.Count - 1);
+			return result[i];
 		}
 
 		private Pos FindPos()
@@ -420,22 +396,21 @@ namespace x01.Weiqi.Boards
 			if (result != m_InvalidPos)
 				return result;
 
-			result = CompareEmpty();
-			if (result != m_InvalidPos)
-				return result;
-
-			result = m_AiThink.Think(R.Pattern);
+			result = m_GameThink.Think(R.Game);
 			if (result != Helper.InvalidPos)
 				return result;
 
-			result = FindBestPos();
-			if (result != m_InvalidPos)
+			result = m_LayoutThink.Think(R.Layout);
+			if (result != Helper.InvalidPos)
 				return result;
 
-			result = Defend();
-			if (result != m_InvalidPos)
+			result = m_PatternThink.Think(R.Pattern);
+			if (result != Helper.InvalidPos)
 				return result;
 
+			result = CompareEmpty();
+			if (result != m_InvalidPos)
+				return result;
 
 			return result;
 		}
@@ -472,7 +447,7 @@ namespace x01.Weiqi.Boards
 		}
 		Pos GetPos(Step step)
 		{
-			return new Pos(step.Row, step.Col,step.StoneColor,step.StepCount);
+			return new Pos(step.Row, step.Col, step.StoneColor, step.StepCount);
 		}
 
 		// 使用属性而不是字段
@@ -495,7 +470,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_WhitePoses.Clear();
 				foreach (var step in m_WhiteSteps) {
-					m_WhitePoses.Add(new Pos(step.Row, step.Col,step.StoneColor, step.StepCount));
+					m_WhitePoses.Add(new Pos(step.Row, step.Col, step.StoneColor, step.StepCount));
 				}
 				return m_WhitePoses;
 			}
@@ -507,7 +482,7 @@ namespace x01.Weiqi.Boards
 			{
 				m_EmptyPoses.Clear();
 				foreach (var step in m_EmptySteps) {
-					m_EmptyPoses.Add(new Pos(step.Row, step.Col,step.StoneColor, step.StepCount));
+					m_EmptyPoses.Add(new Pos(step.Row, step.Col, step.StoneColor, step.StepCount));
 				}
 				return m_EmptyPoses;
 			}
@@ -1020,7 +995,7 @@ namespace x01.Weiqi.Boards
 			{
 				if (m_LineCenter != null) return m_LineCenter;
 				m_LineCenter = LineThree.Union(LineFour).Union(LineFive).Union(LineSix)
-					.Union(LineSeven).Union(LineEight).Union(LineNine).ToList();	// Line3-9 area
+					.Union(LineSeven).Union(LineEight).Union(LineNine).ToList();    // Line3-9 area
 				if (!m_LineCenter.Contains(StarCenter))
 					m_LineCenter.Add(StarCenter);
 				return m_LineCenter;

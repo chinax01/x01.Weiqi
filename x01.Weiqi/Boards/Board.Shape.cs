@@ -32,11 +32,8 @@ namespace x01.Weiqi.Boards
 			return m_InvalidPos;
 		}
 
-		List<Pos> m_AttackPoses = new List<Pos>();
-		List<Pos> Attack()
+		Pos Attack()
 		{
-			m_AttackPoses.Clear();
-
 			var blacks = BlackPoses;
 			var whites = WhitePoses;
 			var empties = EmptyPoses;
@@ -66,8 +63,7 @@ namespace x01.Weiqi.Boards
 								var w = IsTouch(b, ws[0]) ? ws[0] : ws[1];
 								foreach (var e in copy_empties) {
 									if (LineTwo.Contains(e) && IsCusp(e, w) && IsFlyOne(e, b) && IsTouch(e, br)) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							}
@@ -102,8 +98,7 @@ namespace x01.Weiqi.Boards
 										}
 										foreach (var e in es) {
 											if (IsFlyTwo(e, b3) && IsTouch(e, br))
-												//return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 										}
 									}
 								}
@@ -126,8 +121,7 @@ namespace x01.Weiqi.Boards
 									if (IsCusp(b, w0) && IsJumpTwo(b, w1)) {
 										foreach (var e in er2) {
 											if (IsTouch(br, e) && IsCusp(w1, e)) { // 扳长
-																				   //return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 											}
 										}
 									}
@@ -151,8 +145,7 @@ namespace x01.Weiqi.Boards
 											if (IsJumpOne(p, wr)) {
 												foreach (var e in e_rounds) {
 													if (IsCusp(e, b) && IsFlyX(e, p, 3)) {  // 虎
-																							//return e;
-														if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+														return e;
 													}
 												}
 											}
@@ -176,8 +169,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in copy_empties) {
 									if (IsTouch(e, w) && IsJumpOne(e, b)
 										&& LinkPoses(e).Intersect(copy_empties).Count() > 2)
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 						}
@@ -190,8 +182,7 @@ namespace x01.Weiqi.Boards
 									if (IsCusp(b, w) && IsTouch(w, links[0]) && IsTouch(w, links[1]) && IsJumpOne(br, w)) {
 										foreach (var e in b_rs) {
 											if (e_rounds.Contains(e) && IsTouch(e, b) && IsTouch(e, br) && IsFlyOne(e, w))
-												//return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 										}
 									}
 								}
@@ -215,8 +206,7 @@ namespace x01.Weiqi.Boards
 								if (IsTouch(w0, w1) && IsCusp(w0, br) && GetStep(b).EmptyCount >= GetStep(w0).EmptyCount) {
 									foreach (var e in e_rounds) {
 										if (IsTouch(e, w0) && IsCusp(b, e) && LinkPoses(e).Intersect(copy_empties).Count() == 3)
-											//return e;
-											if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+											return e;
 									}
 								}
 							}
@@ -231,8 +221,7 @@ namespace x01.Weiqi.Boards
 									int c_off = b.Col - w.Col;
 									var p = new Pos(b.Row + 2 * r_off, b.Col + 2 * c_off);
 									if (e_rounds.Contains(p) && RoundOnePoses(p).Intersect(e_rounds).Count() == 9) {
-										//return p;
-										if (!m_AttackPoses.Contains(p)) m_AttackPoses.Add(p);
+										return p;
 									}
 								}
 							}
@@ -248,8 +237,7 @@ namespace x01.Weiqi.Boards
 										foreach (var e in copy_empties) {
 											if (IsJumpOne(e, b) && IsCusp(e, w)
 												&& LinkPoses(e).Intersect(copy_empties).Count() == 5) {
-												//return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 											}
 										}
 									}
@@ -280,8 +268,7 @@ namespace x01.Weiqi.Boards
 										foreach (var e in rb3) {
 											if (e_rounds.Contains(e)) {
 												if (IsTouch(e, b3) && IsTouch(rw3s[0], e) && IsFlyOne(e, b))
-													//return e;
-													if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+													return e;
 											}
 										}
 									}
@@ -301,8 +288,7 @@ namespace x01.Weiqi.Boards
 													&& LineThree.Contains(b) && LineThree.Contains(br)) {
 													foreach (var e in res) {
 														if (IsCusp(e, b) && IsElephantOne(e, w2)) {
-															//return e;
-															if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+															return e;
 														}
 													}
 												}
@@ -314,8 +300,7 @@ namespace x01.Weiqi.Boards
 													int c_off = b.Col - rw.Col;
 													var p = new Pos(b.Row + 2 * r_off, b.Col + 2 * c_off);
 													if (e_rounds.Contains(p))
-														//return p;
-														if (!m_AttackPoses.Contains(p)) m_AttackPoses.Add(p);
+														return p;
 												}
 											}
 										}
@@ -337,8 +322,7 @@ namespace x01.Weiqi.Boards
 						if (ws.Count == 1 && IsTouch(ws[0], b)) {
 							foreach (var e in es) {
 								if (IsCusp(e, b) && IsCusp(e, br) && IsTouch(ws[0], e)) {
-									//return e;
-									if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+									return e;
 								}
 									//      0
 									//
@@ -346,8 +330,7 @@ namespace x01.Weiqi.Boards
 									//        *
 								else if (IsCusp(e, b) && IsFlyTwo(e, br)
 									&& RoundOnePoses(e).Intersect(whites).Count() == 1) {
-									//return e;
-									if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+									return e;
 								}
 							}
 						}
@@ -368,8 +351,7 @@ namespace x01.Weiqi.Boards
 							if (IsJumpOne(br, w)) {
 								foreach (var e in es) {
 									if (IsCusp(e, br) && IsTouch(e, b))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 						}
@@ -385,8 +367,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in es) {
 									if (IsCusp(e, w) && IsFlyOne(e, br)
 										&& LinkPoses(e).Intersect(e_rounds).Count() == 4) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							}
@@ -400,8 +381,7 @@ namespace x01.Weiqi.Boards
 						foreach (var e in e_rounds) {
 							if (IsJumpTwo(b, e) && !IsCusp(e, br) && LineThree.Contains(e)
 								&& RoundTwoPoses(e).Intersect(copy_empties).Count() == 5 * 5) {
-								//return e;
-								if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+								return e;
 							}
 						}
 					}
@@ -411,8 +391,7 @@ namespace x01.Weiqi.Boards
 							if ((IsCusp(w, b) || IsCusp(w, br)) && LineFour.Contains(w)) {
 								foreach (var e in e_rounds) {
 									if (IsTouch(w, e) && LineThree.Contains(e)) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							} else if (LineThree.Contains(w)
@@ -420,8 +399,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in e_rounds) {
 									if (IsTouch(e, w) && LineTwo.Contains(e)
 										&& RoundOnePoses(w).Intersect(w_rounds).Count() == 1) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							}
@@ -433,8 +411,7 @@ namespace x01.Weiqi.Boards
 							if (GetLength(b, e) < 5 && GetLength(br, e) < 5
 								&& RoundTwoPoses(e).Intersect(copy_empties).Count() > 23
 								&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-								//return e;
-								if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+								return e;
 							}
 						}
 					} else if (GetLength(b, br) > 5) {
@@ -443,22 +420,18 @@ namespace x01.Weiqi.Boards
 						if (es.Count == area.Count - 2) {
 							foreach (var e in es) {
 								if (IsFlyTwo(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-									//return e;
-									if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+									return e;
 								}
 							}
 						}
 					} else if (GetLength(b, br) > 4) {
 						foreach (var e in copy_empties) {
 							if (IsFlyOne(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-								//return e;
-								if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+								return e;
 							} else if (IsJumpOne(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-								//return e;
-								if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+								return e;
 							} else if (IsJumpTwo(e, b) && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-								//return e;
-								if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+								return e;
 							}
 						}
 					}
@@ -475,8 +448,7 @@ namespace x01.Weiqi.Boards
 						var e3 = new Pos(b.Row + 7 * r_off, b.Col + 7 * c_off);
 						var re3 = RoundThreePoses(e3);
 						if (re2.Count == 9 && re.Count == 9 && re3.Intersect(blacks).Any()) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						}
 					}
 				}
@@ -485,8 +457,7 @@ namespace x01.Weiqi.Boards
 				if (LineThreeFour.Contains(b) && StepCount > 50) {
 					foreach (var e in e_rounds) {
 						if (IsFlyOne(e, b) && RoundTwoPoses(e).Intersect(e_rounds).Count() == 5 * 5) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						}
 					}
 				} else if (GoldHorn.Contains(b) && StepCount > 7) {
@@ -494,8 +465,7 @@ namespace x01.Weiqi.Boards
 						if (IsFlyOne(e, b) && LineThreeFour.Contains(e)
 							&& RoundOnePoses(e).Intersect(e_rounds).Count() == 9
 							&& RoundThreePoses(b).Intersect(b_rounds).Count() == 1) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						}
 					}
 				} else if (LineThreeFour.Contains(b) && StepCount > 30 
@@ -503,12 +473,10 @@ namespace x01.Weiqi.Boards
 					foreach (var e in e_rounds) {
 						if (LineFour.Contains(b) && IsFlyTwo(e, b) && LineThree.Contains(e) 
 							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						} else if (LineThree.Contains(b) && IsJumpTwo(e,b) && LineThree.Contains(e)
 							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						}
 					}
 				}
@@ -526,16 +494,13 @@ namespace x01.Weiqi.Boards
 						if (StarFourHorn.Contains(w) && IsFlyOne(e, w) && LineThreeFour.Contains(e)
 							&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9
 							&& RoundThreePoses(w).Intersect(w_rounds).Count() == 1) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						} else if (AllEyes.Contains(w) && IsJumpOne(e, w) && AllEyes.Contains(e)
 								   && RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						} else if (ThreeThrees.Contains(w) && StarFourHorn.Contains(e) && IsCusp(e, w)
 								   && LinkPoses(e).Intersect(empties).Count() == 5) {
-							//return e;
-							if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+							return e;
 						}
 					}
 				}
@@ -559,8 +524,7 @@ namespace x01.Weiqi.Boards
 									if (IsFlyTwo(b, b2) && IsElephantOne(b2, w)) {
 										foreach (var e in es) {
 											if (IsFlyOne(e, w) && IsTouch(e, b2))
-												//return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 										}
 									}
 								}
@@ -576,8 +540,7 @@ namespace x01.Weiqi.Boards
 								if (IsTouch(rbs[0], wr)) {
 									foreach (var e in e_rounds) {
 										if (IsFlyOne(e, w) && IsCusp(e, wr) && IsTouch(e, rbs[0]))
-											//return e;
-											if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+											return e;
 									}
 								}
 							}
@@ -592,8 +555,7 @@ namespace x01.Weiqi.Boards
                         if (bs.Count == 1 && AllEyes.Contains(bs[0])) {
                             foreach (var e in empties) {
 								if (IsTouch(e, w) && IsFlyOne(e, bs[0]) && IsFlyTwo(e, wr))
-									//return e;
-									if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+									return e;
                             }            
                         }
                     } 
@@ -609,8 +571,7 @@ namespace x01.Weiqi.Boards
                             if (IsFlyTwo(wr,b1)){
                                 foreach (var e in e_rounds) {
 									if (IsTouch(e, b0) && IsCusp(e, w))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
                                 }
                             }
                         }
@@ -623,8 +584,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in copy_empties) {		// 二路问题
 									if (IsFlyOne(e, b) && IsJumpOne(e, w) && LineTwo.Contains(e)
 										&& RoundOnePoses(e).Intersect(copy_empties).Count() == 9) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 								// 继续进三三
@@ -633,8 +593,7 @@ namespace x01.Weiqi.Boards
 										foreach (var e in e_rounds) {
 											if (ThreeThrees.Contains(e)
 												&& LinkPoses(e).Intersect(copy_empties).Count() == 5) {
-												//return e;
-												if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+												return e;
 											}
 										}
 									}
@@ -652,8 +611,7 @@ namespace x01.Weiqi.Boards
 							if (ws.Count == 1 && IsJumpOne(ws[0], w) && IsFlyOne(ws[0], wr)) {
 								foreach (var e in empties) {
 									if (IsCusp(e, bs[0]) && IsTouch(e, w) && IsTouch(e, ws[0])) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							}
@@ -672,8 +630,7 @@ namespace x01.Weiqi.Boards
 						if (IsFlyOne(w1, w2) && IsTouch(e, w1)) { // 断飞
 							foreach (var b in bs) {
 								if (IsTouch(e, b) && IsCusp(w1, b) && IsTouch(w2, b)) {
-									//return e;
-									if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+									return e;
 								}
 							}
 						}
@@ -683,7 +640,7 @@ namespace x01.Weiqi.Boards
 
 			#region 封口
 
-			if (StepCount < EndCount / 2) return m_AttackPoses;
+			if (StepCount < 64) return Helper.InvalidPos;
 
 			foreach (var b in blacks) {
 				if (LineFour.Contains(b)) {
@@ -694,27 +651,23 @@ namespace x01.Weiqi.Boards
 							if (LineThree.Contains(w) && IsCusp(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineThree.Contains(e))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							} else if (LineThree.Contains(w) && IsFlyOne(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsFlyOne(e, b) && IsCusp(e, w) && LineTwo.Contains(e))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							} else if (LineFour.Contains(w) && IsJumpOne(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsCusp(e, w) && LineThree.Contains(e))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							} else if (LineFour.Contains(w) && IsTouch(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsJumpOne(e, b) && IsFlyOne(e, w) && LineTwo.Contains(e)
 										&& RoundOnePoses(e).Intersect(copy_empties).Count() == 3 * 3)
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 						}
@@ -730,8 +683,7 @@ namespace x01.Weiqi.Boards
 							if (LineTwo.Contains(w) && IsCusp(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineTwo.Contains(e))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 							//  0			
@@ -742,8 +694,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in copy_empties) {
 									if (IsFlyOne(e, b) && IsJumpOne(e, w) && LineTwo.Contains(e)
 										&& RoundOnePoses(e).Intersect(copy_empties).Count() == 3 * 3)
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 							//  0   +		line 3
@@ -753,8 +704,7 @@ namespace x01.Weiqi.Boards
 								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
 										&& LinkPoses(e).Intersect(copy_empties).Count() == 5)
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 							//  0 +			line 3
@@ -764,12 +714,10 @@ namespace x01.Weiqi.Boards
 								foreach (var e in copy_empties) {
 									if (IsCusp(e, b) && IsTouch(e, w) && LineTwo.Contains(e)
 										&& LinkPoses(e).Intersect(copy_empties).Count() == 4) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									} else if (IsTouch(e, b) && IsCusp(e, w) && LineTwo.Contains(e)
 										 && LinkPoses(e).Intersect(copy_empties).Count() == 3) {
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 									}
 								}
 							}
@@ -783,8 +731,7 @@ namespace x01.Weiqi.Boards
 							if (LineOne.Contains(w) && IsCusp(w, b)) {
 								foreach (var e in copy_empties) {
 									if (IsTouch(e, b) && IsTouch(e, w) && LineOne.Contains(e))
-										//return e;
-										if (!m_AttackPoses.Contains(e)) m_AttackPoses.Add(e);
+										return e;
 								}
 							}
 						}
@@ -794,7 +741,7 @@ namespace x01.Weiqi.Boards
 
 			#endregion
 
-			return m_AttackPoses;
+			return Helper.InvalidPos;
 		}
 
 		Pos Defend()

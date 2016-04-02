@@ -48,48 +48,6 @@ namespace x01.Weiqi.Boards
 			}
 		}
 
-
-		List<Tuple<int, Pos>> m_BestPoses = new List<Tuple<int, Pos>>();
-		List<Pos> GetBestPoses()
-		{
-			m_BestPoses.Clear();
-
-			//var thinkPoses = m_AiThink.Think(R.Pattern);
-			var empties = EmptyPoses; //.Intersect(thinkPoses).ToList();
-			//foreach (var e in empties) {
-			//	UpdateMeshes_Base(e);
-			//	int count = m_BlackMeshes.Count - m_WhiteMeshes.Count + Helper.AdjustWorth(CurrentPos, e);
-			//	m_BestPoses.Add(new Tuple<int, Pos>(count, e));
-			//}
-
-			if (m_BestPoses.Count == 0) {
-				empties = EmptyPoses.Intersect(m_AiShape.Think().Union(Attack())).ToList();
-				foreach (var e in empties) {
-					UpdateMeshes_Base(e);
-					int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-					m_BestPoses.Add(new Tuple<int, Pos>(count, e));
-				}
-			}
-
-			if (m_BestPoses.Count == 0) {
-				if (m_StepCount > 128) return null;
-				foreach (var e in EmptyPoses) {
-					UpdateMeshes_Base(e);
-					int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-					m_BestPoses.Add(new Tuple<int, Pos>(count, e));
-				}
-			}
-
-			if (m_BestPoses.Count == 0) return null;
-
-			var key = m_BestPoses.OrderByDescending(b => b.Item1).First().Item1;
-			var result = from e in m_BestPoses
-						 where e.Item1 == key && m_EmptyMeshes.Contains(e.Item2)
-						 select e.Item2;
-
-			return result.ToList();
-		}
-
 		#region Mesh Helper
 
 		const int EndCount = 0;
