@@ -103,8 +103,8 @@
     <Compile Include="Boards\StepBoard.cs" />
     <Compile Include="Core\AiThink.cs" />
     <Compile Include="Core\Helper.cs" />
-    <Compile Include="Core\ShapeThink.cs" />
     <Compile Include="Core\IThink.cs" />
+    <Compile Include="Core\ShapeThink.cs" />
     <Compile Include="Models\Record.cs" />
     <Compile Include="Models\WeiqiContext.cs" />
     <Compile Include="Windows\AboutPage.xaml.cs">
