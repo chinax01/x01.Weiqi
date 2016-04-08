@@ -39,6 +39,7 @@ namespace x01.Weiqi
 			m_MenuLoad.Click += (s, e) => InitBoard(m_StepBoard);
 			m_MenuSave.Click += (s, e) => m_Board.SaveSteps();
 			m_MenuDelete.Click += (s, e) => new DeleteStepWindow().ShowDialog();
+			m_MenuEdit.Click += (s, e) => new EditStepWindow().ShowDialog();
 			m_MenuExit.Click += (s, e) => Close();
 
 			m_MenuShowNumber.Click += (s, e) => ShowNumber();
@@ -131,6 +132,8 @@ namespace x01.Weiqi
 			} else if (e.Key == Key.D && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
 				new DeleteStepWindow().ShowDialog();
 			} else if (e.Key == Key.E && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
+				new EditStepWindow().ShowDialog();
+			} else if (e.Key == Key.X && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
 				Close();
 			} else if (e.Key == Key.F1) {
 				ShowNumber();
@@ -143,7 +146,7 @@ namespace x01.Weiqi
 				ClearAll();
 			} else if (e.Key == Key.A && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
 				m_MenuAbout_Click(null, null);
-			} else if (e.Key == Key.P) {	// Pass
+			} else if (e.Key == Key.P) {    // Pass
 				m_Board.StepCount++;
 			}
 		}

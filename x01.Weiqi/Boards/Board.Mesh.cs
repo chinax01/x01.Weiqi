@@ -122,16 +122,16 @@ namespace x01.Weiqi.Boards
 		{
 			UpdateMeshes_Base(next);
 
-			for (int i = 2; i < 9; i++) {
-				UpdateMeshes_DeleteDead(i);
-			}
+			//for (int i = 2; i < 9; i++) {
+			//	UpdateMeshes_DeleteDead(i);
+			//}
 
-			UpdateMeshes_BigEmpty();
+			//UpdateMeshes_BigEmpty();
 
-			UpdateMeshes_DeadLife();  // 第一次涉及到比气
-			UpdateMeshes_DeadLife(false);
+			//UpdateMeshes_DeadLife();  // 第一次涉及到比气
+			//UpdateMeshes_DeadLife(false);
 
-			UpdateMeshes_End(); // 修正
+			//UpdateMeshes_End(); // 修正
 		}
 
 		void UpdateMeshes_Base(Pos next = default(Pos)) // 基本目添加
@@ -223,7 +223,7 @@ namespace x01.Weiqi.Boards
 		void AddPoses(List<Pos> poses, Pos pos)
 		{
 			var rounds = RoundOnePoses(pos).Intersect(EmptyPoses).ToList();
-			var area = rounds.ToList();
+			//var area = rounds.ToList();
 			foreach (var r in rounds) {
 				if (!poses.Contains(r)) poses.Add(r);
 			}
@@ -233,7 +233,7 @@ namespace x01.Weiqi.Boards
 				var links = LinkPoses(t).Intersect(LineTwo).ToList();
 				foreach (var l in links) {
 					if (!poses.Contains(l)) poses.Add(l);
-					if (!area.Contains(l)) area.Add(l);
+				//	if (!area.Contains(l)) area.Add(l);
 				}
 			}
 
@@ -242,7 +242,7 @@ namespace x01.Weiqi.Boards
 				var links = LinkPoses(t).Intersect(LineOne).ToList();
 				foreach (var l in links) {
 					if (!poses.Contains(l)) poses.Add(l);
-					if (!area.Contains(l)) area.Add(l);
+					//if (!area.Contains(l)) area.Add(l);
 				}
 			}
 		}

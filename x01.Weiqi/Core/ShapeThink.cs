@@ -37,7 +37,7 @@ namespace x01.Weiqi.Core
 					var shapeCount = shapeOrder.Count;
 					if (shapeCount >= count && count > 0) {
 						for (int i = 0; i < shapeCount; i++) {
-							if (shapeOrder[0].StoneColor == StoneColor.White || shapeOrder[1].StoneColor == StoneColor.Black)
+							if (i >= 1 && shapeOrder[i - 1].StoneColor == shapeOrder[i].StoneColor)
 								continue;
 
 							var p = shapeOrder[i];
@@ -45,7 +45,7 @@ namespace x01.Weiqi.Core
 								if (p.StoneColor == StoneColor.Black) {
 									var e = new Pos(p.Row - r, p.Col - c);
 									if (m_Board.EmptyPoses.Contains(e))
-										return e; 
+										return e;
 								}
 								break;
 							}

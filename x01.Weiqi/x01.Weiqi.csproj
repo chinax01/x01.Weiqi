@@ -113,6 +113,9 @@
     <Compile Include="Windows\DeleteStepWindow.xaml.cs">
       <DependentUpon>DeleteStepWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\EditStepWindow.xaml.cs">
+      <DependentUpon>EditStepWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\LoadStepWindow.xaml.cs">
       <DependentUpon>LoadStepWindow.xaml</DependentUpon>
     </Compile>
@@ -143,6 +146,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\DeleteStepWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\EditStepWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

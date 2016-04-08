@@ -396,10 +396,6 @@ namespace x01.Weiqi.Boards
 			if (result != m_InvalidPos)
 				return result;
 
-			result = m_GameThink.Think(R.Game);
-			if (result != Helper.InvalidPos)
-				return result;
-
 			result = m_LayoutThink.Think(R.Layout);
 			if (result != Helper.InvalidPos)
 				return result;

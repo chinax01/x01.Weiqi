@@ -203,3 +203,6 @@ C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.csproj.GenerateResourc
 C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.exe
 C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.pdb
 C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.csprojResolveAssemblyReference.cache
+C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\EditStepWindow.g.cs
+C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\EditStepWindow.baml

@@ -33,19 +33,19 @@ namespace x01.Weiqi.Boards
 
 			Init();
 
-			m_GameThink = new AiThink(this);
 			m_LayoutThink = new AiThink(this);
 			m_PatternThink = new AiThink(this);
 			m_ShapeThink = new ShapeThink(this);
 		}
-		AiThink m_GameThink, m_LayoutThink, m_PatternThink;
+		AiThink m_LayoutThink, m_PatternThink;
 		ShapeThink m_ShapeThink;
 
 		public bool IsShowNumber { get; set; }      // 是否显示步数
 		public bool IsShowCurrent { get; set; }     // 显示当前标志
 		public bool IsShowMesh { get; set; }        // 点目
 		public bool IsPlaySound { get; set; }       // 播放声音
-													// 控制棋盘和棋子大小
+													
+		// 控制棋盘和棋子大小
 		int m_StoneSize = 38;
 		public int StoneSize
 		{
@@ -640,13 +640,6 @@ namespace x01.Weiqi.Boards
 				return links;
 			}
 		}
-		//bool InRange(int row, int col)
-		//{
-		//	if (row >= 0 && row < 19 && col >= 0 && col < 19) {
-		//		return true;
-		//	}
-		//	return false;
-		//}
 
 		// + + +
 		// + + +	与 step 相围的棋子，包含自身
