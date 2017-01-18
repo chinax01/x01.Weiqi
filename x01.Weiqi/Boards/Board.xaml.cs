@@ -396,15 +396,27 @@ namespace x01.Weiqi.Boards
 			var number = m_Numbers[row, col];
 			if (IsShowNumber && stepCount >= 0) {
 				number.FontSize = GetFontSize(stepCount);
-				number.Padding = GetPadding(stepCount);
 				number.Foreground = stepCount % 2 == 0 ? Brushes.White : Brushes.Black;
 				number.Text = (stepCount + 1).ToString();
 				if (m_Steps[row, col].StoneColor == StoneColor.Empty)
 					number.Visibility = System.Windows.Visibility.Hidden;
 				else
 					number.Visibility = System.Windows.Visibility.Visible;
-				Canvas.SetLeft(number, col * StoneSize);
-				Canvas.SetTop(number, row * StoneSize);
+
+				double colOffset=0, rowOffset=0;
+				if (stepCount < 9) {
+					colOffset = StoneSize / 4.1;
+					rowOffset = -StoneSize / 10.1;
+				} else if (stepCount < 99) {
+					colOffset = StoneSize / 7.1;
+					rowOffset = StoneSize / 20.1;
+				} else {
+					colOffset = StoneSize / 16.1;
+					rowOffset = StoneSize / 6.1;
+				}
+
+				Canvas.SetLeft(number, col * StoneSize + colOffset);
+				Canvas.SetTop(number, row * StoneSize + rowOffset);
 			} else {
 				number.Visibility = System.Windows.Visibility.Hidden;
 			}
@@ -414,12 +426,6 @@ namespace x01.Weiqi.Boards
 			return stepCount < 9 ? StoneSize / 1.2
 				: stepCount < 99 ? StoneSize / 1.6
 				: StoneSize / 2;
-		}
-		private Thickness GetPadding(int stepCount)
-		{
-			return stepCount < 9 ? new Thickness(StoneSize / 4.1, 0, 0, 0)
-				: stepCount < 99 ? new Thickness(StoneSize / 8.1, StoneSize / 8.1, 0, 0)
-				: new Thickness(StoneSize / 22.1, StoneSize / 6.1, 0, 0);
 		}
 
 		#endregion
