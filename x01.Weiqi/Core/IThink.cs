@@ -9,6 +9,6 @@ namespace x01.Weiqi.Core
 	public interface IThink
 	{
 		// type: 对局，布局，定式，棋型
-		Pos Think(string type);
+		List<Pos> Think(string type);
 	}
 }

@@ -20,16 +20,19 @@ namespace x01.Weiqi.Boards
 		Random m_Rand = new Random();
 		protected readonly Pos m_InvalidPos = new Pos(-1, -1);
 		protected List<Pos> AllPoses { get; set; }
+		List<Pos> m_ThinkPoses = new List<Pos>(); // for FindPoses()
 
 		public Pos Think()
 		{
 			// 下棋是一种由不确定到确定的过程，没有人能证明这步棋不好，那么就可以抢先确定这一步。
 			if (StepCount == 0)
 				return new Pos(3, 3);
+			if (TwoStar() != m_InvalidPos)
+				return TwoStar();
+			
+			FindPoses();
 
-			Pos pos = FindPos();
-
-			return pos != m_InvalidPos ? pos : RandDown();
+			return BestPos();
 		}
 
 		#region Think Helper
@@ -196,7 +199,7 @@ namespace x01.Weiqi.Boards
 
 					// 枷
 					if (LinkPoses(p1).Intersect(BlackPoses).Count() == 1 && LinkPoses(p2).Intersect(BlackPoses).Count() == 1) {
-						var e_rounds = RoundOnePoses(p).Intersect(EmptyPoses).ToList();
+						var e_rounds = RoundPoses(p).Intersect(EmptyPoses).ToList();
 						foreach (var e in e_rounds) {
 							if (IsCusp(e, p) && IsTouch(e, p1) && IsTouch(e, p2))
 								return e;
@@ -207,10 +210,10 @@ namespace x01.Weiqi.Boards
 					var r2 = RoundTwoPoses(p).Intersect(WhitePoses).ToList();
 					foreach (var r in r2) {
 						if (IsFlyOne(p, r) && IsCusp(p1, r)
-							&& RoundOnePoses(r).Intersect(EmptyPoses).Count() == 8) {
+							&& RoundPoses(r).Intersect(EmptyPoses).Count() == 8) {
 							return p1;
 						} else if (IsFlyOne(p, r) && IsCusp(p2, r)
-								   && RoundOnePoses(r).Intersect(EmptyPoses).Count() == 8) {
+								   && RoundPoses(r).Intersect(EmptyPoses).Count() == 8) {
 							return p2;
 						}
 					}
@@ -368,47 +371,60 @@ namespace x01.Weiqi.Boards
 			return true;
 		}
 
-		List<Tuple<int, Pos>> m_RandPoses = new List<Tuple<int, Pos>>();
-		Pos RandDown()
+		Pos BestPos()
 		{
-			m_RandPoses.Clear();
 			var empties = EmptyPoses.ToList();
+			
+			int count = int.MinValue;
+			Pos pos = m_InvalidPos;
 			foreach (var e in empties) {
-				UpdateMeshes_Base(e);
-				int count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-				m_RandPoses.Add(new Tuple<int, Pos>(count, e));
+				UpdateMeshWorths(e);
+				
+				if (count < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
+					count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+					pos = e;
+				}
 			}
 
-			if (m_RandPoses.Count == 0 || m_StepCount > 260) {
-				ShowMeshes();
+			if (pos == m_InvalidPos || m_StepCount > 260) {
+				ShowMeshes();  // game over
 			}
-
-			var key = m_RandPoses.OrderByDescending(b => b.Item1).First().Item1;
-			var result = m_RandPoses.Where(r => r.Item1 == key).Select(r => r.Item2).ToList();
-			int i = m_Rand.Next(0, result.Count - 1);
-			return result[i];
+			
+			var rounds = RoundPoses(pos).Intersect(empties);
+			foreach (var r in rounds) {
+				if (m_ThinkPoses.Contains(r)) return r;
+			}
+			
+			var currents = RoundSixPoses(CurrentPos).Intersect(empties);
+			foreach (var c in currents) {
+				if (m_ThinkPoses.Contains(c)) return c;
+			}
+			
+			return pos;
 		}
 
-		private Pos FindPos()
+		private void FindPoses()
 		{
-			Pos result = m_InvalidPos;
-			result = TwoStar();
-			if (result != m_InvalidPos)
-				return result;
-
-			result = m_LayoutThink.Think(R.Layout);
-			if (result != Helper.InvalidPos)
-				return result;
-
-			result = m_PatternThink.Think(R.Pattern);
-			if (result != Helper.InvalidPos)
-				return result;
-
-			result = CompareEmpty();
-			if (result != m_InvalidPos)
-				return result;
-
-			return result;
+			m_ThinkPoses.Clear();
+			
+			//var temp = m_GameThink.Think(R.Game);
+			//m_ThinkPoses.AddRange(temp);
+			
+			//temp = m_LayoutThink.Think(R.Layout);
+			//m_ThinkPoses.AddRange(temp);
+			
+			var temp = m_PatternThink.Think(R.Pattern);
+			m_ThinkPoses.AddRange(temp);
+			
+//			temp = m_ShapeThink.Think(R.Shape);
+//			m_ThinkPoses.AddRange(temp);
+			
+			var oneEmpty = OneEmpty();
+			if (m_ThinkPoses.Contains(oneEmpty))
+				m_ThinkPoses.Add(oneEmpty);
+			
+			UpdateMeshWorths(m_InvalidPos);
+			m_ThinkPoses.AddRange(m_DeadLifeKeyPoses);
 		}
 
 		#endregion
@@ -568,7 +584,7 @@ namespace x01.Weiqi.Boards
 		// + + +
 		// + + +	return shape
 		// + + +
-		List<Pos> RoundOnePoses(Pos pos)
+		List<Pos> RoundPoses(Pos pos) // one
 		{
 			var rounds = new List<Pos>();
 			for (int i = -1; i < 2; i++) {
@@ -633,6 +649,30 @@ namespace x01.Weiqi.Boards
 			var rounds = new List<Pos>();
 			for (int i = -6; i < 7; i++) {
 				for (int j = -6; j < 7; j++) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
+						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
+					}
+				}
+			}
+			return rounds;
+		}
+		List<Pos> RoundSevenPoses(Pos pos)
+		{
+			var rounds = new List<Pos>();
+			for (int i = -7; i < 8; i++) {
+				for (int j = -7; j < 8; j++) {
+					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
+						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
+					}
+				}
+			}
+			return rounds;
+		}
+		List<Pos> RoundEightPoses(Pos pos)
+		{
+			var rounds = new List<Pos>();
+			for (int i = -8; i < 9; i++) {
+				for (int j = -8; j < 9; j++) {
 					if (Helper.InRange(pos.Row + i, pos.Col + j)) {
 						rounds.Add(new Pos(pos.Row + i, pos.Col + j));
 					}

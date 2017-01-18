@@ -27,8 +27,10 @@ namespace x01.Weiqi.Core
 			return m_Shapes;
 		}
 
-		public virtual Pos Think(string type)
+		public virtual List<Pos> Think(string type)
 		{
+			List<Pos> result = new List<Pos>();
+			
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses);
 
@@ -41,8 +43,9 @@ namespace x01.Weiqi.Core
 					for (int i = 0; i < shapeCound; i++) {
 						if (i > areaCount - 1) {
 							if (shape[i].StoneColor == StoneColor.Black) {
-								if (m_Board.EmptyPoses.Contains(shape[i]))
-									return shape[i];
+								if (m_Board.EmptyPoses.Contains(shape[i]) && !result.Contains(shape[i]))
+									//return shape[i];
+									result.Add(shape[i]);
 							}
 							break;
 						}
@@ -64,8 +67,9 @@ namespace x01.Weiqi.Core
 					for (int i = 0; i < shapeCound; i++) {
 						if (i > areaCount - 1) {
 							if (shape[i].StoneColor == StoneColor.Black) {
-								if (m_Board.EmptyPoses.Contains(shape[i]))
-									return shape[i];
+								if (m_Board.EmptyPoses.Contains(shape[i]) && !result.Contains(shape[i]))
+									//return shape[i];
+									result.Add(shape[i]);
 							}
 							break;
 						}
@@ -78,7 +82,8 @@ namespace x01.Weiqi.Core
 					}
 				}
 			}
-			return Helper.InvalidPos;
+			
+			return result;
 		}
 	}
 }

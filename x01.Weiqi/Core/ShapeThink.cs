@@ -13,8 +13,10 @@ namespace x01.Weiqi.Core
 		}
 
 		// type: shape => 以 （9，9） 为起点保存数据
-		public override Pos Think(string type)
+		public override List<Pos> Think(string type)
 		{
+			var result = new List<Pos>();
+			
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses).ToList();
 			var rounds = all.Intersect(Helper.RoundPoses(m_Board.CurrentPos, 6)).ToList();
@@ -37,15 +39,19 @@ namespace x01.Weiqi.Core
 					var shapeCount = shapeOrder.Count;
 					if (shapeCount >= count && count > 0) {
 						for (int i = 0; i < shapeCount; i++) {
-							if (i >= 1 && shapeOrder[i - 1].StoneColor == shapeOrder[i].StoneColor)
+							if (i > 0 && shapeOrder[i].StoneColor == StoneColor.Black 
+							    && shapeOrder[i-1].StoneColor == shapeOrder[i].StoneColor) 
+							{
 								continue;
+							}
 
 							var p = shapeOrder[i];
 							if (i > count - 1) {
 								if (p.StoneColor == StoneColor.Black) {
 									var e = new Pos(p.Row - r, p.Col - c);
-									if (m_Board.EmptyPoses.Contains(e))
-										return e;
+									if (m_Board.EmptyPoses.Contains(e) && !result.Contains(e))
+										//return e;
+										result.Add(e);
 								}
 								break;
 							}
@@ -82,8 +88,8 @@ namespace x01.Weiqi.Core
 							if (i > count - 1) {
 								if (p.StoneColor == StoneColor.Black) {
 									var e = new Pos(p.Row - r, p.Col - c);
-									if (m_Board.EmptyPoses.Contains(e))
-										return e;
+									if (m_Board.EmptyPoses.Contains(e) && !result.Contains(e))
+										result.Add(e);
 								}
 								break;
 							}
@@ -97,7 +103,7 @@ namespace x01.Weiqi.Core
 				}
 			}
 
-			return Helper.InvalidPos;
+			return result;
 		}
 	}
 }

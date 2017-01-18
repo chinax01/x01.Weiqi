@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\
+E:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\
 x01.Weiqi
 none
 false
 DEBUG;TRACE
-C:\Lab\github\x01.Weiqi\x01.Weiqi\App.xaml
+E:\Lab\github\x01.Weiqi\x01.Weiqi\App.xaml
 8819384571
 2706063157
 25-1609607191
-19384059299
+19-741281295
 Boards\Board.xaml;MainWindow.xaml;Windows\AboutPage.xaml;Windows\DeleteStepWindow.xaml;Windows\EditStepWindow.xaml;Windows\LoadStepWindow.xaml;Windows\SaveStepWindow.xaml;Windows\WaitWindow.xaml;
 
 False
