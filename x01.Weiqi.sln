@@ -1,11 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
+# Visual Studio 2012
+# SharpDevelop 4.4
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "x01.Weiqi", "x01.Weiqi\x01.Weiqi.csproj", "{40846E74-FE77-4662-871E-4E346F82B5CE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "x01.WeiqiTest", "x01.WeiqiTest\x01.WeiqiTest.csproj", "{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +20,6 @@ Global
 		{40846E74-FE77-4662-871E-4E346F82B5CE}.Release|Any CPU.ActiveCfg = Release|x86
 		{40846E74-FE77-4662-871E-4E346F82B5CE}.Release|x86.ActiveCfg = Release|x86
 		{40846E74-FE77-4662-871E-4E346F82B5CE}.Release|x86.Build.0 = Release|x86
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Debug|x86.Build.0 = Debug|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Release|x86.ActiveCfg = Release|Any CPU
-		{DAC6BCC8-6B46-4BA6-8CF6-94D3FF281B5D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

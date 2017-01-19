@@ -243,6 +243,8 @@ namespace x01.Weiqi.Boards
 
 			SaveStepWindow dlg = new SaveStepWindow();
 			dlg.ShowDialog();
+			if (dlg.IsOk == false) return;
+			
 			using (var db = new WeiqiContext()) {
 				Record record = new Record {
 					Black = dlg.BlackName,
@@ -261,8 +263,6 @@ namespace x01.Weiqi.Boards
 
 		#region Init
 
-
-
 		SoundPlayer m_Player = new SoundPlayer();
 
 		StringBuilder m_StepString = new StringBuilder(2000);   // 保存棋谱
@@ -274,8 +274,7 @@ namespace x01.Weiqi.Boards
 		Step[,] m_Steps = new Step[19, 19];                 // 棋步，逻辑棋子
 		Step m_CurrentStep = null;
 
-		Ellipse[,] m_Stones = new Ellipse[19, 19];          // 棋子，仅为显示
-		TextBlock[,] m_Numbers = new TextBlock[19, 19];     // 步数
+		Stone[,] m_Stones = new Stone[19,19];   			// 棋子，含步数
 
 		// 棋盘纵横线和星
 		Line[] m_LinesH = new Line[19];
@@ -324,14 +323,9 @@ namespace x01.Weiqi.Boards
 
 			for (int i = 0; i < 19; i++) {
 				for (int j = 0; j < 19; j++) {
-					m_Stones[i, j] = new Ellipse();
+					m_Stones[i,j] = new Stone();
 					m_Stones[i, j].Visibility = Visibility.Hidden;
 					m_Canvas.Children.Add(m_Stones[i, j]);
-
-					m_Numbers[i, j] = new TextBlock();
-					m_Numbers[i, j].Background = Brushes.Transparent;
-					m_Numbers[i, j].Visibility = Visibility.Hidden;
-					m_Canvas.Children.Add(m_Numbers[i, j]);
 
 					m_Steps[i, j] = new Step();
 					m_Steps[i, j].Row = i;
@@ -393,32 +387,19 @@ namespace x01.Weiqi.Boards
 
 		private void ShowNumber(int row, int col, int stepCount)
 		{
-			var number = m_Numbers[row, col];
+			var number = m_Stones[row, col];
+			number.Width = number.Height = number.StoneSize = StoneSize;
 			if (IsShowNumber && stepCount >= 0) {
-				number.FontSize = GetFontSize(stepCount);
-				number.Foreground = stepCount % 2 == 0 ? Brushes.White : Brushes.Black;
-				number.Text = (stepCount + 1).ToString();
+				number.NumberFontSize = GetFontSize(stepCount);
+				number.NumberForeground = stepCount % 2 == 0 ? Brushes.White : Brushes.Black;
+				number.NumberText = (stepCount + 1).ToString();
+				
 				if (m_Steps[row, col].StoneColor == StoneColor.Empty)
-					number.Visibility = System.Windows.Visibility.Hidden;
+					number.NumberVisibility = System.Windows.Visibility.Hidden;
 				else
-					number.Visibility = System.Windows.Visibility.Visible;
-
-				double colOffset=0, rowOffset=0;
-				if (stepCount < 9) {
-					colOffset = StoneSize / 4.1;
-					rowOffset = -StoneSize / 10.1;
-				} else if (stepCount < 99) {
-					colOffset = StoneSize / 7.1;
-					rowOffset = StoneSize / 20.1;
-				} else {
-					colOffset = StoneSize / 16.1;
-					rowOffset = StoneSize / 6.1;
-				}
-
-				Canvas.SetLeft(number, col * StoneSize + colOffset);
-				Canvas.SetTop(number, row * StoneSize + rowOffset);
+					number.NumberVisibility = System.Windows.Visibility.Visible;
 			} else {
-				number.Visibility = System.Windows.Visibility.Hidden;
+				number.NumberVisibility = System.Windows.Visibility.Hidden;
 			}
 		}
 		private double GetFontSize(int stepCount)
@@ -446,7 +427,8 @@ namespace x01.Weiqi.Boards
 			Brush brush = count % 2 == 0 ? BlackBrush : WhiteBrush;
 			var stone = m_Stones[row, col];
 			stone.Width = stone.Height = StoneSize;
-			stone.Fill = brush;
+			//stone.Fill = brush;
+			stone.StoneBrush = brush;
 			stone.Visibility = System.Windows.Visibility.Visible;
 			Canvas.SetLeft(stone, col * StoneSize);
 			Canvas.SetTop(stone, row * StoneSize);
@@ -462,7 +444,7 @@ namespace x01.Weiqi.Boards
 			m_Steps[row, col].StepCount = -1;
 			m_Steps[row, col].StoneColor = StoneColor.Empty;
 			m_Stones[row, col].Visibility = System.Windows.Visibility.Hidden;
-			m_Numbers[row, col].Visibility = System.Windows.Visibility.Hidden;
+			//m_Numbers[row, col].Visibility = System.Windows.Visibility.Hidden;
 		}
 
 		/// <summary>
@@ -485,7 +467,8 @@ namespace x01.Weiqi.Boards
 			}
 
 			m_Stones[row, col].Visibility = System.Windows.Visibility.Visible;
-			m_Stones[row, col].Fill =
+			//m_Stones[row, col].Fill =
+			m_Stones[row,col].StoneBrush =
 				step.StoneColor == StoneColor.Black ? BlackBrush : WhiteBrush;
 
 			ShowNumber(row, col, step.StepCount);

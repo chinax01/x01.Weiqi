@@ -101,6 +101,10 @@
     <Compile Include="Boards\ForBoard.cs" />
     <Compile Include="Boards\GameBoard.cs" />
     <Compile Include="Boards\StepBoard.cs" />
+    <Compile Include="Boards\Stone.xaml.cs">
+      <DependentUpon>Stone.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Core\AiThink.cs" />
     <Compile Include="Core\Helper.cs" />
     <Compile Include="Core\IThink.cs" />
@@ -129,6 +133,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Boards\Stone.xaml" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

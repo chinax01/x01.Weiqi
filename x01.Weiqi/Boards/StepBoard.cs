@@ -16,9 +16,12 @@ namespace x01.Weiqi.Boards
 		{
 			LoadStepWindow dlg = new LoadStepWindow();
 			dlg.ShowDialog();
+			var title = dlg.Title;
+			dlg.Title = "Loading...";
 			m_Record = dlg.Record;
 			if (m_Record == null) return;
 			ShowAll();
+			dlg.Title = title;
 		}
 
 		protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)

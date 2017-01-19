@@ -23,6 +23,7 @@ namespace x01.Weiqi.Windows
 		public string WhiteName { get; set; }
 		public string Result { get; set; }
 		public string Type { get; set; }
+		public bool IsOk { get; set; }
 
 		public SaveStepWindow()
 		{
@@ -36,11 +37,13 @@ namespace x01.Weiqi.Windows
 			WhiteName = m_WhiteName.Text;
 			Result = m_Result.Text;
 			Type = m_Type.SelectedValue.ToString();
+			IsOk = true;
 			Close();
 		}
 
 		private void Cancel_Click(object sender, RoutedEventArgs e)
 		{
+			IsOk = false;
 			Close();
 		}
 	}

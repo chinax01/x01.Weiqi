@@ -271,3 +271,5 @@ C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Windows\EditStepWind
 C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.g.resources
 C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.Properties.Resources.resources
 C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\obj\x86\Debug\x01.Weiqi.csproj.GenerateResource.Cache
+E:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Boards\Stone.baml
+E:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\Boards\Stone.g.cs

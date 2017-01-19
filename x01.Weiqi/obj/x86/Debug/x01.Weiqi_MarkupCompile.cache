@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\obj\x86\Debug\
+E:\Lab\github\x01.Weiqi\x01.Weiqi\obj\x86\Debug\
 x01.Weiqi
 none
 false
 DEBUG;TRACE
-C:\Users\x01\Source\Repos\x01.Weiqi\x01.Weiqi\App.xaml
-8819384571
+E:\Lab\github\x01.Weiqi\x01.Weiqi\App.xaml
+92145697174
 2706063157
-25-1609607191
-19-828999852
-Boards\Board.xaml;MainWindow.xaml;Windows\AboutPage.xaml;Windows\DeleteStepWindow.xaml;Windows\EditStepWindow.xaml;Windows\LoadStepWindow.xaml;Windows\SaveStepWindow.xaml;Windows\WaitWindow.xaml;
+26496949671
+19-741281295
+Boards\Board.xaml;Boards\Stone.xaml;MainWindow.xaml;Windows\AboutPage.xaml;Windows\DeleteStepWindow.xaml;Windows\EditStepWindow.xaml;Windows\LoadStepWindow.xaml;Windows\SaveStepWindow.xaml;Windows\WaitWindow.xaml;
 
 False
 
