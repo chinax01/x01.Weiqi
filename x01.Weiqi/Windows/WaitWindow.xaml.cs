@@ -24,5 +24,11 @@ namespace x01.Weiqi.Windows
 
 			MouseLeftButtonDown += (s, e) => Hide();
 		}
+		
+		public string WaitText 
+		{ 
+			get { return m_WaitText.Text; }
+			set { m_WaitText.Text = value; }
+		}
 	}
 }

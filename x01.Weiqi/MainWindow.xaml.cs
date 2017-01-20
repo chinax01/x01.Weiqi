@@ -101,8 +101,9 @@ namespace x01.Weiqi
 				m_Grid.Children.Remove(m_Board);
 
 			board.IsShowCurrent = false;
-			if (board == m_StepBoard)
+			if (board == m_StepBoard) {
 				(board as StepBoard).LoadSteps();
+			}
 			m_Board = board;
 			m_Grid.Children.Add(m_Board);
 			m_Board.SetValue(Grid.RowProperty, 1);

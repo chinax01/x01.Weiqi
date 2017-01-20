@@ -38,25 +38,23 @@ namespace x01.Weiqi.Boards
 			if (NextOne(pos.Row, pos.Col)) {
 				m_WaitWindow.Hide();
 				m_CanDown = true;
-				return;
-			}
+			}  
 		}
 
 		protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
 		{
-			base.OnMouseLeftButtonDown(e);
 			if (!m_CanDown) return;
+			
 			int row = (int)e.GetPosition(this).Y / StoneSize;
 			int col = (int)e.GetPosition(this).X / StoneSize;
 			if (NextOne(row, col)) {
-				m_WaitWindow.Show();
 				m_CanDown = false;
+				m_WaitWindow.Show();
 			}
 		}
 
 		protected override void OnMouseRightButtonDown(System.Windows.Input.MouseButtonEventArgs e)
 		{
-			base.OnMouseRightButtonDown(e);
 			BackOne();
 			BackOne();
 		}

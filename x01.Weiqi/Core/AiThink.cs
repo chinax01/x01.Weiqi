@@ -34,30 +34,30 @@ namespace x01.Weiqi.Core
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses);
 
-			var rounds = all.Intersect(Helper.RoundPoses(m_Board.CurrentPos, 5));
-			foreach (var shape in shapes) {
-				var area = rounds.OrderBy(r => r.StepCount).ToList();
-				int areaCount = area.Count;
-				int shapeCound = shape.Count;
-				if (shapeCound >= areaCount && areaCount > 0) {
-					for (int i = 0; i < shapeCound; i++) {
-						if (i > areaCount - 1) {
-							if (shape[i].StoneColor == StoneColor.Black) {
-								if (m_Board.EmptyPoses.Contains(shape[i]) && !result.Contains(shape[i]))
-									//return shape[i];
-									result.Add(shape[i]);
-							}
-							break;
-						}
-
-						if (area[i] == shape[i] && area[i].StoneColor == shape[i].StoneColor) {
-							continue;
-						} else {
-							break;
-						}
-					}
-				}
-			}
+//			var rounds = all.Intersect(Helper.RoundPoses(m_Board.CurrentPos, 5));
+//			foreach (var shape in shapes) {
+//				var area = rounds.OrderBy(r => r.StepCount).ToList();
+//				int areaCount = area.Count;
+//				int shapeCound = shape.Count;
+//				if (shapeCound >= areaCount && areaCount > 0) {
+//					for (int i = 0; i < shapeCound; i++) {
+//						if (i > areaCount - 1) {
+//							if (shape[i].StoneColor == StoneColor.Black) {
+//								if (m_Board.EmptyPoses.Contains(shape[i]) && !result.Contains(shape[i]))
+//									//return shape[i];
+//									result.Add(shape[i]);
+//							}
+//							break;
+//						}
+//
+//						if (area[i] == shape[i] && area[i].StoneColor == shape[i].StoneColor) {
+//							continue;
+//						} else {
+//							break;
+//						}
+//					}
+//				}
+//			}
 
 			foreach (var shape in shapes) {
 				var area = all.Intersect(Helper.GetArea(shape)).OrderBy(p => p.StepCount).ToList();

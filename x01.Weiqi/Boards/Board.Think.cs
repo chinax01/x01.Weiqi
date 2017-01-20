@@ -373,13 +373,22 @@ namespace x01.Weiqi.Boards
 
 		Pos BestPos()
 		{
-			var empties = EmptyPoses.ToList();
-			
 			int count = int.MinValue;
 			Pos pos = m_InvalidPos;
+
+			foreach (var t in m_ThinkPoses) {
+				UpdateMeshWorths(t);
+				if (count < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
+					count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+					pos = t;
+				}
+			}
+			if (pos != Helper.InvalidPos) 
+				return pos;
+			
+			var empties = EmptyPoses.Except(m_ThinkPoses).ToList();
 			foreach (var e in empties) {
 				UpdateMeshWorths(e);
-				
 				if (count < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
 					count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
 					pos = e;
@@ -390,41 +399,35 @@ namespace x01.Weiqi.Boards
 				ShowMeshes();  // game over
 			}
 			
-			var rounds = RoundPoses(pos).Intersect(empties);
+			var rounds = Helper.RoundPoses(pos).Intersect(empties);
 			foreach (var r in rounds) {
 				if (m_ThinkPoses.Contains(r)) return r;
 			}
 			
-			var currents = RoundSixPoses(CurrentPos).Intersect(empties);
+			var currents = Helper.RoundPoses(CurrentPos,3).Intersect(empties);
 			foreach (var c in currents) {
 				if (m_ThinkPoses.Contains(c)) return c;
 			}
 			
 			return pos;
 		}
-
+		
 		private void FindPoses()
 		{
 			m_ThinkPoses.Clear();
 			
-			//var temp = m_GameThink.Think(R.Game);
-			//m_ThinkPoses.AddRange(temp);
-			
-			//temp = m_LayoutThink.Think(R.Layout);
-			//m_ThinkPoses.AddRange(temp);
-			
-			var temp = m_PatternThink.Think(R.Pattern);
+			var temp = m_ShapeThink.Think(R.Game);
 			m_ThinkPoses.AddRange(temp);
 			
-//			temp = m_ShapeThink.Think(R.Shape);
-//			m_ThinkPoses.AddRange(temp);
+			temp = m_PatternThink.Think(R.Pattern);
+			m_ThinkPoses.AddRange(temp);
 			
 			var oneEmpty = OneEmpty();
 			if (m_ThinkPoses.Contains(oneEmpty))
 				m_ThinkPoses.Add(oneEmpty);
 			
-			UpdateMeshWorths(m_InvalidPos);
-			m_ThinkPoses.AddRange(m_DeadLifeKeyPoses);
+			//UpdateMeshWorths(m_InvalidPos);
+			//m_ThinkPoses.AddRange(m_DeadLifeKeyPoses);
 		}
 
 		#endregion

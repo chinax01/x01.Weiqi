@@ -21,7 +21,6 @@ namespace x01.Weiqi.Boards
 		public Stone()
 		{
 			InitializeComponent();
-			Init();
 		}
 		
 		public Brush StoneBrush 
@@ -53,19 +52,6 @@ namespace x01.Weiqi.Boards
 		{
 			get { return number.Foreground; }
 			set { number.Foreground = value; }
-		}
-		
-		void Init()
-		{
-			number.Background = Brushes.Transparent;
-			//number.TextAlignment = TextAlignment.Center;
-			//Width = Height = StoneSize;
-			//HorizontalContentAlignment = HorizontalAlignment.Center;
-			//VerticalContentAlignment = VerticalAlignment.Center;
-			//HorizontalAlignment = HorizontalAlignment.Center;
-			//VerticalAlignment = VerticalAlignment.Center;
-			number.HorizontalAlignment = HorizontalAlignment.Center;
-			number.VerticalAlignment = VerticalAlignment.Center;
 		}
 	}
 }

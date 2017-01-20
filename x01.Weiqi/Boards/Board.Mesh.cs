@@ -24,19 +24,21 @@ namespace x01.Weiqi.Boards
 		
 		void UpdateMeshWorths(Pos next)
 		{
+			var blackPoses = BlackPoses.ToList();
+			var whitePoses = WhitePoses.ToList();
 			for (int i = 0; i < 19; i++) {
 				for (int j = 0; j < 19; j++) {
 					m_MeshWorths[i,j] = 0;
 				}
 			}
 			
-			foreach (var p in BlackPoses) {
+			foreach (var p in blackPoses) {
 				SetMeshWorth(p, true);
 			}
 			if (EmptyPoses.Contains(next))
 				SetMeshWorth(next,true);
 			
-			foreach (var p in WhitePoses) {
+			foreach (var p in whitePoses) {
 				SetMeshWorth(p,false);
 			}
 			
@@ -52,9 +54,11 @@ namespace x01.Weiqi.Boards
 			}
 			
 			FillMeshEmpty(1);
-			UpdateMeshes_DeadLife(true);
-			UpdateMeshes_DeadLife(false);
-			FillMeshEmpty(2);
+			if (StepCount > 120) {
+				UpdateMeshes_DeadLife(true);
+				UpdateMeshes_DeadLife(false);
+				FillMeshEmpty(2);
+			}
 		}
 		
 		void SetMeshWorth(Pos pos, bool isBlack)

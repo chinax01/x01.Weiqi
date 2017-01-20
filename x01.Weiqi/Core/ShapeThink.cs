@@ -11,98 +11,38 @@ namespace x01.Weiqi.Core
 		public ShapeThink(Board board) : base(board)
 		{
 		}
-
-		// type: shape => 以 （9，9） 为起点保存数据
+		
+		// type == R.Game
 		public override List<Pos> Think(string type)
 		{
 			var result = new List<Pos>();
-			
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses).ToList();
-			var rounds = all.Intersect(Helper.RoundPoses(m_Board.CurrentPos, 6)).ToList();
-			var back = all.ToList();
-			var temp = new List<Pos>();
+			var rounds = Helper.RoundPoses(m_Board.CurrentPos, 2);
+			
+			foreach (var shape in shapes) {
+				var area = all.Intersect(rounds).OrderBy(p => p.StepCount).ToList();
+				var shapeArea = shape.Intersect(rounds).OrderBy(p=>p.StepCount).ToList();
+				int areaCount = area.Count;
+				int shapeCound = shapeArea.Count;
+				if (shapeCound >= areaCount && areaCount > 0) {
+					for (int i = 0; i < shapeCound; i++) {
+						if (i > areaCount - 1) {
+							if (shapeArea[i].StoneColor == StoneColor.Black) {
+								if (m_Board.EmptyPoses.Contains(shapeArea[i]) && !result.Contains(shapeArea[i]))
+									result.Add(shape[i]);
+							}
+							break;
+						}
 
-			foreach (var round in rounds) {
-				temp.Clear();
-				int r = 9 - round.Row;
-				int c = 9 - round.Col;
-				foreach (var b in back) {
-					if (!Helper.InRange(b.Row + r, b.Col + c)) continue;
-					var pos = new Pos(b.Row + r, b.Col + c, b.StoneColor, b.StepCount);
-					temp.Add(pos);
-				}
-				foreach (var shape in shapes) {
-					var intersect = temp.Intersect(Helper.GetArea(shape)).OrderBy(p => p.StepCount).ToList();
-					var shapeOrder = shape.OrderBy(p => p.StepCount).ToList();
-					var count = intersect.Count;
-					var shapeCount = shapeOrder.Count;
-					if (shapeCount >= count && count > 0) {
-						for (int i = 0; i < shapeCount; i++) {
-							if (i > 0 && shapeOrder[i].StoneColor == StoneColor.Black 
-							    && shapeOrder[i-1].StoneColor == shapeOrder[i].StoneColor) 
-							{
-								continue;
-							}
-
-							var p = shapeOrder[i];
-							if (i > count - 1) {
-								if (p.StoneColor == StoneColor.Black) {
-									var e = new Pos(p.Row - r, p.Col - c);
-									if (m_Board.EmptyPoses.Contains(e) && !result.Contains(e))
-										//return e;
-										result.Add(e);
-								}
-								break;
-							}
-							if (intersect[i] == p && intersect[i].StoneColor == p.StoneColor) {
-								continue;
-							} else {
-								break;
-							}
+						if (area[i] == shapeArea[i] && area[i].StoneColor == shapeArea[i].StoneColor) {
+							continue;
+						} else {
+							break;
 						}
 					}
 				}
 			}
-
-			foreach (var a in all) {
-				temp.Clear();
-				int r = 9 - a.Row;
-				int c = 9 - a.Col;
-				foreach (var b in back) {
-					if (!Helper.InRange(b.Row + r, b.Col + c)) continue;
-					var pos = new Pos(b.Row + r, b.Col + c, b.StoneColor, b.StepCount);
-					if (!temp.Contains(pos)) temp.Add(pos);
-				}
-				foreach (var shape in shapes) {
-					var intersect = temp.Intersect(Helper.GetArea(shape)).OrderBy(p => p.StepCount).ToList();
-					var shapeOrder = shape.OrderBy(p => p.StepCount).ToList();
-					var count = intersect.Count;
-					var shapeCount = shapeOrder.Count;
-					if (shapeCount >= count && count > 0) {
-						for (int i = 0; i < shapeCount; i++) {
-							if (shapeOrder[0].StoneColor == StoneColor.White || shapeOrder[1].StoneColor == StoneColor.Black)
-								continue;
-
-							var p = shapeOrder[i];
-							if (i > count - 1) {
-								if (p.StoneColor == StoneColor.Black) {
-									var e = new Pos(p.Row - r, p.Col - c);
-									if (m_Board.EmptyPoses.Contains(e) && !result.Contains(e))
-										result.Add(e);
-								}
-								break;
-							}
-							if (intersect[i] == p && intersect[i].StoneColor == p.StoneColor) {
-								continue;
-							} else {
-								break;
-							}
-						}
-					}
-				}
-			}
-
 			return result;
 		}
 	}

@@ -33,11 +33,10 @@ namespace x01.Weiqi.Boards
 
 			Init();
 
-			m_LayoutThink = new AiThink(this);
-			m_PatternThink = new AiThink(this);
 			m_ShapeThink = new ShapeThink(this);
+			m_PatternThink = new AiThink(this);
 		}
-		AiThink m_LayoutThink, m_PatternThink;
+		AiThink m_PatternThink;
 		ShapeThink m_ShapeThink;
 
 		public bool IsShowNumber { get; set; }      // 是否显示步数
@@ -390,7 +389,7 @@ namespace x01.Weiqi.Boards
 			var number = m_Stones[row, col];
 			number.Width = number.Height = number.StoneSize = StoneSize;
 			if (IsShowNumber && stepCount >= 0) {
-				number.NumberFontSize = GetFontSize(stepCount);
+				number.NumberFontSize = StoneSize / 1.8;
 				number.NumberForeground = stepCount % 2 == 0 ? Brushes.White : Brushes.Black;
 				number.NumberText = (stepCount + 1).ToString();
 				
@@ -401,12 +400,6 @@ namespace x01.Weiqi.Boards
 			} else {
 				number.NumberVisibility = System.Windows.Visibility.Hidden;
 			}
-		}
-		private double GetFontSize(int stepCount)
-		{
-			return stepCount < 9 ? StoneSize / 1.2
-				: stepCount < 99 ? StoneSize / 1.6
-				: StoneSize / 2;
 		}
 
 		#endregion
