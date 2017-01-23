@@ -58,6 +58,11 @@ namespace x01.Weiqi.Windows
 			}
 			int id = (int)m_Id.SelectedValue;
 			using (var db = new WeiqiContext()) {
+				// delete all
+//				var records = db.Records.ToList();
+//				foreach (var r in records) {
+//					db.Records.Remove(r);
+//				}
 				var record = db.Records.Where(r => r.Id == id).First();
 				db.Records.Remove(record);
 				db.SaveChanges();

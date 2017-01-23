@@ -10,7 +10,10 @@ namespace x01.Weiqi.Core
 	{
 		public ShapeThink(Board board) : base(board)
 		{
+			CurrentPos = Helper.InvalidPos;
 		}
+		
+		public Pos CurrentPos { get; set; }
 		
 		// type == R.Game
 		public override List<Pos> Think(string type)
@@ -18,7 +21,10 @@ namespace x01.Weiqi.Core
 			var result = new List<Pos>();
 			var shapes = GetShapes(type);
 			var all = m_Board.BlackPoses.Union(m_Board.WhitePoses).Union(m_Board.DeadPoses).ToList();
-			var rounds = Helper.RoundPoses(m_Board.CurrentPos, 2);
+			
+			if (CurrentPos == Helper.InvalidPos)
+				CurrentPos = m_Board.CurrentPos;
+			var rounds = Helper.RoundPoses(CurrentPos, 3);
 			
 			foreach (var shape in shapes) {
 				var area = all.Intersect(rounds).OrderBy(p => p.StepCount).ToList();

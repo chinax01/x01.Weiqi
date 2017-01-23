@@ -23,6 +23,7 @@
 				<MenuItem Header="保存棋谱(_S)" ToolTip="Save  Ctl+S" Name="m_MenuSave"></MenuItem>
 				<MenuItem Header="编辑棋谱(_E)" ToolTip="Edit  Ctl+E" Name="m_MenuEdit"></MenuItem>
 				<MenuItem Header="删除棋谱(_D)" ToolTip="Delete  Ctl+D" Name="m_MenuDelete"></MenuItem>
+				<MenuItem Header="导入SGF棋谱(_T)" ToolTip="Delete  Ctl+T" Name="m_MenuImport"></MenuItem>
 				<Separator />
 				<MenuItem Header="退出(_X)" ToolTip="Exit  Ctl+X" Name="m_MenuExit"></MenuItem>
 			</MenuItem>

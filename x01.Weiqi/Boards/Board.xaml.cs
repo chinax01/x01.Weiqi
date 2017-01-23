@@ -389,7 +389,9 @@ namespace x01.Weiqi.Boards
 			var number = m_Stones[row, col];
 			number.Width = number.Height = number.StoneSize = StoneSize;
 			if (IsShowNumber && stepCount >= 0) {
-				number.NumberFontSize = StoneSize / 1.8;
+				number.NumberFontSize = stepCount < 9 ? StoneSize / 1.5 
+					: stepCount < 99 ? StoneSize / 1.8 
+					: StoneSize / 1.95;
 				number.NumberForeground = stepCount % 2 == 0 ? Brushes.White : Brushes.Black;
 				number.NumberText = (stepCount + 1).ToString();
 				

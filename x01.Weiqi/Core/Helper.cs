@@ -11,22 +11,6 @@ namespace x01.Weiqi.Core
 	{
 		public readonly static Pos InvalidPos = new Pos(-1, -1);
 
-		//public static int AdjustWorth(Pos current, Pos next)
-		//{
-		//	//if (RoundPoses(current).Contains(next))
-		//	//	return 25;
-		//	//if (RoundPoses(current, 2).Contains(next))
-		//	//	return 20;
-		//	//if (RoundPoses(current, 3).Contains(next))
-		//	//	return 15;
-		//	//if (RoundPoses(current, 4).Contains(next))
-		//	//	return 10;
-		//	if (RoundPoses(current, 5).Contains(next))
-		//		return 15;
-
-		//	return 0;
-		//}
-
 		public static List<Pos> LinkPoses(Pos pos, int number = 1)
 		{
 			var links = new List<Pos>();
@@ -161,7 +145,8 @@ namespace x01.Weiqi.Core
 			return new Pos(row, col);
 		}
 
-		public static List<List<Pos>> GetRecord(string type) // type => 0：对局，1：布局，2：定式，3：棋型
+		// type => 0：对局，1：布局，2：定式，3：棋型
+		public static List<List<Pos>> GetRecord(string type) 
 		{
 			var record = new List<List<Pos>>();
 			using (var db = new WeiqiContext()) {

@@ -371,45 +371,36 @@ namespace x01.Weiqi.Boards
 			return true;
 		}
 
+		List<Pos> m_BestPoses = new List<Pos>();
 		Pos BestPos()
 		{
-			int count = int.MinValue;
-			Pos pos = m_InvalidPos;
-
-			foreach (var t in m_ThinkPoses) {
-				UpdateMeshWorths(t);
-				if (count < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
-					count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-					pos = t;
-				}
-			}
-			if (pos != Helper.InvalidPos) 
-				return pos;
-			
-			var empties = EmptyPoses.Except(m_ThinkPoses).ToList();
+			m_BestPoses.Clear();
+			var empties = EmptyPoses.ToList();
 			foreach (var e in empties) {
 				UpdateMeshWorths(e);
-				if (count < m_BlackMeshes.Count - m_WhiteMeshes.Count) {
-					count = m_BlackMeshes.Count - m_WhiteMeshes.Count;
-					pos = e;
+				int worth = m_BlackMeshes.Count - m_WhiteMeshes.Count;
+				var p = new Pos(e.Row,e.Col,e.StoneColor,e.StepCount, worth);
+				if (!m_BestPoses.Contains(p))
+					m_BestPoses.Add(p);
+			}
+			
+			var poses = m_BestPoses.OrderByDescending(p=>p.Worth);
+			int repeat = 0;
+			foreach (var p in poses) {
+				if (m_ThinkPoses.Contains(p)) return p;
+				if (repeat++ < 10) {
+					m_ShapeThink.CurrentPos = p;
+					var temp = m_ShapeThink.Think(R.Game);
+					m_ShapeThink.CurrentPos = Helper.InvalidPos;
+					if (temp.Contains(p)) return p;
 				}
 			}
-
-			if (pos == m_InvalidPos || m_StepCount > 260) {
+			
+			if (m_StepCount > 260) {
 				ShowMeshes();  // game over
 			}
 			
-			var rounds = Helper.RoundPoses(pos).Intersect(empties);
-			foreach (var r in rounds) {
-				if (m_ThinkPoses.Contains(r)) return r;
-			}
-			
-			var currents = Helper.RoundPoses(CurrentPos,3).Intersect(empties);
-			foreach (var c in currents) {
-				if (m_ThinkPoses.Contains(c)) return c;
-			}
-			
-			return pos;
+			return poses.First();
 		}
 		
 		private void FindPoses()

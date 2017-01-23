@@ -22,10 +22,12 @@ namespace x01.Weiqi.Boards
 		List<Pos> m_BlackMeshes = new List<Pos>();
 		List<Pos> m_WhiteMeshes = new List<Pos>();
 		
-		void UpdateMeshWorths(Pos next)
+		public void UpdateMeshWorths(Pos next, bool isBlack = true, List<Pos> blackPoses = 	null, List<Pos> whitePoses = null)
 		{
-			var blackPoses = BlackPoses.ToList();
-			var whitePoses = WhitePoses.ToList();
+			if (blackPoses == null)
+				blackPoses = BlackPoses.ToList();
+			if (whitePoses == null)
+				whitePoses = WhitePoses.ToList();
 			for (int i = 0; i < 19; i++) {
 				for (int j = 0; j < 19; j++) {
 					m_MeshWorths[i,j] = 0;
@@ -35,12 +37,14 @@ namespace x01.Weiqi.Boards
 			foreach (var p in blackPoses) {
 				SetMeshWorth(p, true);
 			}
-			if (EmptyPoses.Contains(next))
-				SetMeshWorth(next,true);
-			
 			foreach (var p in whitePoses) {
 				SetMeshWorth(p,false);
 			}
+			
+			if (EmptyPoses.Contains(next) && isBlack)
+				SetMeshWorth(next,true);
+			else if (EmptyPoses.Contains(next) && !isBlack)
+				SetMeshWorth(next, false);
 			
 			m_BlackMeshes.Clear();
 			m_WhiteMeshes.Clear();
@@ -54,13 +58,7 @@ namespace x01.Weiqi.Boards
 			}
 			
 			FillMeshEmpty(1);
-			if (StepCount > 120) {
-				UpdateMeshes_DeadLife(true);
-				UpdateMeshes_DeadLife(false);
-				FillMeshEmpty(2);
-			}
 		}
-		
 		void SetMeshWorth(Pos pos, bool isBlack)
 		{
 			int sixteen = isBlack ? 16 : -16;
@@ -81,7 +79,7 @@ namespace x01.Weiqi.Boards
 				}
 			}
 		}
-		void FillMeshEmpty(int repeat)
+		void FillMeshEmpty(int repeat=1)
 		{
 			for (int i=0; i < repeat; i++) {
 				var blacks = m_BlackMeshes.ToList();
@@ -103,7 +101,12 @@ namespace x01.Weiqi.Boards
 		public void ShowMeshes()
 		{
 			UpdateMeshWorths(Helper.InvalidPos);
-			
+
+//			if (StepCount > 120) {
+//				UpdateMeshes_DeadLife(true);
+//				UpdateMeshes_DeadLife(false);
+//				FillMeshEmpty(2);
+//			}
 			
 			foreach (var b in m_BlackMeshes) {
 				m_MeshRects[b.Row,b.Col].Visibility = System.Windows.Visibility.Visible;
@@ -336,7 +339,6 @@ namespace x01.Weiqi.Boards
 		// Learning UpdateStepBlocks().
 		List<PosBlock> m_BlackMeshBlocks = new List<PosBlock>();
 		List<PosBlock> m_WhiteMeshBlocks = new List<PosBlock>();
-		//List<PosBlock> m_EmptyMeshBlocks = new List<PosBlock>();
 		void UpdateMeshBlocks(List<Pos> poses, List<PosBlock> blocks)
 		{
 			List<Pos> copyPoses = poses.ToList();
@@ -382,16 +384,10 @@ namespace x01.Weiqi.Boards
 			m_WhiteMeshBlocks.Clear();
 			UpdateMeshBlocks(m_WhiteMeshes, m_WhiteMeshBlocks);
 		}
-		//void UpdateEmptyMeshBlocks()
-		//{
-		//	m_EmptyMeshBlocks.Clear();
-		//	UpdateMeshBlocks(m_EmptyMeshes, m_EmptyMeshBlocks);
-		//}
 		void UpdateAllMeshBlocks()
 		{
 			UpdateBlackMeshBlocks();
 			UpdateWhiteMeshBlocks();
-			//UpdateEmptyMeshBlocks();
 		}
 		
 		#endregion

@@ -30,10 +30,12 @@ namespace x01.Weiqi.Boards
 			if (StepCount == 0) m_CanDown = false;
 			if (m_CanDown) return;
 
+			
 			Pos pos = Think();
 
-			if (pos == m_InvalidPos) 
+			if (pos == m_InvalidPos) {
 				return;
+			}
 
 			if (NextOne(pos.Row, pos.Col)) {
 				m_WaitWindow.Hide();

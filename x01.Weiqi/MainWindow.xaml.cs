@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Navigation;
+
 using x01.Weiqi.Boards;
 using x01.Weiqi.Models;
 using x01.Weiqi.Windows;
@@ -39,6 +42,7 @@ namespace x01.Weiqi
 			m_MenuLoad.Click += (s, e) => InitBoard(m_StepBoard);
 			m_MenuSave.Click += (s, e) => m_Board.SaveSteps();
 			m_MenuDelete.Click += (s, e) => new DeleteStepWindow().ShowDialog();
+			m_MenuImport.Click += new RoutedEventHandler(m_MenuImport_Click);
 			m_MenuEdit.Click += (s, e) => new EditStepWindow().ShowDialog();
 			m_MenuExit.Click += (s, e) => Close();
 
@@ -48,6 +52,46 @@ namespace x01.Weiqi
 			m_MenuClearAll.Click += (s, e) => ClearAll();
 
 			m_MenuAbout.Click += m_MenuAbout_Click;
+		}
+
+		void m_MenuImport_Click(object sender, RoutedEventArgs e)
+		{
+			var dlg = new OpenFileDialog();
+			dlg.Multiselect = true;
+			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+				var filenames = dlg.FileNames;
+				var steps = new StringBuilder();
+				using (var db = new WeiqiContext()) {
+					foreach (var filename in filenames) {
+						var s = File.ReadAllText(dlg.FileName);
+						string[] splits = s.Split(';');
+						int count = splits.Length;
+						steps.Clear();
+						int stepCount = 0;
+						for (int i = 2; i < count - 1; i++) {
+							if (splits[i][2] >= 'a' && splits[i][2] <= 's'
+							    && splits[i][3] >= 'a' && splits[i][3] <= 's')
+							{
+								steps.Append((splits[i][2]-'a') + "," + (splits[i][3]-'a') + "," + stepCount.ToString() + "," );
+								stepCount ++;
+							}
+						}
+					
+						Record record = new Record() {
+							Black = "Black",
+							White = "White",
+							Result = "B&W",
+							Description = "Imported SGF",
+							Type = "对局",
+							SaveDate = DateTime.Now,
+							Steps = steps.ToString()
+						};
+						db.Records.Add(record);
+					}
+					db.SaveChanges();
+				}
+				System.Windows.MessageBox.Show("Save SGF success!\n");
+			}
 		}
 
 		void PlaySound()
