@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>围棋对弈 · 自适应棋盘</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: #deb887;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        h1 {
+            text-align: center;
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            margin: 5px 0;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            gap: 15px;
+            min-height: 0;  /* 允许flex子项缩小 */
+        }
+        /* 棋盘容器：自适应填充 */
+        .board-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+            background: #c4a27a;
+            border-radius: 12px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.3);
+            padding: 8px;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background: #eec085;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 0 2px #b68b5c;
+        }
+        /* 右侧控制面板：固定宽度，滚动 */
+        .sidebar {
+            width: 260px;
+            background: rgba(255, 250, 240, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 18px 14px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border: 1px solid #e0c9a6;
+            flex-shrink: 0;
+        }
+        .sidebar h3 {
+            margin: 0 0 15px 0;
+            color: #1e3c72;
+            text-align: center;
+            border-bottom: 2px solid #b68b5c;
+            padding-bottom: 8px;
+            font-size: 1.2rem;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #3a2c1b;
+            font-size: 0.9rem;
+        }
+        .room-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        input, button {
+            font-size: 15px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        input {
+            background: white;
+        }
+        button {
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background: #3a5a8a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .info-panel {
+            background: #f5efe6;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid #b68b5c;
+            font-size: 0.95rem;
+        }
+        .info-item {
+            margin: 6px 0;
+        }
+        #turn-indicator {
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 1.1rem;
+        }
+        #color-indicator {
+            font-weight: bold;
+            color: #8b4513;
+        }
+        #message {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff9e6;
+            border-radius: 8px;
+            color: #a94442;
+            font-weight: 500;
+            text-align: center;
+            min-height: 55px;
+            font-size: 0.9rem;
+        }
+        .ai-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+        .ai-checkbox input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+        .footer-note {
+            margin-top: auto;
+            font-size: 12px;
+            color: #7a6a5a;
+            text-align: center;
+            padding-top: 10px;
+        }
+        /* 窄屏适配：转为上下布局 */
+        @media (max-width: 700px) {
+            body {
+                padding: 5px;
+            }
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 35vh;
+            }
+            .board-wrapper {
+                min-height: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- <h1>⚫ 围棋 · 极简对弈 ⚪</h1> -->
+    <div class="main-container">
+        <!-- 棋盘区域（自适应最大化） -->
+        <div class="board-wrapper">
+            <canvas id="board"></canvas>
+        </div>
+
+        <!-- 右侧控制面板 -->
+        <div class="sidebar">
+            <h3>🎮 控制台</h3>
+            
+            <div class="control-group">
+                <label>🏠 房间</label>
+                <div class="room-input-group">
+                    <input type="text" id="roomId" placeholder="房间号" value="room1">
+                    <div class="ai-checkbox">
+                        <input type="checkbox" id="aiMode"> 
+                        <label style="display:inline; font-weight:normal;">🤖 人机对战</label>
+                    </div>
+                    <button id="joinBtn">加入房间</button>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-item" id="turn-indicator">⚫ 黑棋回合</div>
+                <div class="info-item" id="color-indicator"></div>
+                <div class="info-item" style="font-size:0.85rem; color:#555;" id="captures-info">提子: 黑0 白0</div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="passBtn" disabled>⏸️ 虚着 (Pass)</button>
+                <button id="resignBtn" disabled>🏳️ 认输</button>
+            </div>
+
+            <div id="message"></div>
+            <div class="footer-note">点击棋盘落子 · 自适应窗口</div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            "use strict";
+
+            const canvas = document.getElementById('board');
+            const ctx = canvas.getContext('2d');
+            const BOARD_SIZE = 19;  // 固定19路
+
+            let ws = null;
+            let myColor = 0;
+            let gameState = null;
+            let roomId = '';
+
+            // 当前canvas实际尺寸 (由resize更新)
+            let canvasSize = 600; // 默认
+
+            // ----- 棋盘绘制 (基于当前canvas尺寸) -----
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                if (!container) return;
+                // 取容器宽高的最小值，减去内边距，保证正方形
+                const containerStyle = getComputedStyle(container);
+                const padding = parseFloat(containerStyle.paddingLeft) + parseFloat(containerStyle.paddingRight);
+                const availableWidth = container.clientWidth - padding;
+                const availableHeight = container.clientHeight - padding;
+                const size = Math.min(availableWidth, availableHeight);
+                canvasSize = Math.max(400, Math.min(1000, size)); // 限制范围
+                canvas.width = canvasSize;
+                canvas.height = canvasSize;
+                if (gameState) {
+                    drawBoard(gameState.board);
+                } else {
+                    // 绘制空棋盘
+                    drawEmptyBoard();
+                }
+            }
+
+            function drawEmptyBoard() {
+                drawBoard(null);
+            }
+
+            function drawBoard(board) {
+                const size = BOARD_SIZE;
+                const cellSize = canvasSize / size;
+                
+                ctx.clearRect(0, 0, canvasSize, canvasSize);
+                
+                // 绘制棋盘线
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = Math.max(1, cellSize * 0.03);
+                const offset = cellSize / 2;
+                
+                for (let i = 0; i < size; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * cellSize + offset, offset);
+                    ctx.lineTo(i * cellSize + offset, canvasSize - offset);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(offset, i * cellSize + offset);
+                    ctx.lineTo(canvasSize - offset, i * cellSize + offset);
+                    ctx.stroke();
+                }
+                
+                // 星位 (天元 + 四隅星)
+                const stars = [[3,3],[9,9],[15,15],[3,15],[15,3],[3,9],[15,9],[9,3],[9,15]];
+                const starRadius = cellSize * 0.12;
+                stars.forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.arc(x * cellSize + offset, y * cellSize + offset, starRadius, 0, 2*Math.PI);
+                    ctx.fillStyle = '#333';
+                    ctx.fill();
+                });
+                
+                if (!board) return;
+                
+                // 绘制棋子
+                const stoneRadius = cellSize * 0.42;
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        const stone = board[i][j];
+                        if (stone === 0) continue;
+                        
+                        const cx = i * cellSize + offset;
+                        const cy = j * cellSize + offset;
+                        
+                        // 阴影效果
+                        ctx.shadowColor = '#00000040';
+                        ctx.shadowBlur = cellSize * 0.1;
+                        
+                        const gradient = ctx.createRadialGradient(
+                            cx - cellSize*0.15, cy - cellSize*0.15, cellSize*0.1,
+                            cx, cy, stoneRadius
+                        );
+                        if (stone === 1) {
+                            gradient.addColorStop(0, '#2a2a2a');
+                            gradient.addColorStop(0.7, '#555');
+                            gradient.addColorStop(1, '#1a1a1a');
+                        } else {
+                            gradient.addColorStop(0, '#fefefe');
+                            gradient.addColorStop(0.5, '#e0e0e0');
+                            gradient.addColorStop(1, '#b0b0b0');
+                        }
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, stoneRadius, 0, 2*Math.PI);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                        ctx.strokeStyle = '#666';
+                        ctx.lineWidth = cellSize * 0.02;
+                        ctx.stroke();
+                    }
+                }
+                
+                // 标记劫 (如果有)
+                if (gameState && gameState.ko) {
+                    const [kx, ky] = gameState.ko;
+                    const cx = kx * cellSize + offset;
+                    const cy = ky * cellSize + offset;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, cellSize*0.2, 0, 2*Math.PI);
+                    ctx.fillStyle = 'rgba(220, 20, 60, 0.6)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#a00';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+
+            // ----- UI更新 -----
+            function updateUI() {
+                if (!gameState) return;
+                const turn = gameState.turn;
+                document.getElementById('turn-indicator').innerHTML = turn === 1 ? '⚫ 黑棋回合' : '⚪ 白棋回合';
+                const myTurn = (myColor === turn);
+                document.getElementById('passBtn').disabled = !myTurn || gameState.game_over;
+                document.getElementById('resignBtn').disabled = gameState.game_over;
+                document.getElementById('color-indicator').innerText =
+                    myColor === 1 ? '你执黑' : (myColor === 2 ? '你执白' : '观战中');
+                
+                // 提子信息 (如果后端提供了captures字段可更新，否则显示默认)
+                // 这里暂时留空，可自行扩展
+                
+                if (gameState.game_over) {
+                    let msg = '游戏结束';
+                    if (gameState.winner) msg += `，${gameState.winner === 1 ? '黑' : '白'}胜`;
+                    document.getElementById('message').innerText = msg;
+                } else {
+                    document.getElementById('message').innerText = '';
+                }
+            }
+
+            function handleStateUpdate(state) {
+                gameState = state;
+                drawBoard(state.board);
+                updateUI();
+            }
+
+            // ----- 事件处理 -----
+            function handleCanvasClick(e) {
+                if (!gameState || gameState.game_over) return;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;   // canvas物理像素比
+                const scaleY = canvas.height / rect.height;
+                
+                const canvasX = (e.clientX - rect.left) * scaleX;
+                const canvasY = (e.clientY - rect.top) * scaleY;
+                
+                const cellSize = canvasSize / BOARD_SIZE;
+                const x = Math.floor(canvasX / cellSize);
+                const y = Math.floor(canvasY / cellSize);
+                
+                if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
+                    sendMove(x, y);
+                }
+            }
+
+            function sendMove(x, y) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                if (myColor !== gameState.turn) {
+                    alert('还没轮到你');
+                    return;
+                }
+                ws.send(JSON.stringify({ type: 'move', x, y, color: myColor }));
+            }
+
+            // ----- 初始化WebSocket -----
+            function initWebSocket() {
+                let baseRoom = document.getElementById('roomId').value.trim();
+                if (!baseRoom) return;
+                const aiMode = document.getElementById('aiMode').checked;
+                roomId = aiMode ? 'ai:' + baseRoom : baseRoom;
+                
+                if (ws) ws.close();
+                
+                const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                ws = new WebSocket(`${protocol}//${location.host}/ws/${roomId}`);
+                
+                ws.onopen = () => {
+                    console.log('WebSocket 已连接');
+                    document.getElementById('message').innerText = '连接成功，等待对手...';
+                };
+                
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'assign_color') {
+                        myColor = data.color;
+                        ws.send(JSON.stringify({ type: 'color_ack', color: myColor }));
+                        document.getElementById('color-indicator').innerText =
+                            myColor === 1 ? '你执黑' : '你执白';
+                    } else if (data.type === 'waiting') {
+                        document.getElementById('message').innerText = data.message;
+                    } else if (data.type === 'game_start' || data.type === 'state_update') {
+                        handleStateUpdate(data.state);
+                    } else if (data.type === 'opponent_left') {
+                        document.getElementById('message').innerText = '对手离开了房间';
+                    } else if (data.type === 'game_over') {
+                        alert(data.message);
+                        // 可更新game_over状态
+                        if (gameState) gameState.game_over = true;
+                        updateUI();
+                    } else if (data.type === 'error') {
+                        alert('错误: ' + data.message);
+                    }
+                };
+                
+                ws.onclose = () => {
+                    document.getElementById('message').innerText = '连接已断开';
+                    myColor = 0;
+                    gameState = null;
+                    drawEmptyBoard();
+                    updateUI();
+                };
+                
+                ws.onerror = (e) => console.error('WebSocket错误', e);
+            }
+
+            // ----- 绑定事件 & 初始化 -----
+            function bindEvents() {
+                canvas.addEventListener('click', handleCanvasClick);
+                
+                document.getElementById('passBtn').addEventListener('click', () => {
+                    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                    ws.send(JSON.stringify({ type: 'pass', color: myColor }));
+                });
+                
+                document.getElementById('resignBtn').addEventListener('click', () => {
+                    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                    if (confirm('确定认输吗？')) {
+                        ws.send(JSON.stringify({ type: 'resign', color: myColor }));
+                    }
+                });
+                
+                document.getElementById('joinBtn').addEventListener('click', initWebSocket);
+                
+                window.addEventListener('resize', () => {
+                    resizeCanvas();
+                    if (gameState) drawBoard(gameState.board);
+                    else drawEmptyBoard();
+                });
+            }
+
+            // 启动时调整canvas并绘制空棋盘
+            window.addEventListener('load', () => {
+                resizeCanvas();
+                drawEmptyBoard();
+                bindEvents();
+            });
+        })();
+    </script>
+</body>
+</html>
