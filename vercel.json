@@ -1,4 +1,0 @@
-{
-  "outputDirectory": "static",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
