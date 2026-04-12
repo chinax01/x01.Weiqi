@@ -5,7 +5,7 @@ def clean():
     '''
     清理指定目录和文件
     '''
-    del_dirs = ['__pycache__', '.pytest_cache', 'bin', 
+    del_dirs = ['__pycache__', '.pytest_cache', 
                 '.vscode', 'build', 'gcm.cache']
     del_files = ['db.sqlite3', 'demo']
     del_exts = ['.obj', ]
